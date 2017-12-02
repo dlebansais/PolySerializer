@@ -1,0 +1,8 @@
+language: csharp
+solution: PolySerializer.sln
+
+install:
+- nuget restore PolySerializer.sln
+
+script:
+- msbuild /p:Configuration=Travis PolySerializer.sln
