@@ -6,3 +6,13 @@ install:
 
 script:
 - msbuild /p:Configuration=Travis PolySerializer.sln
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN
+  local_dir: ./PolySerializer/bin/x64/Release
+  target_branch: gh-pages
+  email: "github-pages-deploy@travis-ci.org"
+  on:
+    branch: master
