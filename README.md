@@ -2,14 +2,14 @@
 Please wait a few days while I sort out tests of core features and optimize. Serialized data generated today may not be backward-compatible tomorrow.
 
 TODO:
-[ ] Missing: Conversion to human-readable text.
-[ ] Missing: Checking validity of serialized streams and providing diagnostic information.
-[ ] Confirm support of very large collections (several billions items).
-[ ] Missing: Deserialization of objects of a class with no parameterless constructor.
-[ ] Missing: Asynchronous operations.
-[ ] Missing: Conversion to different endianness.
-[ ] Optimization.
-[ ] Doc and example.
+- [ ] Missing: Conversion to human-readable text.
+- [ ] Missing: Checking validity of serialized streams and providing diagnostic information.
+- [ ] Confirm support of very large collections (several billions items).
+- [ ] Missing: Deserialization of objects of a class with no parameterless constructor.
+- [ ] Missing: Asynchronous operations.
+- [ ] Missing: Conversion to different endianness.
+- [ ] Optimization.
+- [ ] Doc and example.
 
 # Polymorphic Serializer
 A generic .NET serializer for object exchange between assemblies. Supports polymorphism and much more.
