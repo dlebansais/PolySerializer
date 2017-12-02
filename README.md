@@ -1,4 +1,19 @@
+# Status: alpha
+Please wait a few days while I sort out tests of core features and optimize. Serialized data generated today may not be backward-compatible tomorrow.
+
+TODO:
+[ ] Missing: Conversion to human-readable text.
+[ ] Missing: Checking validity of serialized streams and providing diagnostic information.
+[ ] Confirm support of very large collections (several billions items).
+[ ] Missing: Deserialization of objects of a class with no parameterless constructor.
+[ ] Missing: Asynchronous operations.
+[ ] Missing: Conversion to different endianness.
+[ ] Optimization.
+[ ] Doc and example.
+
 # Polymorphic Serializer
+A generic .NET serializer for object exchange between assemblies. Supports polymorphism and much more.
+
 PolySerializer takes C# objects and serializes them (i.e. copy them onto a stream that can be archived or exchanged). Contrary to most serializers, it will locate the first parent in the inheritance tree that supports serialization, and only serializes object members belonging to that parent. Likewise, when the object is deserialized (i.e. read from a stream and transformed into an actual, live C# object) the destination type can be chosen so that the type of the created object is another descendant of the serialized type, possibly different than the original. Only members of the destination will then be initialized to their serialized value. See the example section to better understand how it works.
 
 ## Features
