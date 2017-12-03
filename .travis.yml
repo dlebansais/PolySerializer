@@ -3,9 +3,13 @@ solution: PolySerializer.sln
 
 install:
 - nuget restore PolySerializer.sln
+- nuget install NUnit -Version 3.8.1 -OutputDirectory testrunner
+- nuget install NUnit.ConsoleRunner -Version 3.7.0 -OutputDirectory testrunner
 
 script:
 - msbuild /p:Configuration=Travis PolySerializer.sln
+- cp ./testrunner/NUnit.3.8.1/lib/net45/nunit.framework.dll ./PolySerializer/bin/x64/Travis/
+- mono ./testrunner/NUnit.ConsoleRunner.3.7.0/tools/nunit3-console.exe --trace=Debug --labels=All ./PolySerializer/bin/x64/Travis/Test-PolySerializer.dll
 
 deploy:
   provider: pages
