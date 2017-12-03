@@ -14,6 +14,8 @@ TODO:
 # Polymorphic Serializer
 A generic .NET serializer for object exchange between assemblies. Supports polymorphism and much more.
 
+![Build Status](https://img.shields.io/travis/dlebansais/PolySerializer/master.svg)
+
 PolySerializer takes C# objects and serializes them (i.e. copy them onto a stream that can be archived or exchanged). Contrary to most serializers, it will locate the first parent in the inheritance tree that supports serialization, and only serializes object members belonging to that parent. Likewise, when the object is deserialized (i.e. read from a stream and transformed into an actual, live C# object) the destination type can be chosen so that the type of the created object is another descendant of the serialized type, possibly different than the original. Only members of the destination will then be initialized to their serialized value. See the example section to better understand how it works.
 
 ## Features
