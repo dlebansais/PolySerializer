@@ -202,13 +202,11 @@ namespace PolySerializer
             byte[] Data = new byte[MinAllocatedSize];
             int Offset = 0;
 
-            string RootTypeName = Root.GetType().AssemblyQualifiedName;
-            AddField(Output, ref Data, ref Offset, String2Bytes(RootTypeName));
             AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((int)Mode));
 
             SerializedObjectList.Clear();
             CycleDetectionTable.Clear();
-            ProcessSerializable(Root, RootType, ref Data, ref Offset);
+            ProcessSerializable(Root, ref Data, ref Offset);
 
             int i = 0;
             while (i < SerializedObjectList.Count)
@@ -234,8 +232,7 @@ namespace PolySerializer
                     Enumerator.MoveNext();
 
                     object Item = Enumerator.Current;
-                    Type ItemType = Item.GetType();
-                    ProcessSerializable(Item, ItemType, ref Data, ref Offset);
+                    ProcessSerializable(Item, ref Data, ref Offset);
                 }
             }
 
@@ -245,39 +242,36 @@ namespace PolySerializer
             {
                 if (Member.Condition.HasValue)
                 {
-                    SerializeBasicType(Member.Condition.Value, typeof(bool), ref Data, ref Offset);
+                    AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(Member.Condition.Value));
                     if (!Member.Condition.Value)
                         continue;
                 }
 
                 object MemberValue;
-                Type MemberType;
 
                 FieldInfo AsFieldInfo;
                 PropertyInfo AsPropertyInfo;
 
                 if ((AsFieldInfo = Member.MemberInfo as FieldInfo) != null)
-                {
                     MemberValue = AsFieldInfo.GetValue(Reference);
-                    MemberType = AsFieldInfo.FieldType;
-                }
 
                 else
                 {
                     AsPropertyInfo = Member.MemberInfo as PropertyInfo;
                     MemberValue = AsPropertyInfo.GetValue(Reference);
-                    MemberType = AsPropertyInfo.PropertyType;
                 }
 
-                ProcessSerializable(MemberValue, MemberType, ref Data, ref Offset);
+                ProcessSerializable(MemberValue, ref Data, ref Offset);
             }
 
             if (NextSerialized != null)
                 NextSerialized.SetSerialized();
         }
 
-        private bool SerializeBasicType(object Value, Type ValueType, ref byte[] Data, ref int Offset)
+        private bool SerializeBasicType(object Value, ref byte[] Data, ref int Offset)
         {
+            Type ValueType = Value.GetType();
+
             if (ValueType == typeof(sbyte))
                 AddField(Output, ref Data, ref Offset, new byte[1] { (byte)(sbyte)Value });
 
@@ -328,7 +322,27 @@ namespace PolySerializer
                 AddField(Output, ref Data, ref Offset, String2Bytes((string)Value));
 
             else if (ValueType.IsEnum)
-                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((int)Value));
+            {
+                Type UnderlyingSystemType = ValueType.GetEnumUnderlyingType();
+                if (UnderlyingSystemType == typeof(sbyte))
+                    AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((sbyte)Value));
+                else if (UnderlyingSystemType == typeof(byte))
+                    AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((byte)Value));
+                else if (UnderlyingSystemType == typeof(short))
+                    AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((short)Value));
+                else if (UnderlyingSystemType == typeof(ushort))
+                    AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((ushort)Value));
+                else if (UnderlyingSystemType == typeof(int))
+                    AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((int)Value));
+                else if (UnderlyingSystemType == typeof(uint))
+                    AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((uint)Value));
+                else if (UnderlyingSystemType == typeof(long))
+                    AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((long)Value));
+                else if (UnderlyingSystemType == typeof(ulong))
+                    AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((ulong)Value));
+                else
+                    AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((int)Value));
+            }
 
             else
                 return false;
@@ -336,37 +350,43 @@ namespace PolySerializer
             return true;
         }
 
-        private void ProcessSerializable(object Reference, Type ReferenceType, ref byte[] Data, ref int Offset)
+        private void ProcessSerializable(object Reference, ref byte[] Data, ref int Offset)
         {
-            if (!SerializeBasicType(Reference, ReferenceType, ref Data, ref Offset))
+            if (Reference == null)
             {
-                if (ReferenceType.IsValueType)
-                    Serialize(Output, Reference, ReferenceType, -1, ref Data, ref Offset, null);
+                AddField(Output, ref Data, ref Offset, new byte[CountByteSize] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF });
+                return;
+            }
 
-                else if (Reference == null)
-                    AddField(Output, ref Data, ref Offset, new byte[1] { 0 });
+            if (SerializeBasicType(Reference, ref Data, ref Offset))
+                return;
 
+            Type ReferenceType = SerializableAncestor(Reference.GetType());
+            AddField(Output, ref Data, ref Offset, String2Bytes(ReferenceType.AssemblyQualifiedName));
+
+            if (ReferenceType.IsValueType)
+                Serialize(Output, Reference, ReferenceType, -1, ref Data, ref Offset, null);
+
+            else
+            {
+                if (CycleDetectionTable.ContainsKey(Reference))
+                {
+                    AddField(Output, ref Data, ref Offset, new byte[1] { 3 });
+                    long ReferenceIndex = SerializedObjectList.IndexOf(CycleDetectionTable[Reference]);
+                    AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(ReferenceIndex));
+                }
                 else
                 {
-                    if (CycleDetectionTable.ContainsKey(Reference))
-                    {
-                        AddField(Output, ref Data, ref Offset, new byte[1] { 3 });
-                        long ReferenceIndex = SerializedObjectList.IndexOf(CycleDetectionTable[Reference]);
-                        AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(ReferenceIndex));
-                    }
+                    long Count = GetCollectionCount(Reference);
+                    if (Count < 0)
+                        AddField(Output, ref Data, ref Offset, new byte[1] { 1 });
                     else
                     {
-                        long Count = GetCollectionCount(Reference);
-                        if (Count < 0)
-                            AddField(Output, ref Data, ref Offset, new byte[1] { 1 });
-                        else
-                        {
-                            AddField(Output, ref Data, ref Offset, new byte[1] { 2 });
-                            AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(Count));
-                        }
-
-                        AddSerializedObject(Reference, Count);
+                        AddField(Output, ref Data, ref Offset, new byte[1] { 2 });
+                        AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(Count));
                     }
+
+                    AddSerializedObject(Reference, Count);
                 }
             }
         }
@@ -380,21 +400,9 @@ namespace PolySerializer
             byte[] Data = new byte[MinAllocatedSize];
             int Offset = 0;
 
-            object RootTypeNameValue;
-            if (!DeserializeBasicType(Input, typeof(string), ref Data, ref Offset, out RootTypeNameValue) || RootTypeNameValue == null)
-                return null;
-
-            if (RootType == null)
-            {
-                string RootTypeName = RootTypeNameValue as string;
-                RootType = DeserializedTrueType(RootTypeName);
-            }
-
-            object ModeValue;
-            if (!DeserializeBasicType(Input, typeof(int), ref Data, ref Offset, out ModeValue))
-                return null;
-
-            Mode = (SerializationMode)ModeValue;
+            ReadField(Input, ref Data, ref Offset, 4);
+            Mode = (SerializationMode)BitConverter.ToInt32(Data, Offset);
+            Offset += 4;
 
             DeserializedObjectList.Clear();
 
@@ -439,9 +447,11 @@ namespace PolySerializer
             {
                 if (Member.HasCondition)
                 {
-                    object ConditionValue;
-                    DeserializeBasicType(Input, typeof(bool), ref Data, ref Offset, out ConditionValue);
-                    if (!(bool)ConditionValue)
+                    ReadField(Input, ref Data, ref Offset, 1);
+                    bool ConditionValue = BitConverter.ToBoolean(Data, Offset);
+                    Offset++;
+
+                    if (!ConditionValue)
                         continue;
                 }
 
@@ -580,24 +590,66 @@ namespace PolySerializer
 
             else if (ValueType == typeof(string))
             {
-                ReadField(Input, ref Data, ref Offset, CountByteSize);
-                int CharCount = BitConverter.ToInt32(Data, Offset);
-                Offset += CountByteSize;
-                if (CharCount < 0)
-                    Value = null;
-                else
-                {
-                    ReadField(Input, ref Data, ref Offset, CharCount);
-                    Value = Bytes2String(CharCount, Data, Offset);
-                    Offset += CharCount * 2;
-                }
+                string StringValue;
+                ReadStringField(Input, ref Data, ref Offset, out StringValue);
+                Value = StringValue;
             }
 
             else if (ValueType.IsEnum)
             {
-                ReadField(Input, ref Data, ref Offset, 4);
-                Value = BitConverter.ToInt32(Data, Offset);
-                Offset += 4;
+                Type UnderlyingSystemType = ValueType.GetEnumUnderlyingType();
+                if (UnderlyingSystemType == typeof(sbyte))
+                {
+                    ReadField(Input, ref Data, ref Offset, 1);
+                    Value = Enum.ToObject(ValueType, (sbyte)Data[Offset++]);
+                }
+                else if (UnderlyingSystemType == typeof(byte))
+                {
+                    ReadField(Input, ref Data, ref Offset, 1);
+                    Value = Enum.ToObject(ValueType, Data[Offset++]);
+                }
+                else if (UnderlyingSystemType == typeof(short))
+                {
+                    ReadField(Input, ref Data, ref Offset, 2);
+                    Value = Enum.ToObject(ValueType, BitConverter.ToInt16(Data, Offset));
+                    Offset += 2;
+                }
+                else if (UnderlyingSystemType == typeof(ushort))
+                {
+                    ReadField(Input, ref Data, ref Offset, 2);
+                    Value = Enum.ToObject(ValueType, BitConverter.ToUInt16(Data, Offset));
+                    Offset += 2;
+                }
+                else if (UnderlyingSystemType == typeof(int))
+                {
+                    ReadField(Input, ref Data, ref Offset, 4);
+                    Value = Enum.ToObject(ValueType, BitConverter.ToInt32(Data, Offset));
+                    Offset += 4;
+                }
+                else if (UnderlyingSystemType == typeof(uint))
+                {
+                    ReadField(Input, ref Data, ref Offset, 4);
+                    Value = Enum.ToObject(ValueType, BitConverter.ToUInt32(Data, Offset));
+                    Offset += 4;
+                }
+                else if (UnderlyingSystemType == typeof(long))
+                {
+                    ReadField(Input, ref Data, ref Offset, 8);
+                    Value = Enum.ToObject(ValueType, BitConverter.ToInt64(Data, Offset));
+                    Offset += 8;
+                }
+                else if (UnderlyingSystemType == typeof(ulong))
+                {
+                    ReadField(Input, ref Data, ref Offset, 8);
+                    Value = Enum.ToObject(ValueType, BitConverter.ToUInt64(Data, Offset));
+                    Offset += 8;
+                }
+                else
+                {
+                    ReadField(Input, ref Data, ref Offset, 4);
+                    Value = Enum.ToObject(ValueType, BitConverter.ToInt32(Data, Offset));
+                    Offset += 4;
+                }
             }
 
             else
@@ -607,6 +659,21 @@ namespace PolySerializer
             }
 
             return true;
+        }
+
+        private void ReadStringField(Stream Input, ref byte[] Data, ref int Offset, out string Value)
+        {
+            ReadField(Input, ref Data, ref Offset, CountByteSize);
+            int CharCount = BitConverter.ToInt32(Data, Offset);
+            Offset += CountByteSize;
+            if (CharCount < 0)
+                Value = null;
+            else
+            {
+                ReadField(Input, ref Data, ref Offset, CharCount);
+                Value = Bytes2String(CharCount, Data, Offset);
+                Offset += CharCount * 2;
+            }
         }
 
         private void CreateObject(Type ReferenceType, ref object Reference)
@@ -651,6 +718,16 @@ namespace PolySerializer
             if (DeserializeBasicType(Input, ReferenceType, ref Data, ref Offset, out Reference))
                 return;
 
+            string ReferenceTypeName;
+            ReadStringField(Input, ref Data, ref Offset, out ReferenceTypeName);
+
+            if (ReferenceTypeName == null)
+            {
+                Reference = null;
+                return;
+            }
+
+            ReferenceType = Type.GetType(ReferenceTypeName);
             OverrideType(ref ReferenceType);
 
             if (ReferenceType.IsValueType)
@@ -664,10 +741,7 @@ namespace PolySerializer
                 ReadField(Input, ref Data, ref Offset, 1);
                 byte ReferenceState = Data[Offset++];
 
-                if (ReferenceState == 0)
-                    Reference = null;
-
-                else if (ReferenceState == 3)
+                if (ReferenceState == 3)
                 {
                     ReadField(Input, ref Data, ref Offset, 8);
                     int ReferenceIndex = (int)BitConverter.ToInt64(Data, Offset);
@@ -975,10 +1049,8 @@ namespace PolySerializer
             char[] StringChars;
 
             if (s == null)
-            {
-                CharCount = -1;
-                StringChars = new char[0];
-            }
+                return new byte[CountByteSize] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+
             else
             {
                 CharCount = s.Length;
@@ -1030,10 +1102,10 @@ namespace PolySerializer
 
             else if (Mode == SerializationMode.MemberName)
             {
-                SerializeBasicType(SerializedMembers.Count, typeof(int), ref Data, ref Offset);
+                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(SerializedMembers.Count));
 
                 foreach (SerializedMember Member in SerializedMembers)
-                    SerializeBasicType(Member.MemberInfo.Name, typeof(string), ref Data, ref Offset);
+                    AddField(Output, ref Data, ref Offset, String2Bytes(Member.MemberInfo.Name));
             }
 
             return SerializedMembers;
@@ -1045,17 +1117,15 @@ namespace PolySerializer
 
             if (Mode == SerializationMode.MemberName)
             {
-                object MemberCountObject;
-                DeserializeBasicType(Input, typeof(int), ref Data, ref Offset, out MemberCountObject);
-
-                int MemberCount = (int)MemberCountObject;
+                ReadField(Input, ref Data, ref Offset, 4);
+                int MemberCount = BitConverter.ToInt32(Data, Offset);
+                Offset += 4;
 
                 for (int i = 0; i < MemberCount; i++)
                 {
-                    object MemberNameObject;
-                    DeserializeBasicType(Input, typeof(string), ref Data, ref Offset, out MemberNameObject);
+                    string MemberName;
+                    ReadStringField(Input, ref Data, ref Offset, out MemberName);
 
-                    string MemberName = MemberNameObject as string;
                     MemberInfo[] MatchingMembers = DeserializedType.GetMember(MemberName);
                     DeserializedMember NewMember = new DeserializedMember(MatchingMembers[0]);
 
