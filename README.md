@@ -4,7 +4,7 @@ Please wait a few days while I sort out tests of core features and optimize. Ser
 TODO:
 - [ ] Missing: Conversion to human-readable text.
 - [ ] Missing: Checking validity of serialized streams and providing diagnostic information.
-- [ ] Confirm support of very large collections (several billions items).
+- [X] Confirm support of very large collections (several billions items).
 - [X] Support of constructors with parameters.
 - [ ] Missing: Asynchronous operations.
 - [ ] Missing: Conversion to different endianness.

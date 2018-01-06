@@ -1016,8 +1016,6 @@ namespace PolySerializer
             if ((AsEnumerable = Reference as IEnumerable) != null)
             {
                 IEnumerator Enumerator = AsEnumerable.GetEnumerator();
-
-                Enumerator.Reset();
                 while (Enumerator.MoveNext())
                     Count++;
 
