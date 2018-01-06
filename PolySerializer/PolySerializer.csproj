@@ -50,6 +50,7 @@
     <Compile Include="DeserializedMember.cs" />
     <Compile Include="DeserializedObject.cs" />
     <Compile Include="Inserter.cs" />
+    <Compile Include="ObjectTag.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerializableAttribute.cs" />
     <Compile Include="SerializableObject.cs" />
