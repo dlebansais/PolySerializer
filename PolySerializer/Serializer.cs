@@ -386,7 +386,7 @@ namespace PolySerializer
             {
                 if (CycleDetectionTable.ContainsKey(Reference))
                 {
-                    AddField(Output, ref Data, ref Offset, new byte[1] { 3 });
+                    AddField(Output, ref Data, ref Offset, new byte[1] { (byte)ObjectTag.ObjectIndex });
                     long ReferenceIndex = SerializedObjectList.IndexOf(CycleDetectionTable[Reference]);
                     AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(ReferenceIndex));
                 }
@@ -394,10 +394,27 @@ namespace PolySerializer
                 {
                     long Count = GetCollectionCount(Reference);
                     if (Count < 0)
-                        AddField(Output, ref Data, ref Offset, new byte[1] { 1 });
+                    {
+                        List<SerializedMember> ConstructorParameters;
+                        if (ListConstructorParameters(Reference, ReferenceType, out ConstructorParameters))
+                        {
+                            AddField(Output, ref Data, ref Offset, new byte[1] { (byte)ObjectTag.ConstructedObject });
+
+                            foreach (SerializedMember Member in ConstructorParameters)
+                            {
+                                PropertyInfo AsPropertyInfo;
+                                AsPropertyInfo = Member.MemberInfo as PropertyInfo;
+                                object MemberValue = AsPropertyInfo.GetValue(Reference);
+
+                                ProcessSerializable(MemberValue, ref Data, ref Offset);
+                            }
+                        }
+                        else
+                            AddField(Output, ref Data, ref Offset, new byte[1] { (byte)ObjectTag.ObjectReference });
+                    }
                     else
                     {
-                        AddField(Output, ref Data, ref Offset, new byte[1] { 2 });
+                        AddField(Output, ref Data, ref Offset, new byte[1] { (byte)ObjectTag.ObjectList });
                         AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(Count));
                     }
 
@@ -718,6 +735,17 @@ namespace PolySerializer
             }
         }
 
+        private void CreateObject(Type ReferenceType, object[] Parameters, ref object Reference)
+        {
+            try
+            {
+                Reference = Activator.CreateInstance(ReferenceType, Parameters);
+            }
+            catch
+            {
+            }
+        }
+
         private void CreateObject(Type ValueType, long Count, ref object Reference)
         {
             try
@@ -773,9 +801,9 @@ namespace PolySerializer
             else
             {
                 ReadField(Input, ref Data, ref Offset, 1);
-                byte ReferenceState = Data[Offset++];
+                ObjectTag ReferenceTag = (ObjectTag)Data[Offset++];
 
-                if (ReferenceState == 3)
+                if (ReferenceTag == ObjectTag.ObjectIndex)
                 {
                     ReadField(Input, ref Data, ref Offset, 8);
                     int ReferenceIndex = (int)BitConverter.ToInt64(Data, Offset);
@@ -784,13 +812,13 @@ namespace PolySerializer
                     Reference = DeserializedObjectList[ReferenceIndex];
                 }
 
-                else if (ReferenceState == 1)
+                else if (ReferenceTag == ObjectTag.ObjectReference)
                 {
                     CreateObject(NewType, ref Reference);
                     AddDeserializedObject(Reference, ReferenceType, -1);
                 }
 
-                else if (ReferenceState == 2)
+                else if (ReferenceTag == ObjectTag.ObjectList)
                 {
                     ReadField(Input, ref Data, ref Offset, 8);
                     long Count = BitConverter.ToInt64(Data, Offset);
@@ -798,6 +826,29 @@ namespace PolySerializer
 
                     CreateObject(NewType, Count, ref Reference);
                     AddDeserializedObject(Reference, ReferenceType, Count);
+                }
+
+                else if (ReferenceTag == ObjectTag.ConstructedObject)
+                {
+                    List<SerializedMember> ConstructorParameters;
+                    if (ListConstructorParameters(Reference, ReferenceType, out ConstructorParameters))
+                    {
+                        object[] Parameters = new object[ConstructorParameters.Count];
+
+                        for (int i = 0; i < Parameters.Length; i++)
+                        {
+                            PropertyInfo AsPropertyInfo = ConstructorParameters[i].MemberInfo as PropertyInfo;
+
+                            object MemberValue;
+                            Type MemberType = AsPropertyInfo.PropertyType;
+                            ProcessDeserializable(Input, MemberType, ref Data, ref Offset, out MemberValue);
+
+                            Parameters[i] = MemberValue;
+                        }
+
+                        CreateObject(NewType, Parameters, ref Reference);
+                        AddDeserializedObject(Reference, ReferenceType, -1);
+                    }
                 }
             }
         }
@@ -1097,6 +1148,48 @@ namespace PolySerializer
             return false;
         }
 
+        private bool IsSerializableConstructor(ConstructorInfo Constructor, object Reference, Type SerializedType, out List<SerializedMember> ConstructorParameters)
+        {
+            SerializableAttribute CustomAttribute = Constructor.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
+            if (CustomAttribute == null)
+            {
+                ConstructorParameters = null;
+                return false;
+            }
+
+            if (CustomAttribute.Constructor == null)
+            {
+                ConstructorParameters = null;
+                return false;
+            }
+
+            string[] Properties = CustomAttribute.Constructor.Split(',');
+            ParameterInfo[] Parameters = Constructor.GetParameters();
+            if (Properties.Length == 0 || Properties.Length != Parameters.Length)
+            {
+                ConstructorParameters = null;
+                return false;
+            }
+
+            ConstructorParameters = new List<SerializedMember>();
+            for (int i = 0; i < Properties.Length; i++)
+            {
+                string PropertyName = Properties[i].Trim();
+                MemberInfo[] Members = SerializedType.GetMember(PropertyName);
+                if (Members.Length != 1)
+                    return false;
+
+                MemberInfo Member = Members[0];
+                if (Member.MemberType != MemberTypes.Property)
+                    return false;
+
+                SerializedMember NewMember = new SerializedMember(Member);
+                ConstructorParameters.Add(NewMember);
+            }
+
+            return true;
+        }
+
         private bool IsSerializableMember(object Reference, Type SerializedType, SerializedMember NewMember)
         {
             if (NewMember.MemberInfo.MemberType != MemberTypes.Field && NewMember.MemberInfo.MemberType != MemberTypes.Property)
@@ -1259,6 +1352,18 @@ namespace PolySerializer
                 StringChars[i] = BitConverter.ToChar(Data, Offset + i * 2);
 
             return new string(StringChars);
+        }
+
+        private bool ListConstructorParameters(object Reference, Type SerializedType, out List<SerializedMember> ConstructorParameters)
+        {
+            List<ConstructorInfo> Constructors = new List<ConstructorInfo>(SerializedType.GetConstructors());
+
+            foreach (ConstructorInfo Constructor in Constructors)
+                if (IsSerializableConstructor(Constructor, Reference, SerializedType, out ConstructorParameters))
+                    return true;
+
+            ConstructorParameters = null;
+            return false;
         }
 
         private List<SerializedMember> ListSerializedMembers(object Reference, Type SerializedType, ref byte[] Data, ref int Offset)

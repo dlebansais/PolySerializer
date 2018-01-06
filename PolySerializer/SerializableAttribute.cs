@@ -27,12 +27,12 @@ namespace PolySerializer
         public string Setter { get; set; } = null;
 
         /// <summary>
-        ///     Get or set a flag indicating if the member should be used as constructor for the object.
+        ///     Get or set the list of property values to use to construct a deserialized object.
         ///     Applies only to one of the object's constructors.
         ///     If this attribute isn't specified, the parameterless constructor is used.
-        ///     If specified, the constructor must have parameters, and their name must match properties of the object's type. Serialized values of these properties are used when calling the constructor.
+        ///     If specified, the constructor must have parameters, their name must match properties of the object's type, and this attribute must list them as a comma-separated list. Serialized values of these properties are used in the same order when calling the constructor.
         ///     If the deserialized type is different than the serialized type, both types must have this attribute set on compatible constructors.
         /// </summary>
-        public bool Constructor { get; set; } = false;
+        public string Constructor { get; set; } = null;
     }
 }
