@@ -141,9 +141,19 @@ namespace PolySerializer
         IReadOnlyDictionary<Assembly, Assembly> AssemblyOverrideTable { get; set; }
 
         /// <summary>
+        /// Sets or gets a list of namespaces that can override the original namespace of a type during deserialization.
+        /// </summary>
+        IReadOnlyDictionary<string, string> NamespaceOverrideTable { get; set; }
+
+        /// <summary>
         /// Gets or sets a list of types that can override the original type during deserialization.
         /// </summary>
         IReadOnlyDictionary<Type, Type> TypeOverrideTable { get; set; }
+
+        /// <summary>
+        /// Gets or sets a flag to indicate if argument of generic types should be overriden.
+        /// </summary>
+        bool OverrideGenericArguments { get; set; }
 
         /// <summary>
         /// Gets or sets a list of inserter objects that allow filling collection of items implemented using a custom type, or a type not natively supported (<seealso cref="BuiltInInserters"/>.
@@ -178,7 +188,9 @@ namespace PolySerializer
         public Stream Format { get; set; } = null;
         public Type RootType { get; set; } = null;
         public IReadOnlyDictionary<Assembly, Assembly> AssemblyOverrideTable { get; set; } = new Dictionary<Assembly, Assembly>();
+        public IReadOnlyDictionary<string, string> NamespaceOverrideTable { get; set; } = new Dictionary<string, string>();
         public IReadOnlyDictionary<Type, Type> TypeOverrideTable { get; set; } = new Dictionary<Type, Type>();
+        public bool OverrideGenericArguments { get; set; } = true;
         public IReadOnlyList<IInserter> CustomInserters { get; set; } = new List<IInserter>();
         public IReadOnlyList<IInserter> BuiltInInserters { get; } = new List<IInserter>()
         {
@@ -321,6 +333,9 @@ namespace PolySerializer
             else if (ValueType == typeof(string))
                 AddField(Output, ref Data, ref Offset, String2Bytes((string)Value));
 
+            else if (ValueType == typeof(Guid))
+                AddField(Output, ref Data, ref Offset, ((Guid)Value).ToByteArray());
+
             else if (ValueType.IsEnum)
             {
                 Type UnderlyingSystemType = ValueType.GetEnumUnderlyingType();
@@ -410,6 +425,9 @@ namespace PolySerializer
             ProcessDeserializable(Input, RootType, ref Data, ref Offset, out Reference);
 
             Root = Reference;
+
+            if (RootType == null)
+                RootType = Root.GetType();
 
             int i = 0;
             while (i < DeserializedObjectList.Count)
@@ -594,8 +612,18 @@ namespace PolySerializer
                 ReadStringField(Input, ref Data, ref Offset, out StringValue);
                 Value = StringValue;
             }
+            
+            else if (ValueType == typeof(Guid))
+            {
+                ReadField(Input, ref Data, ref Offset, 16);
+                byte[] GuidBytes = new byte[16];
+                for (int i = 0; i < 16; i++)
+                    GuidBytes[i] = Data[Offset++];
+                Value = new Guid(GuidBytes);
+                //Value = Guid.NewGuid();
+            }
 
-            else if (ValueType.IsEnum)
+            else if (ValueType != null && ValueType.IsEnum)
             {
                 Type UnderlyingSystemType = ValueType.GetEnumUnderlyingType();
                 if (UnderlyingSystemType == typeof(sbyte))
@@ -665,12 +693,15 @@ namespace PolySerializer
         {
             ReadField(Input, ref Data, ref Offset, CountByteSize);
             int CharCount = BitConverter.ToInt32(Data, Offset);
+            if (CharCount > 10000)
+                CharCount = 10000;
+
             Offset += CountByteSize;
             if (CharCount < 0)
                 Value = null;
             else
             {
-                ReadField(Input, ref Data, ref Offset, CharCount);
+                ReadField(Input, ref Data, ref Offset, CharCount * 2);
                 Value = Bytes2String(CharCount, Data, Offset);
                 Offset += CharCount * 2;
             }
@@ -728,11 +759,14 @@ namespace PolySerializer
             }
 
             ReferenceType = Type.GetType(ReferenceTypeName);
+            Type OriginalType = ReferenceType;
             OverrideType(ref ReferenceType);
+            Type NewType = ReferenceType;
+            ReferenceType = OriginalType;
 
             if (ReferenceType.IsValueType)
             {
-                CreateObject(ReferenceType, ref Reference);
+                CreateObject(NewType, ref Reference);
                 Deserialize(Input, ref Reference, ReferenceType, -1, ref Data, ref Offset, null);
             }
 
@@ -752,7 +786,7 @@ namespace PolySerializer
 
                 else if (ReferenceState == 1)
                 {
-                    CreateObject(ReferenceType, ref Reference);
+                    CreateObject(NewType, ref Reference);
                     AddDeserializedObject(Reference, ReferenceType, -1);
                 }
 
@@ -762,30 +796,144 @@ namespace PolySerializer
                     long Count = BitConverter.ToInt64(Data, Offset);
                     Offset += 8;
 
-                    CreateObject(ReferenceType, Count, ref Reference);
+                    CreateObject(NewType, Count, ref Reference);
                     AddDeserializedObject(Reference, ReferenceType, Count);
                 }
             }
         }
 
-        private void OverrideType(ref Type ReferenceType)
+        private bool OverrideType(ref Type ReferenceType)
         {
-            if (TypeOverrideTable.ContainsKey(ReferenceType))
-                ReferenceType = TypeOverrideTable[ReferenceType];
+            if (TypeOverrideTable.Count == 0 && AssemblyOverrideTable.Count == 0 && NamespaceOverrideTable.Count == 0)
+                return false;
 
-            else
+            if (TypeOverrideTable.Count > 0)
             {
-                Assembly OldAssembly = ReferenceType.Assembly;
-                if (AssemblyOverrideTable.ContainsKey(OldAssembly))
+                if (OverrideDirectType(ref ReferenceType))
+                    return true;
+
+                if (OverrideGenericDefinitionType(ref ReferenceType))
+                    return true;
+            }
+            
+            if (AssemblyOverrideTable.Count > 0 || NamespaceOverrideTable.Count > 0)
+            {
+                Type[] TypeList;
+                if (ReferenceType.IsGenericType && !ReferenceType.IsGenericTypeDefinition)
                 {
-                    Assembly NewAssembly = AssemblyOverrideTable[OldAssembly];
+                    Type[] GenericArguments = ReferenceType.GetGenericArguments();
+                    TypeList = new Type[1 + GenericArguments.Length];
+                    TypeList[0] = ReferenceType.GetGenericTypeDefinition();
+                    for (int i = 0; i < GenericArguments.Length; i++)
+                        TypeList[i + 1] = GenericArguments[i];
+                }
+                else
+                {
+                    TypeList = new Type[1];
+                    TypeList[0] = ReferenceType;
+                }
 
-                    ReferenceType = NewAssembly.GetType(ReferenceType.FullName);
+                bool GlobalOverride = false;
 
-                    if (TypeOverrideTable.ContainsKey(ReferenceType))
-                        ReferenceType = TypeOverrideTable[ReferenceType];
+                for (int i = 0; i < TypeList.Length; i++)
+                {
+                    if (!OverrideGenericArguments && i > 0)
+                        break;
+
+                    Type Type = TypeList[i];
+                    bool Override = false;
+
+                    Assembly Assembly = Type.Assembly;
+                    if (AssemblyOverrideTable.ContainsKey(Assembly))
+                    {
+                        Assembly = AssemblyOverrideTable[Assembly];
+                        Override = true;
+                    }
+
+                    string TypeName = null;
+                    string[] NamePath = Type.FullName.Split('.');
+
+                    for (int j = NamePath.Length; j > 0; j--)
+                    {
+                        string NameSpace = "";
+                        for (int k = 0; k + 1 < j; k++)
+                        {
+                            if (NameSpace.Length > 0)
+                                NameSpace += ".";
+                            NameSpace += NamePath[k];
+                        }
+
+                        if (NamespaceOverrideTable.ContainsKey(NameSpace))
+                        {
+                            NameSpace = NamespaceOverrideTable[NameSpace];
+                            TypeName = NameSpace + "." + NamePath[NamePath.Length - 1];
+                            Override = true;
+                            break;
+                        }
+                    }
+
+                    if (TypeName == null)
+                        TypeName = Type.FullName;
+
+                    if (Override)
+                    {
+                        GlobalOverride = true;
+                        Type = Assembly.GetType(TypeName);
+                        if (Type != null)
+                            TypeList[i] = Type;
+                    }
+                }
+
+                if (GlobalOverride)
+                {
+                    if (TypeList.Length == 1)
+                        ReferenceType = TypeList[0];
+                    else
+                    {
+                        Type[] GenericArguments = new Type[TypeList.Length - 1];
+                        for (int i = 1; i < TypeList.Length; i++)
+                            GenericArguments[i - 1] = TypeList[i];
+                        ReferenceType = TypeList[0].MakeGenericType(GenericArguments);
+                    }
+
+                    return true;
                 }
             }
+
+            return false;
+        }
+
+        private bool OverrideDirectType(ref Type ReferenceType)
+        {
+            if (!TypeOverrideTable.ContainsKey(ReferenceType))
+                return false;
+
+            ReferenceType = TypeOverrideTable[ReferenceType];
+            return true;
+        }
+
+        private bool OverrideGenericDefinitionType(ref Type ReferenceType)
+        {
+            if (!ReferenceType.IsGenericType || ReferenceType.IsGenericTypeDefinition)
+                return false;
+
+            bool Override = false;
+
+            Type GenericTypeDefinition = ReferenceType.GetGenericTypeDefinition();
+            Override |= OverrideType(ref GenericTypeDefinition);
+
+            Type[] GenericArguments = ReferenceType.GetGenericArguments();
+            if (OverrideGenericArguments)
+                for (int i = 0; i < GenericArguments.Length; i++)
+                    Override |= OverrideType(ref GenericArguments[i]);
+
+            if (Override)
+            {
+                ReferenceType = GenericTypeDefinition.MakeGenericType(GenericArguments);
+                return true;
+            }
+
+            return false;
         }
 
         private List<IDeserializedObject> DeserializedObjectList = new List<IDeserializedObject>();
@@ -869,15 +1017,29 @@ namespace PolySerializer
 
         private void ReadField(Stream Input, ref byte[] Data, ref int Offset, int MinLength)
         {
-            long RemainingLength = (Input.Length - Input.Position);
+            bool Reload = false;
 
-            int Length;
-            if (RemainingLength < Data.Length - Offset)
-                Length = (int)RemainingLength;
-            else
-                Length = Data.Length - Offset;
+            if (Offset + MinLength > Data.Length)
+            {
+                int i;
+                for (i = 0; i < Data.Length - Offset; i++)
+                    Data[i] = Data[i + Offset];
+                Offset = i;
 
-            Input.Read(Data, Offset, Length);
+                Reload = true;
+            }
+            else if (Offset == 0)
+                Reload = true;
+
+            if (Reload)
+            {
+                long Length = (Input.Length - Input.Position);
+                if (Length > Data.Length - Offset)
+                    Length = Data.Length - Offset;
+
+                Input.Read(Data, Offset, (int)Length);
+                Offset = 0;
+            }
         }
 
         public static bool IsReadableCollection(Type t, object Reference, out IEnumerator Enumerator)
@@ -940,6 +1102,9 @@ namespace PolySerializer
             if (NewMember.MemberInfo.MemberType != MemberTypes.Field && NewMember.MemberInfo.MemberType != MemberTypes.Property)
                 return false;
 
+            if (IsStaticOrReadOnly(NewMember.MemberInfo))
+                return false;
+
             if (IsExcludedFromSerialization(NewMember))
                 return false;
 
@@ -952,6 +1117,18 @@ namespace PolySerializer
             CheckSerializationCondition(Reference, SerializedType, NewMember);
 
             return true;
+        }
+
+        private bool IsStaticOrReadOnly(MemberInfo MemberInfo)
+        {
+            FieldInfo AsFieldInfo;
+            if ((AsFieldInfo = MemberInfo as FieldInfo) != null)
+            {
+                if (AsFieldInfo.Attributes.HasFlag(FieldAttributes.Static) || AsFieldInfo.Attributes.HasFlag(FieldAttributes.InitOnly))
+                    return true;
+            }
+
+            return false;
         }
 
         private bool IsExcludedFromSerialization(SerializedMember NewMember)
@@ -1157,6 +1334,9 @@ namespace PolySerializer
         private bool IsDeserializableMember(Type DeserializedType, DeserializedMember NewMember)
         {
             if (NewMember.MemberInfo.MemberType != MemberTypes.Field && NewMember.MemberInfo.MemberType != MemberTypes.Property)
+                return false;
+
+            if (IsStaticOrReadOnly(NewMember.MemberInfo))
                 return false;
 
             if (IsExcludedFromDeserialization(NewMember))
