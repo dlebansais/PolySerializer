@@ -2,6 +2,7 @@
 Please wait a few days while I sort out tests of core features and optimize. Serialized data generated today may not be backward-compatible tomorrow.
 
 TODO:
+- [X] Support of constructors with parameters.
 - [ ] Missing: Conversion to human-readable text.
 - [ ] Missing: Checking validity of serialized streams and providing diagnostic information.
 - [ ] Confirm support of very large collections (several billions items).
