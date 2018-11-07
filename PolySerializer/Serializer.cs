@@ -218,10 +218,10 @@ namespace PolySerializer
             this.Root = Root;
             RootType = Root.GetType();
 
-            IsSerializedAsText = (FileFormat == SerializationFormat.TextPreferred) || (FileFormat == SerializationFormat.TextOnly);
-
             byte[] Data = new byte[MinAllocatedSize];
             int Offset = 0;
+
+            IsSerializedAsText = (FileFormat == SerializationFormat.TextPreferred) || (FileFormat == SerializationFormat.TextOnly);
 
             if (IsSerializedAsText)
                 AddFieldStringDirect(Output, ref Data, ref Offset, $"Mode={Mode}\n");
@@ -460,8 +460,40 @@ namespace PolySerializer
             int Offset = 0;
 
             ReadField(Input, ref Data, ref Offset, 4);
-            Mode = (SerializationMode)BitConverter.ToInt32(Data, Offset);
-            Offset += 4;
+
+            if (FileFormat == SerializationFormat.TextPreferred || FileFormat == SerializationFormat.BinaryPreferred)
+                IsSerializedAsText = (Data[0] == 0x4D && Data[1] == 0x6F && Data[2] == 0x64 && Data[3] == 0x65);
+            else
+                IsSerializedAsText = (FileFormat == SerializationFormat.TextOnly);
+
+            if (IsSerializedAsText)
+            {
+                ReadField(Input, ref Data, ref Offset, 12);
+                string s = Encoding.UTF8.GetString(Data, Offset, 12).Substring(5, 7);
+
+                if (s == SerializationMode.Default.ToString())
+                {
+                    Mode = SerializationMode.Default;
+                    Offset += 13;
+                }
+                else if (s == SerializationMode.MemberName.ToString().Substring(0, 7))
+                {
+                    Mode = SerializationMode.MemberName;
+                    Offset += 16;
+                }
+                else if (s == SerializationMode.MemberOrder.ToString().Substring(0, 7))
+                {
+                    Mode = SerializationMode.MemberOrder;
+                    Offset += 17;
+                }
+                else
+                    throw new InvalidDataException("Mode");
+            }
+            else
+            {
+                Mode = (SerializationMode)BitConverter.ToInt32(Data, Offset);
+                Offset += 4;
+            }
 
             DeserializedObjectList.Clear();
 
