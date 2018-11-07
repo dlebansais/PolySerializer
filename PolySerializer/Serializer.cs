@@ -20,6 +20,11 @@ namespace PolySerializer
         SerializationMode Mode { get; set; }
 
         /// <summary>
+        ///     Defines how objects are serialized and deserialized.
+        /// </summary>
+        SerializationFormat FileFormat { get; set; }
+
+        /// <summary>
         ///     Serializes <see cref="Root"/> and write the serialized data to <see cref="Output"/>.
         /// </summary>
         /// <parameters>
@@ -199,6 +204,7 @@ namespace PolySerializer
             new GenericAddInserter(),
         };
         public SerializationMode Mode { get; set; } = SerializationMode.Default;
+        public SerializationFormat FileFormat { get; set; } = SerializationFormat.TextPreferred;
         public uint MinAllocatedSize { get; set; } = 0x10000;
         public uint LastAllocatedSize { get; private set; } = 0;
         private Dictionary<object, SerializableObject> CycleDetectionTable = new Dictionary<object, SerializableObject>();
@@ -211,10 +217,13 @@ namespace PolySerializer
             this.Root = Root;
             RootType = Root.GetType();
 
+            SerializeAsText = (FileFormat == SerializationFormat.TextPreferred) || (FileFormat == SerializationFormat.TextOnly);
+
             byte[] Data = new byte[MinAllocatedSize];
             int Offset = 0;
 
-            AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((int)Mode));
+            if (!SerializeAsText)
+                AddFieldInt(Output, ref Data, ref Offset, (int)Mode);
 
             SerializedObjectList.Clear();
             CycleDetectionTable.Clear();
@@ -254,7 +263,7 @@ namespace PolySerializer
             {
                 if (Member.Condition.HasValue)
                 {
-                    AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(Member.Condition.Value));
+                    AddFieldBool(Output, ref Data, ref Offset, Member.Condition.Value);
                     if (!Member.Condition.Value)
                         continue;
                 }
@@ -285,78 +294,71 @@ namespace PolySerializer
             Type ValueType = Value.GetType();
 
             if (ValueType == typeof(sbyte))
-                AddField(Output, ref Data, ref Offset, new byte[1] { (byte)(sbyte)Value });
+                AddFieldSByte(Output, ref Data, ref Offset, (sbyte)Value);
 
             else if (ValueType == typeof(byte))
-                AddField(Output, ref Data, ref Offset, new byte[1] { (byte)Value });
+                AddFieldByte(Output, ref Data, ref Offset, (byte)Value);
 
             else if (ValueType == typeof(bool))
-                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((bool)Value));
+                AddFieldBool(Output, ref Data, ref Offset, (bool)Value);
 
             else if (ValueType == typeof(char))
-                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((char)Value));
+                AddFieldChar(Output, ref Data, ref Offset, (char)Value);
 
             else if (ValueType == typeof(decimal))
-            {
-                int[] DecimalInts = decimal.GetBits((decimal)Value);
-                for (int i = 0; i < 4; i++)
-                {
-                    byte[] DecimalBytes = BitConverter.GetBytes(DecimalInts[i]);
-                    AddField(Output, ref Data, ref Offset, DecimalBytes);
-                }
-            }
+                AddFieldDecimal(Output, ref Data, ref Offset, (decimal)Value);
 
             else if (ValueType == typeof(double))
-                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((double)Value));
+                AddFieldDouble(Output, ref Data, ref Offset, (double)Value);
 
             else if (ValueType == typeof(float))
-                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((float)Value));
+                AddFieldFloat(Output, ref Data, ref Offset, (float)Value);
 
             else if (ValueType == typeof(int))
-                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((int)Value));
+                AddFieldInt(Output, ref Data, ref Offset, (int)Value);
 
             else if (ValueType == typeof(long))
-                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((long)Value));
+                AddFieldLong(Output, ref Data, ref Offset, (long)Value);
 
             else if (ValueType == typeof(short))
-                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((short)Value));
+                AddFieldShort(Output, ref Data, ref Offset, (short)Value);
 
             else if (ValueType == typeof(uint))
-                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((uint)Value));
+                AddFieldUInt(Output, ref Data, ref Offset, (uint)Value);
 
             else if (ValueType == typeof(ulong))
-                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((ulong)Value));
+                AddFieldULong(Output, ref Data, ref Offset, (ulong)Value);
 
             else if (ValueType == typeof(ushort))
-                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((ushort)Value));
+                AddFieldUShort(Output, ref Data, ref Offset, (ushort)Value);
 
             else if (ValueType == typeof(string))
-                AddField(Output, ref Data, ref Offset, String2Bytes((string)Value));
+                AddFieldString(Output, ref Data, ref Offset, (string)Value);
 
             else if (ValueType == typeof(Guid))
-                AddField(Output, ref Data, ref Offset, ((Guid)Value).ToByteArray());
+                AddFieldGuid(Output, ref Data, ref Offset, (Guid)Value);
 
             else if (ValueType.IsEnum)
             {
                 Type UnderlyingSystemType = ValueType.GetEnumUnderlyingType();
                 if (UnderlyingSystemType == typeof(sbyte))
-                    AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((sbyte)Value));
+                    AddFieldSByte(Output, ref Data, ref Offset, (sbyte)Value);
                 else if (UnderlyingSystemType == typeof(byte))
-                    AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((byte)Value));
+                    AddFieldByte(Output, ref Data, ref Offset, (byte)Value);
                 else if (UnderlyingSystemType == typeof(short))
-                    AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((short)Value));
+                    AddFieldShort(Output, ref Data, ref Offset, (short)Value);
                 else if (UnderlyingSystemType == typeof(ushort))
-                    AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((ushort)Value));
+                    AddFieldUShort(Output, ref Data, ref Offset, (ushort)Value);
                 else if (UnderlyingSystemType == typeof(int))
-                    AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((int)Value));
+                    AddFieldInt(Output, ref Data, ref Offset, (int)Value);
                 else if (UnderlyingSystemType == typeof(uint))
-                    AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((uint)Value));
+                    AddFieldUInt(Output, ref Data, ref Offset, (uint)Value);
                 else if (UnderlyingSystemType == typeof(long))
-                    AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((long)Value));
+                    AddFieldLong(Output, ref Data, ref Offset, (long)Value);
                 else if (UnderlyingSystemType == typeof(ulong))
-                    AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((ulong)Value));
+                    AddFieldULong(Output, ref Data, ref Offset, (ulong)Value);
                 else
-                    AddField(Output, ref Data, ref Offset, BitConverter.GetBytes((int)Value));
+                    AddFieldInt(Output, ref Data, ref Offset, (int)Value);
             }
 
             else
@@ -369,7 +371,7 @@ namespace PolySerializer
         {
             if (Reference == null)
             {
-                AddField(Output, ref Data, ref Offset, new byte[CountByteSize] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF });
+                AddFieldNull(Output, ref Data, ref Offset);
                 return;
             }
 
@@ -377,18 +379,19 @@ namespace PolySerializer
                 return;
 
             Type ReferenceType = SerializableAncestor(Reference.GetType());
-            AddField(Output, ref Data, ref Offset, String2Bytes(ReferenceType.AssemblyQualifiedName));
+            AddFieldType(Output, ref Data, ref Offset, ReferenceType);
+            if (SerializeAsText)
+                AddFieldOpeningBracket(Output, ref Data, ref Offset);
 
             if (ReferenceType.IsValueType)
                 Serialize(Output, Reference, ReferenceType, -1, ref Data, ref Offset, null);
-
             else
             {
                 if (CycleDetectionTable.ContainsKey(Reference))
                 {
-                    AddField(Output, ref Data, ref Offset, new byte[1] { (byte)ObjectTag.ObjectIndex });
+                    AddFieldByte(Output, ref Data, ref Offset, (byte)ObjectTag.ObjectIndex);
                     long ReferenceIndex = SerializedObjectList.IndexOf(CycleDetectionTable[Reference]);
-                    AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(ReferenceIndex));
+                    AddFieldLong(Output, ref Data, ref Offset, ReferenceIndex);
                 }
                 else
                 {
@@ -398,7 +401,7 @@ namespace PolySerializer
                         List<SerializedMember> ConstructorParameters;
                         if (ListConstructorParameters(Reference, ReferenceType, out ConstructorParameters))
                         {
-                            AddField(Output, ref Data, ref Offset, new byte[1] { (byte)ObjectTag.ConstructedObject });
+                            AddFieldByte(Output, ref Data, ref Offset, (byte)ObjectTag.ConstructedObject);
 
                             foreach (SerializedMember Member in ConstructorParameters)
                             {
@@ -410,20 +413,24 @@ namespace PolySerializer
                             }
                         }
                         else
-                            AddField(Output, ref Data, ref Offset, new byte[1] { (byte)ObjectTag.ObjectReference });
+                            AddFieldByte(Output, ref Data, ref Offset, (byte)ObjectTag.ObjectReference);
                     }
                     else
                     {
-                        AddField(Output, ref Data, ref Offset, new byte[1] { (byte)ObjectTag.ObjectList });
-                        AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(Count));
+                        AddFieldByte(Output, ref Data, ref Offset, (byte)ObjectTag.ObjectList);
+                        AddFieldLong(Output, ref Data, ref Offset, Count);
                     }
 
                     AddSerializedObject(Reference, Count);
                 }
             }
+
+            if (SerializeAsText)
+                AddFieldClosingBracket(Output, ref Data, ref Offset);
         }
 
         private List<ISerializableObject> SerializedObjectList = new List<ISerializableObject>();
+        private bool SerializeAsText;
         #endregion
 
         #region Deserialization
@@ -1049,6 +1056,163 @@ namespace PolySerializer
             return SerializedProperty.GetValue(Reference, null);
         }
 
+        private void AddFieldSByte(Stream Output, ref byte[] Data, ref int Offset, sbyte value)
+        {
+            if (SerializeAsText)
+                AddFieldString(Output, ref Data, ref Offset, $"0x{((byte)value).ToString("X02")}");
+            else
+                AddField(Output, ref Data, ref Offset, new byte[1] { (byte)value });
+        }
+
+        private void AddFieldByte(Stream Output, ref byte[] Data, ref int Offset, byte value)
+        {
+            if (SerializeAsText)
+                AddFieldString(Output, ref Data, ref Offset, $"0x{value.ToString("X02")}");
+            else
+                AddField(Output, ref Data, ref Offset, new byte[1] { value });
+        }
+
+        private void AddFieldBool(Stream Output, ref byte[] Data, ref int Offset, bool value)
+        {
+            if (SerializeAsText)
+                AddFieldString(Output, ref Data, ref Offset, $"{value}");
+            else
+                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldChar(Stream Output, ref byte[] Data, ref int Offset, char value)
+        {
+            if (SerializeAsText)
+                AddFieldString(Output, ref Data, ref Offset, $"'{value}'");
+            else
+                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldDecimal(Stream Output, ref byte[] Data, ref int Offset, decimal value)
+        {
+            if (SerializeAsText)
+                AddFieldString(Output, ref Data, ref Offset, $"{value}m");
+            else
+            {
+                int[] DecimalInts = decimal.GetBits(value);
+                for (int i = 0; i < 4; i++)
+                {
+                    byte[] DecimalBytes = BitConverter.GetBytes(DecimalInts[i]);
+                    AddField(Output, ref Data, ref Offset, DecimalBytes);
+                }
+            }
+        }
+
+        private void AddFieldDouble(Stream Output, ref byte[] Data, ref int Offset, double value)
+        {
+            if (SerializeAsText)
+                AddFieldString(Output, ref Data, ref Offset, $"{value}");
+            else
+                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldFloat(Stream Output, ref byte[] Data, ref int Offset, float value)
+        {
+            if (SerializeAsText)
+                AddFieldString(Output, ref Data, ref Offset, $"{value}f");
+            else
+                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldInt(Stream Output, ref byte[] Data, ref int Offset, int value)
+        {
+            if (SerializeAsText)
+                AddFieldString(Output, ref Data, ref Offset, $"0x{value.ToString("X08")}");
+            else
+                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldLong(Stream Output, ref byte[] Data, ref int Offset, long value)
+        {
+            if (SerializeAsText)
+                AddFieldString(Output, ref Data, ref Offset, $"0x{value.ToString("X16")}");
+            else
+                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldShort(Stream Output, ref byte[] Data, ref int Offset, short value)
+        {
+            if (SerializeAsText)
+                AddFieldString(Output, ref Data, ref Offset, $"0x{value.ToString("X04")}");
+            else
+                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldUInt(Stream Output, ref byte[] Data, ref int Offset, uint value)
+        {
+            if (SerializeAsText)
+                AddFieldString(Output, ref Data, ref Offset, $"0x{value.ToString("X08")}");
+            else
+                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldULong(Stream Output, ref byte[] Data, ref int Offset, ulong value)
+        {
+            if (SerializeAsText)
+                AddFieldString(Output, ref Data, ref Offset, $"0x{value.ToString("X16")}");
+            else
+                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldUShort(Stream Output, ref byte[] Data, ref int Offset, ushort value)
+        {
+            if (SerializeAsText)
+                AddFieldString(Output, ref Data, ref Offset, $"0x{value.ToString("X04")}");
+            else
+                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldString(Stream Output, ref byte[] Data, ref int Offset, string value)
+        {
+            if (SerializeAsText)
+            {
+                string EscapedString = value.Replace("\"", "\\\"");
+                EscapedString = $"\"{EscapedString}\"";
+                AddField(Output, ref Data, ref Offset, String2Bytes(EscapedString));
+            }
+            else
+                AddField(Output, ref Data, ref Offset, String2Bytes(value));
+        }
+
+        private void AddFieldGuid(Stream Output, ref byte[] Data, ref int Offset, Guid value)
+        {
+            if (SerializeAsText)
+                AddFieldString(Output, ref Data, ref Offset, value.ToString("B"));
+            else
+                AddField(Output, ref Data, ref Offset, value.ToByteArray());
+        }
+
+        private void AddFieldNull(Stream Output, ref byte[] Data, ref int Offset)
+        {
+            if (SerializeAsText)
+                AddFieldString(Output, ref Data, ref Offset, "null");
+            else
+                AddField(Output, ref Data, ref Offset, new byte[CountByteSize] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF });
+        }
+
+        private void AddFieldType(Stream Output, ref byte[] Data, ref int Offset, Type value)
+        {
+            if (SerializeAsText)
+                AddFieldString(Output, ref Data, ref Offset, $"[{value.AssemblyQualifiedName}]");
+            else
+                AddFieldString(Output, ref Data, ref Offset, value.AssemblyQualifiedName);
+        }
+
+        private void AddFieldOpeningBracket(Stream Output, ref byte[] Data, ref int Offset)
+        {
+            AddField(Output, ref Data, ref Offset, new byte[] { 0x7B });
+        }
+
+        private void AddFieldClosingBracket(Stream Output, ref byte[] Data, ref int Offset)
+        {
+            AddField(Output, ref Data, ref Offset, new byte[] { 0x7D });
+        }
+
         private void AddField(Stream Output, ref byte[] Data, ref int Offset, byte[] FieldContent)
         {
             if (Offset + FieldContent.Length > Data.Length)
@@ -1382,10 +1546,10 @@ namespace PolySerializer
 
             else if (Mode == SerializationMode.MemberName)
             {
-                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(SerializedMembers.Count));
+                AddFieldInt(Output, ref Data, ref Offset, SerializedMembers.Count);
 
                 foreach (SerializedMember Member in SerializedMembers)
-                    AddField(Output, ref Data, ref Offset, String2Bytes(Member.MemberInfo.Name));
+                    AddFieldString(Output, ref Data, ref Offset, Member.MemberInfo.Name);
             }
 
             return SerializedMembers;

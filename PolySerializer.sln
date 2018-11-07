@@ -1,25 +1,48 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2041
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PolySerializer", "PolySerializer\PolySerializer.csproj", "{92DE0EF0-A92B-402F-8328-E59CFDA026E0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestDebug", "TestDebug\TestDebug.csproj", "{64480BB1-8A48-4157-AE88-D06BAF7C50FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
+		Travis|Any CPU = Travis|Any CPU
 		Travis|x64 = Travis|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{92DE0EF0-A92B-402F-8328-E59CFDA026E0}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{92DE0EF0-A92B-402F-8328-E59CFDA026E0}.Debug|x64.ActiveCfg = Debug|x64
 		{92DE0EF0-A92B-402F-8328-E59CFDA026E0}.Debug|x64.Build.0 = Debug|x64
+		{92DE0EF0-A92B-402F-8328-E59CFDA026E0}.Release|Any CPU.ActiveCfg = Release|x64
 		{92DE0EF0-A92B-402F-8328-E59CFDA026E0}.Release|x64.ActiveCfg = Release|x64
 		{92DE0EF0-A92B-402F-8328-E59CFDA026E0}.Release|x64.Build.0 = Release|x64
+		{92DE0EF0-A92B-402F-8328-E59CFDA026E0}.Travis|Any CPU.ActiveCfg = Travis|x64
 		{92DE0EF0-A92B-402F-8328-E59CFDA026E0}.Travis|x64.ActiveCfg = Travis|x64
 		{92DE0EF0-A92B-402F-8328-E59CFDA026E0}.Travis|x64.Build.0 = Travis|x64
+		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Debug|x64.ActiveCfg = Debug|x64
+		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Debug|x64.Build.0 = Debug|x64
+		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Release|x64.ActiveCfg = Release|Any CPU
+		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Release|x64.Build.0 = Release|Any CPU
+		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Travis|Any CPU.ActiveCfg = Release|Any CPU
+		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Travis|Any CPU.Build.0 = Release|Any CPU
+		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Travis|x64.ActiveCfg = Release|Any CPU
+		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Travis|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DE37231D-4F24-4E90-BD10-785B6CD9A179}
 	EndGlobalSection
 EndGlobal
