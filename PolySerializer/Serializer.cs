@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -764,7 +765,7 @@ namespace PolySerializer
                 if (ReferenceTag == ObjectTag.ObjectIndex)
                 {
                     int ReferenceIndex = ReadFieldObjectIndex(Input, ref Data, ref Offset);
-                    Reference = DeserializedObjectList[ReferenceIndex];
+                    Reference = DeserializedObjectList[ReferenceIndex].Reference;
                 }
 
                 else if (ReferenceTag == ObjectTag.ObjectReference)
@@ -1042,7 +1043,7 @@ namespace PolySerializer
         private void AddFieldDecimal(Stream Output, ref byte[] Data, ref int Offset, decimal value)
         {
             if (IsSerializedAsText)
-                AddFieldStringDirect(Output, ref Data, ref Offset, $"{value}m");
+                AddFieldStringDirect(Output, ref Data, ref Offset, $"{value.ToString(CultureInfo.InvariantCulture)}m");
             else
             {
                 int[] DecimalInts = decimal.GetBits(value);
@@ -1057,7 +1058,7 @@ namespace PolySerializer
         private void AddFieldDouble(Stream Output, ref byte[] Data, ref int Offset, double value)
         {
             if (IsSerializedAsText)
-                AddFieldStringDirect(Output, ref Data, ref Offset, $"{value}d");
+                AddFieldStringDirect(Output, ref Data, ref Offset, $"{value.ToString(CultureInfo.InvariantCulture)}d");
             else
                 AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(value));
         }
@@ -1065,7 +1066,7 @@ namespace PolySerializer
         private void AddFieldFloat(Stream Output, ref byte[] Data, ref int Offset, float value)
         {
             if (IsSerializedAsText)
-                AddFieldStringDirect(Output, ref Data, ref Offset, $"{value}f");
+                AddFieldStringDirect(Output, ref Data, ref Offset, $"{value.ToString(CultureInfo.InvariantCulture)}f");
             else
                 AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(value));
         }
@@ -1152,7 +1153,7 @@ namespace PolySerializer
         private void AddFieldType(Stream Output, ref byte[] Data, ref int Offset, Type value)
         {
             if (IsSerializedAsText)
-                AddFieldStringDirect(Output, ref Data, ref Offset, $"[{value.AssemblyQualifiedName}]");
+                AddFieldStringDirect(Output, ref Data, ref Offset, $"{{{value.AssemblyQualifiedName}}}");
             else
                 AddFieldString(Output, ref Data, ref Offset, value.AssemblyQualifiedName);
         }
@@ -1173,9 +1174,9 @@ namespace PolySerializer
 
                     SerializedMember Member = SerializedMembers[i];
                     AddFieldStringDirect(Output, ref Data, ref Offset, Member.MemberInfo.Name);
-
-                    AddFieldStringDirect(Output, ref Data, ref Offset, "\n");
                 }
+
+                AddFieldStringDirect(Output, ref Data, ref Offset, "\n");
             }
             else
             {
@@ -1259,7 +1260,7 @@ namespace PolySerializer
             {
                 ReadField(Input, ref Data, ref Offset, 4);
 
-                Value = (Data[Offset + 0] == 0x74 && Data[Offset + 1] == 0x72 && Data[Offset + 2] == 0x75 && Data[Offset + 3] == 0x65);
+                Value = (Data[Offset + 0] == 'T' && Data[Offset + 1] == 'r' && Data[Offset + 2] == 'u' && Data[Offset + 3] == 'e');
                 Offset += 4;
 
                 if (!Value)
@@ -1318,8 +1319,8 @@ namespace PolySerializer
                     ReadField(Input, ref Data, ref Offset, 1);
                 while (Data[Offset++] != 'm');
 
-                string s = Encoding.UTF8.GetString(Data, BaseOffset, Offset - BaseOffset);
-                if (decimal.TryParse(s, out decimal Parsed))
+                string s = Encoding.UTF8.GetString(Data, BaseOffset, Offset - BaseOffset - 1);
+                if (decimal.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal Parsed))
                     Value = Parsed;
                 else
                     Value = default(decimal);
@@ -1351,8 +1352,8 @@ namespace PolySerializer
                     ReadField(Input, ref Data, ref Offset, 1);
                 while (Data[Offset++] != 'd');
 
-                string s = Encoding.UTF8.GetString(Data, BaseOffset, Offset - BaseOffset);
-                if (double.TryParse(s, out double Parsed))
+                string s = Encoding.UTF8.GetString(Data, BaseOffset, Offset - BaseOffset - 1);
+                if (double.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out double Parsed))
                     Value = Parsed;
                 else
                     Value = default(double);
@@ -1378,8 +1379,8 @@ namespace PolySerializer
                     ReadField(Input, ref Data, ref Offset, 1);
                 while (Data[Offset++] != 'f');
 
-                string s = Encoding.UTF8.GetString(Data, BaseOffset, Offset - BaseOffset);
-                if (float.TryParse(s, out float Parsed))
+                string s = Encoding.UTF8.GetString(Data, BaseOffset, Offset - BaseOffset - 1);
+                if (float.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out float Parsed))
                     Value = Parsed;
                 else
                     Value = default(float);
@@ -1605,9 +1606,9 @@ namespace PolySerializer
 
             if (IsSerializedAsText)
             {
-                ReadField(Input, ref Data, ref Offset, 20);
-                string Content = Encoding.UTF8.GetString(Data, Offset, 20);
-                Offset += 20;
+                ReadField(Input, ref Data, ref Offset, 38);
+                string Content = Encoding.UTF8.GetString(Data, Offset, 38);
+                Offset += 38;
 
                 if (Guid.TryParse(Content, out Guid AsGuid))
                     Value = AsGuid;
@@ -1636,15 +1637,21 @@ namespace PolySerializer
                 int BaseOffset = Offset;
 
                 ReadField(Input, ref Data, ref Offset, 1);
-                if (Data[Offset] != '[')
+                if (Data[Offset] != '{')
                 {
-                    Offset++;
+                    if (Data[Offset++] == 'n')
+                    {
+                        ReadField(Input, ref Data, ref Offset, 3);
+                        if (Data[Offset + 0] == 'u' && Data[Offset + 1] == 'l' && Data[Offset + 2] == 'l')
+                            Offset += 3;
+                    }
+
                     return null;
                 }
 
                 do
                     ReadField(Input, ref Data, ref Offset, 1);
-                while (Data[Offset++] != ']');
+                while (Data[Offset++] != '}');
 
                 Value = Encoding.UTF8.GetString(Data, BaseOffset + 1, Offset - BaseOffset - 2);
             }
@@ -1736,7 +1743,7 @@ namespace PolySerializer
                 while (Data[Offset++] != '\n');
 
                 int n = 0;
-                for (int i = BaseOffset; i < Offset; i++)
+                for (int i = BaseOffset; i + 1 < Offset; i++)
                     n = (n * 10) + FromDecimalDigit(Data, i);
 
                 Value = n;
@@ -1759,7 +1766,7 @@ namespace PolySerializer
                 while (Data[Offset++] != '\n');
 
                 long n = 0;
-                for (int i = BaseOffset; i < Offset; i++)
+                for (int i = BaseOffset; i + 1 < Offset; i++)
                     n = (n * 10) + FromDecimalDigit(Data, i);
 
                 Value = n;
