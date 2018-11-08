@@ -254,6 +254,9 @@ namespace PolySerializer
 
                 for (long i = 0; i < Count; i++)
                 {
+                    if (i > 0 && IsSerializedAsText)
+                        AddFieldStringDirect(Output, ref Data, ref Offset, ";");
+
                     Enumerator.MoveNext();
 
                     object Item = Enumerator.Current;
@@ -263,8 +266,12 @@ namespace PolySerializer
 
             List<SerializedMember> SerializedMembers = ListSerializedMembers(Reference, SerializedType, ref Data, ref Offset);
 
+            int MemberIndex = 0;
             foreach (SerializedMember Member in SerializedMembers)
             {
+                if (MemberIndex++ > 0 && IsSerializedAsText)
+                    AddFieldStringDirect(Output, ref Data, ref Offset, ";");
+
                 if (Member.Condition.HasValue)
                 {
                     AddFieldBool(Output, ref Data, ref Offset, Member.Condition.Value);
@@ -413,18 +420,25 @@ namespace PolySerializer
                         if (ListConstructorParameters(Reference, ReferenceType, out ConstructorParameters))
                         {
                             if (IsSerializedAsText)
-                                AddFieldStringDirect(Output, ref Data, ref Offset, " ()\n");
+                                AddFieldStringDirect(Output, ref Data, ref Offset, " !");
                             else
                                 AddFieldByte(Output, ref Data, ref Offset, (byte)ObjectTag.ConstructedObject);
 
+                            int ParameterIndex = 0;
                             foreach (SerializedMember Member in ConstructorParameters)
                             {
+                                if (ParameterIndex++ > 0 && IsSerializedAsText)
+                                    AddFieldStringDirect(Output, ref Data, ref Offset, ";");
+
                                 PropertyInfo AsPropertyInfo;
                                 AsPropertyInfo = Member.MemberInfo as PropertyInfo;
                                 object MemberValue = AsPropertyInfo.GetValue(Reference);
 
                                 ProcessSerializable(MemberValue, ref Data, ref Offset);
                             }
+
+                            if (IsSerializedAsText)
+                                AddFieldStringDirect(Output, ref Data, ref Offset, "\n");
                         }
                         else
                         {
@@ -529,6 +543,13 @@ namespace PolySerializer
                 {
                     for (long i = 0; i < Count; i++)
                     {
+                        if (i > 0 && IsSerializedAsText)
+                        {
+                            ReadField(Input, ref Data, ref Offset, 1);
+                            char c = (char)Data[Offset];
+                            Offset++;
+                        }
+
                         object Item;
                         ProcessDeserializable(Input, ItemType, ref Data, ref Offset, out Item);
 
@@ -540,8 +561,16 @@ namespace PolySerializer
             Type DeserializedType = SerializableAncestor(ReferenceType);
             List<DeserializedMember> DeserializedMembers = ListDeserializedMembers(Input, DeserializedType, ref Data, ref Offset);
 
+            int MemberIndex = 0;
             foreach (DeserializedMember Member in DeserializedMembers)
             {
+                if (MemberIndex++ > 0 && IsSerializedAsText)
+                {
+                    ReadField(Input, ref Data, ref Offset, 1);
+                    char c = (char)Data[Offset];
+                    Offset++;
+                }
+
                 if (Member.HasCondition)
                 {
                     bool ConditionValue = ReadFieldBool(Input, ref Data, ref Offset);
@@ -791,6 +820,13 @@ namespace PolySerializer
 
                         for (int i = 0; i < Parameters.Length; i++)
                         {
+                            if (i > 0 && IsSerializedAsText)
+                            {
+                                ReadField(Input, ref Data, ref Offset, 1);
+                                char c = (char)Data[Offset];
+                                Offset++;
+                            }
+
                             PropertyInfo AsPropertyInfo = ConstructorParameters[i].MemberInfo as PropertyInfo;
 
                             object MemberValue;
@@ -798,6 +834,13 @@ namespace PolySerializer
                             ProcessDeserializable(Input, MemberType, ref Data, ref Offset, out MemberValue);
 
                             Parameters[i] = MemberValue;
+                        }
+
+                        if (IsSerializedAsText)
+                        {
+                            ReadField(Input, ref Data, ref Offset, 1);
+                            char c = (char)Data[Offset];
+                            Offset++;
                         }
 
                         CreateObject(NewType, Parameters, ref Reference);
@@ -1712,7 +1755,7 @@ namespace PolySerializer
 
                     if (c == '#')
                         Value = ObjectTag.ObjectIndex;
-                    else if (c == '(')
+                    else if (c == '!')
                         Value = ObjectTag.ConstructedObject;
                     else if (c == '*')
                         Value = ObjectTag.ObjectList;

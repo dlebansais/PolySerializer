@@ -7,12 +7,18 @@ namespace TestDebug
     [System.Serializable]
     public class ParentA
     {
+        [PolySerializer.Serializable(Constructor= "Test0,Test1")]
+        public ParentA(string s0, string s1)
+        {
+            Test2 = s1;
+        }
+
         public bool IsAssigned;
-        public string Test0;
-        public string Test1;
+        public string Test0 { get; set; }
+        public string Test1 { get; set; }
 
         [PolySerializer.Serializable(Condition = "IsAssigned")]
-        public string Test2;
+        public string Test2 { get; set; }
 
         public sbyte  m0;
         public byte   m1;
@@ -36,15 +42,15 @@ namespace TestDebug
         static void Main(string[] args)
         {
             Serializer s = new Serializer();
-            s.FileFormat = SerializationFormat.BinaryPreferred;
+            s.FileFormat = SerializationFormat.TextPreferred;
             s.Mode = SerializationMode.MemberName;
 
-            ParentA parentA0 = new ParentA();
-            ParentA parentB0 = new ParentA();
+            ParentA parentA0 = new ParentA("x", "test7");
+            ParentA parentB0 = new ParentA("y", null);
             parentA0.IsAssigned = false;
             parentA0.Test0 = "test0";
             parentA0.Test1 = "test1";
-            parentA0.Test2 = "test2";
+            //parentA0.Test2 = "test2";
             parentA0.m0 = 0x70;
             parentA0.m1 = 0xD1;
             parentA0.m2 = 0x7071;
