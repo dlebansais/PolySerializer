@@ -1,6 +1,7 @@
 ﻿using PolySerializer;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace TestDebug
 {
@@ -69,17 +70,43 @@ namespace TestDebug
             parentB0.Test0 = "toto0";
             parentB0.m14 = parentB0;
 
+            Serialize(s, parentA0);
+            ParentA parentA1 = Deserialize(s);
+        }
+
+        private static void Serialize(Serializer s, ParentA parentA)
+        {
             using (FileStream fs = new FileStream("test.log", FileMode.Create, FileAccess.Write))
             {
-                s.Serialize(fs, parentA0);
+                Task t = s.SerializeAsync(fs, parentA);
+                ShowProgress(s, t);
+                System.Diagnostics.Debug.WriteLine("Serialized");
             }
+        }
 
-            ParentA parentA1;
+        private static ParentA Deserialize(Serializer s)
+        {
+            ParentA parentA;
 
             using (FileStream fs = new FileStream("test.log", FileMode.Open, FileAccess.Read))
             {
-                parentA1 = s.Deserialize(fs) as ParentA;
+                Task<object> t = s.DeserializeAsync(fs);
+                ShowProgress(s, t);
+                System.Diagnostics.Debug.WriteLine("Deserialized");
+
+                parentA = t.Result as ParentA;
             }
+
+            return parentA;
+        }
+
+        private static void ShowProgress(Serializer s, Task t)
+        {
+            do
+            {
+                System.Diagnostics.Debug.WriteLine($"{(int)(s.Progress * 100)}%");
+            }
+            while (!t.Wait(500));
         }
     }
 }

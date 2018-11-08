@@ -58,7 +58,7 @@ namespace PolySerializer
         /// <param name="output">Stream receiving the serialized data.</param>
         /// <param name="root">Serialized object.</param>
         /// </parameters>
-        //Task SerializeAsync(Stream output, object root);
+        Task SerializeAsync(Stream output, object root);
 
         /// <summary>
         ///     Creates a new object from serialized content in <see cref="input"/>.
@@ -66,7 +66,7 @@ namespace PolySerializer
         /// <parameters>
         /// <param name="input">Stream from which serialized data is read to create the new object.</param>
         /// </parameters>
-        //Task<object> DeserializeAsync(Stream input);
+        Task<object> DeserializeAsync(Stream input);
 
         /// <summary>
         ///     Checks if serialized data in <see cref="input"/> is compatible with <see cref="RootType"/>.
@@ -75,15 +75,6 @@ namespace PolySerializer
         /// <param name="input">Stream from which serialized data is read to check for compatibility.</param>
         /// </parameters>
         //Task<bool> CheckAsync(Stream input);
-
-        /// <summary>
-        ///     Returns the serialization or deserialization progress as a number between 0 and 1.
-        ///     <paramref="task"/> must be one of the return values of <see cref="SerializeAsync"/> or <see cref="DeserializeAsync"/> or this method will throw an exception.
-        /// </summary>
-        /// <parameters>
-        /// <param name="task">The serializing or deserializing task for which progress is queried.</param>
-        /// </parameters>
-        //double GetAsyncProgress(IAsyncResult task);
 
         /// <summary>
         ///     The output stream on which serialized data has been written to in <see cref="Serialize"/>.
@@ -110,6 +101,11 @@ namespace PolySerializer
         ///     If null, <see cref="Deserialize"/> finds the type to use from the serialized data. If not null, the serialized data must be compatible with this type or <see cref="Deserialize"/> will throw an exception.
         /// </summary>
         Type RootType { get; set; }
+
+        /// <summary>
+        ///     The serialization or deserialization progress as a number between 0 and 1.
+        /// </summary>
+        double Progress { get; }
 
         /// <summary>
         /// Sets or gets a list of assemblies that can override the original assembly of a type during deserialization.
@@ -176,6 +172,7 @@ namespace PolySerializer
         };
         public SerializationMode Mode { get; set; } = SerializationMode.Default;
         public SerializationFormat FileFormat { get; set; } = SerializationFormat.BinaryPreferred;
+        public double Progress { get; private set; }
         public uint MinAllocatedSize { get; set; } = 0x10000;
         public uint LastAllocatedSize { get; private set; } = 0;
         #endregion
@@ -183,9 +180,26 @@ namespace PolySerializer
         #region Serialization
         public void Serialize(Stream output, object root)
         {
+            InitializeSerialization(output, root);
+            INTERNAL_Serialize();
+        }
+
+        public Task SerializeAsync(Stream output, object root)
+        {
+            InitializeSerialization(output, root);
+            return Task.Run(() => INTERNAL_Serialize());
+        }
+
+        private void InitializeSerialization(Stream output, object root)
+        {
             Output = output;
             Root = root;
-            RootType = root.GetType();
+            Progress = 0;
+        }
+
+        private void INTERNAL_Serialize()
+        {
+            RootType = Root.GetType();
 
             byte[] Data = new byte[MinAllocatedSize];
             int Offset = 0;
@@ -199,18 +213,22 @@ namespace PolySerializer
 
             SerializedObjectList.Clear();
             CycleDetectionTable.Clear();
-            ProcessSerializable(root, ref Data, ref Offset);
+            ProcessSerializable(Root, ref Data, ref Offset);
 
             int i = 0;
             while (i < SerializedObjectList.Count)
             {
+                Progress = i / (double)SerializedObjectList.Count;
+
                 ISerializableObject NextSerialized = SerializedObjectList[i++];
                 object Reference = NextSerialized.Reference;
                 Serialize(Reference, NextSerialized.ReferenceType, NextSerialized.Count, ref Data, ref Offset, NextSerialized);
             }
 
-            output.Write(Data, 0, Offset);
+            Output.Write(Data, 0, Offset);
             LastAllocatedSize = (uint)Data.Length;
+
+            Progress = 1.0;
         }
 
         private void Serialize(object reference, Type serializedType, long count, ref byte[] data, ref int offset, ISerializableObject nextSerialized)
@@ -666,6 +684,8 @@ namespace PolySerializer
 
         private void AddField(ref byte[] data, ref int offset, byte[] content)
         {
+            System.Threading.Thread.Sleep(100);
+
             if (offset + content.Length > data.Length)
             {
                 Output.Write(data, 0, offset);
@@ -687,8 +707,24 @@ namespace PolySerializer
         #region Deserialization
         public object Deserialize(Stream input)
         {
-            Input = input;
+            InitializeDeserialization(input);
+            return INTERNAL_Deserialize();
+        }
 
+        public Task<object> DeserializeAsync(Stream input)
+        {
+            InitializeDeserialization(input);
+            return Task.Run(() => INTERNAL_Deserialize());
+        }
+
+        private void InitializeDeserialization(Stream input)
+        {
+            Input = input;
+            Progress = 0;
+        }
+
+        private object INTERNAL_Deserialize()
+        {
             byte[] Data = new byte[MinAllocatedSize];
             int Offset = 0;
 
@@ -743,10 +779,14 @@ namespace PolySerializer
             int i = 0;
             while (i < DeserializedObjectList.Count)
             {
+                Progress = i / (double)DeserializedObjectList.Count;
+
                 IDeserializedObject NextDeserialized = DeserializedObjectList[i++];
                 Reference = NextDeserialized.Reference;
                 Deserialize(ref Reference, NextDeserialized.DeserializedType, NextDeserialized.Count, ref Data, ref Offset, NextDeserialized);
             }
+
+            Progress = 1.0;
 
             return Root;
         }
@@ -1931,6 +1971,8 @@ namespace PolySerializer
 
         private void ReadField(ref byte[] data, ref int offset, int minLength)
         {
+            System.Threading.Thread.Sleep(100);
+
             bool Reload = false;
 
             if (offset + minLength > data.Length)

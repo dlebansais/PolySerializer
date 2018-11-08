@@ -6,7 +6,7 @@ TODO:
 - [ ] Missing: Checking validity of serialized streams and providing diagnostic information.
 - [X] Confirm support of very large collections (several billions items).
 - [X] Support of constructors with parameters.
-- [ ] Missing: Asynchronous operations.
+- [X] Missing: Asynchronous operations.
 - [ ] Missing: Conversion to different endianness.
 - [ ] Optimization.
 - [ ] Doc and example.
