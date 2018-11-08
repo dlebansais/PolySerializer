@@ -2,11 +2,11 @@
 Please wait a few days while I sort out tests of core features and optimize. Serialized data generated today may not be backward-compatible tomorrow.
 
 TODO:
-- [x] Missing: Conversion to human-readable text.
-- [ ] Missing: Checking validity of serialized streams and providing diagnostic information.
+- [x] Conversion to human-readable text.
+- [ ] Checking validity of serialized streams and providing diagnostic information.
 - [X] Confirm support of very large collections (several billions items).
 - [X] Support of constructors with parameters.
-- [X] Missing: Asynchronous operations.
+- [X] Asynchronous operations.
 - [ ] Missing: Conversion to different endianness.
 - [ ] Optimization.
 - [ ] Doc and example.

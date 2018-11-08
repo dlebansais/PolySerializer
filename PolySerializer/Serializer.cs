@@ -684,8 +684,6 @@ namespace PolySerializer
 
         private void AddField(ref byte[] data, ref int offset, byte[] content)
         {
-            System.Threading.Thread.Sleep(100);
-
             if (offset + content.Length > data.Length)
             {
                 Output.Write(data, 0, offset);
@@ -1971,8 +1969,6 @@ namespace PolySerializer
 
         private void ReadField(ref byte[] data, ref int offset, int minLength)
         {
-            System.Threading.Thread.Sleep(100);
-
             bool Reload = false;
 
             if (offset + minLength > data.Length)
@@ -2010,6 +2006,16 @@ namespace PolySerializer
         #endregion
 
         #region Tools
+        public static Type SerializableAncestor(Type referenceType)
+        {
+            Type t = referenceType;
+
+            while (t != null && !t.Attributes.HasFlag(TypeAttributes.Serializable) && t.GetCustomAttribute(typeof(PolySerializer.SerializableAttribute)) == null)
+                t = t.BaseType;
+
+            return t;
+        }
+
         public static bool IsReadableCollection(Type t, object reference, out IEnumerator enumerator)
         {
             Type CurrentType;
@@ -2067,16 +2073,6 @@ namespace PolySerializer
         #endregion
 
         #region Misc
-        public static Type SerializableAncestor(Type referenceType)
-        {
-            Type t = referenceType;
-
-            while (t != null && !t.Attributes.HasFlag(TypeAttributes.Serializable) && t.GetCustomAttribute(typeof(PolySerializer.SerializableAttribute)) == null)
-                t = t.BaseType;
-
-            return t;
-        }
-
         private int SortByName(SerializedMember p1, SerializedMember p2)
         {
             return p1.MemberInfo.Name.CompareTo(p2.MemberInfo.Name);
