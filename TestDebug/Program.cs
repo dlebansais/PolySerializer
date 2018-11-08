@@ -15,7 +15,7 @@ namespace TestDebug
         {
             Serializer s = new Serializer();
             s.FileFormat = SerializationFormat.TextPreferred;
-            s.Mode = SerializationMode.MemberOrder;
+            s.Mode = SerializationMode.Default;
 
             ParentA parentA0 = new ParentA();
             parentA0.Test = "test";
