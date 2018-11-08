@@ -27,94 +27,63 @@ namespace PolySerializer
         SerializationFormat FileFormat { get; set; }
 
         /// <summary>
-        ///     Serializes <see cref="Root"/> and write the serialized data to <see cref="Output"/>.
+        ///     Serializes <see cref="root"/> and write the serialized data to <see cref="output"/>.
         /// </summary>
         /// <parameters>
-        /// <param name="Output">Stream receiving the serialized data.</param>
-        /// <param name="Root">Serialized object.</param>
+        /// <param name="output">Stream receiving the serialized data.</param>
+        /// <param name="root">Serialized object.</param>
         /// </parameters>
-        void Serialize(Stream Output, object Root);
+        void Serialize(Stream output, object root);
 
         /// <summary>
-        ///     Creates a new object from serialized content in <see cref="Input"/>.
+        ///     Creates a new object from serialized content in <see cref="input"/>.
         /// </summary>
         /// <parameters>
-        /// <param name="Input">Stream from which serialized data is read to create the new object.</param>
+        /// <param name="input">Stream from which serialized data is read to create the new object.</param>
         /// </parameters>
-        object Deserialize(Stream Input);
+        object Deserialize(Stream input);
 
         /// <summary>
-        ///     Checks if serialized data in <see cref="Input"/> is compatible with <see cref="RootType"/>.
+        ///     Checks if serialized data in <see cref="input"/> is compatible with <see cref="RootType"/>.
         /// </summary>
         /// <parameters>
-        /// <param name="Input">Stream from which serialized data is read to check for compatibility.</param>
+        /// <param name="input">Stream from which serialized data is read to check for compatibility.</param>
         /// </parameters>
-        //bool Check(Stream Input);
+        //bool Check(Stream input);
 
         /// <summary>
-        ///     Returns a human-readable description of the serializable part of <see cref="Root"/>.
+        ///     Serializes <see cref="root"/> and write the serialized data to <see cref="output"/>.
         /// </summary>
         /// <parameters>
-        /// <param name="Root">Serialized object.</param>
+        /// <param name="output">Stream receiving the serialized data.</param>
+        /// <param name="root">Serialized object.</param>
         /// </parameters>
-        //string Print(object Root);
+        //Task SerializeAsync(Stream output, object root);
 
         /// <summary>
-        ///     Returns a human-readable description of the serialized content in <see cref="Input"/>.
+        ///     Creates a new object from serialized content in <see cref="input"/>.
         /// </summary>
         /// <parameters>
-        /// <param name="Input">Stream from which serialized data is read to be printed.</param>
+        /// <param name="input">Stream from which serialized data is read to create the new object.</param>
         /// </parameters>
-        //string Print(Stream Input);
-        /// <summary>
-        ///     Serializes <see cref="Root"/> and write the serialized data to <see cref="Output"/>.
-        /// </summary>
-        /// <parameters>
-        /// <param name="Output">Stream receiving the serialized data.</param>
-        /// <param name="Root">Serialized object.</param>
-        /// </parameters>
-        //Task SerializeAsync(Stream Output, object Root);
+        //Task<object> DeserializeAsync(Stream input);
 
         /// <summary>
-        ///     Creates a new object from serialized content in <see cref="Input"/>.
+        ///     Checks if serialized data in <see cref="input"/> is compatible with <see cref="RootType"/>.
         /// </summary>
         /// <parameters>
-        /// <param name="Input">Stream from which serialized data is read to create the new object.</param>
+        /// <param name="input">Stream from which serialized data is read to check for compatibility.</param>
         /// </parameters>
-        //Task<object> DeserializeAsync(Stream Input);
-
-        /// <summary>
-        ///     Checks if serialized data in <see cref="Input"/> is compatible with <see cref="RootType"/>.
-        /// </summary>
-        /// <parameters>
-        /// <param name="Input">Stream from which serialized data is read to check for compatibility.</param>
-        /// </parameters>
-        //Task<bool> CheckAsync(Stream Input);
-
-        /// <summary>
-        ///     Returns a human-readable description of the serializable part of <see cref="Root"/>.
-        /// </summary>
-        /// <parameters>
-        /// <param name="Root">Serialized object.</param>
-        /// </parameters>
-        //Task<string> PrintAsync(object Root);
-
-        /// <summary>
-        ///     Returns a human-readable description of the serialized content in <see cref="Input"/>.
-        /// </summary>
-        /// <parameters>
-        /// <param name="Input">Stream from which serialized data is read to be printed.</param>
-        /// </parameters>
-        //Task<string> PrintAsync(Stream Input);
+        //Task<bool> CheckAsync(Stream input);
 
         /// <summary>
         ///     Returns the serialization or deserialization progress as a number between 0 and 1.
-        ///     <see cref="Task"/> must be one of the return values of <see cref="SerializeAsync"/> or <see cref="DeserializeAsync"/> or this method will throw an exception.
+        ///     <paramref="task"/> must be one of the return values of <see cref="SerializeAsync"/> or <see cref="DeserializeAsync"/> or this method will throw an exception.
         /// </summary>
         /// <parameters>
-        /// <param name="Task">The serializing or deserializing task for which progress is queried.</param>
+        /// <param name="task">The serializing or deserializing task for which progress is queried.</param>
         /// </parameters>
-        //double GetAsyncProgress(IAsyncResult Task);
+        //double GetAsyncProgress(IAsyncResult task);
 
         /// <summary>
         ///     The output stream on which serialized data has been written to in <see cref="Serialize"/>.
@@ -174,7 +143,7 @@ namespace PolySerializer
     }
     #endregion
 
-    public delegate void SerializedHandler(object Root, byte[] Data);
+    public delegate void SerializedHandler(object root, byte[] data);
 
     public class Serializer : ISerializer
     {
@@ -209,15 +178,14 @@ namespace PolySerializer
         public SerializationFormat FileFormat { get; set; } = SerializationFormat.BinaryPreferred;
         public uint MinAllocatedSize { get; set; } = 0x10000;
         public uint LastAllocatedSize { get; private set; } = 0;
-        private Dictionary<object, SerializableObject> CycleDetectionTable = new Dictionary<object, SerializableObject>();
         #endregion
 
         #region Serialization
-        public void Serialize(Stream Output, object Root)
+        public void Serialize(Stream output, object root)
         {
-            this.Output = Output;
-            this.Root = Root;
-            RootType = Root.GetType();
+            Output = output;
+            Root = root;
+            RootType = root.GetType();
 
             byte[] Data = new byte[MinAllocatedSize];
             int Offset = 0;
@@ -225,61 +193,61 @@ namespace PolySerializer
             IsSerializedAsText = (FileFormat == SerializationFormat.TextPreferred) || (FileFormat == SerializationFormat.TextOnly);
 
             if (IsSerializedAsText)
-                AddFieldStringDirect(Output, ref Data, ref Offset, $"Mode={Mode}\n");
+                AddFieldStringDirect(ref Data, ref Offset, $"Mode={Mode}\n");
             else
-                AddFieldInt(Output, ref Data, ref Offset, (int)Mode);
+                AddFieldInt(ref Data, ref Offset, (int)Mode);
 
             SerializedObjectList.Clear();
             CycleDetectionTable.Clear();
-            ProcessSerializable(Root, ref Data, ref Offset);
+            ProcessSerializable(root, ref Data, ref Offset);
 
             int i = 0;
             while (i < SerializedObjectList.Count)
             {
                 ISerializableObject NextSerialized = SerializedObjectList[i++];
                 object Reference = NextSerialized.Reference;
-                Serialize(Output, Reference, NextSerialized.ReferenceType, NextSerialized.Count, ref Data, ref Offset, NextSerialized);
+                Serialize(Reference, NextSerialized.ReferenceType, NextSerialized.Count, ref Data, ref Offset, NextSerialized);
             }
 
-            Output.Write(Data, 0, Offset);
+            output.Write(Data, 0, Offset);
             LastAllocatedSize = (uint)Data.Length;
         }
 
-        private void Serialize(Stream Output, object Reference, Type SerializedType, long Count, ref byte[] Data, ref int Offset, ISerializableObject NextSerialized)
+        private void Serialize(object reference, Type serializedType, long count, ref byte[] data, ref int offset, ISerializableObject nextSerialized)
         {
-            if (Count >= 0)
+            if (count >= 0)
             {
-                IEnumerable AsEnumerable = Reference as IEnumerable;
+                IEnumerable AsEnumerable = reference as IEnumerable;
                 IEnumerator Enumerator = AsEnumerable.GetEnumerator();
 
-                for (long i = 0; i < Count; i++)
+                for (long i = 0; i < count; i++)
                 {
                     if (i > 0 && IsSerializedAsText)
-                        AddFieldStringDirect(Output, ref Data, ref Offset, ";");
+                        AddFieldStringDirect(ref data, ref offset, ";");
 
                     Enumerator.MoveNext();
 
                     object Item = Enumerator.Current;
-                    ProcessSerializable(Item, ref Data, ref Offset);
+                    ProcessSerializable(Item, ref data, ref offset);
                 }
             }
 
-            List<SerializedMember> SerializedMembers = ListSerializedMembers(Reference, SerializedType, ref Data, ref Offset);
+            List<SerializedMember> SerializedMembers = ListSerializedMembers(reference, serializedType, ref data, ref offset);
 
             int MemberIndex = 0;
             foreach (SerializedMember Member in SerializedMembers)
             {
                 if (MemberIndex++ > 0 && IsSerializedAsText)
-                    AddFieldStringDirect(Output, ref Data, ref Offset, ";");
+                    AddFieldStringDirect(ref data, ref offset, ";");
 
                 if (Member.Condition.HasValue)
                 {
-                    AddFieldBool(Output, ref Data, ref Offset, Member.Condition.Value);
+                    AddFieldBool(ref data, ref offset, Member.Condition.Value);
                     if (!Member.Condition.Value)
                         continue;
 
                     if (IsSerializedAsText)
-                        AddFieldStringDirect(Output, ref Data, ref Offset, " ");
+                        AddFieldStringDirect(ref data, ref offset, " ");
                 }
 
                 object MemberValue;
@@ -288,91 +256,91 @@ namespace PolySerializer
                 PropertyInfo AsPropertyInfo;
 
                 if ((AsFieldInfo = Member.MemberInfo as FieldInfo) != null)
-                    MemberValue = AsFieldInfo.GetValue(Reference);
+                    MemberValue = AsFieldInfo.GetValue(reference);
 
                 else
                 {
                     AsPropertyInfo = Member.MemberInfo as PropertyInfo;
-                    MemberValue = AsPropertyInfo.GetValue(Reference);
+                    MemberValue = AsPropertyInfo.GetValue(reference);
                 }
 
-                ProcessSerializable(MemberValue, ref Data, ref Offset);
+                ProcessSerializable(MemberValue, ref data, ref offset);
             }
 
-            if (NextSerialized != null)
-                NextSerialized.SetSerialized();
+            if (nextSerialized != null)
+                nextSerialized.SetSerialized();
         }
 
-        private bool SerializeBasicType(object Value, ref byte[] Data, ref int Offset)
+        private bool SerializeBasicType(object value, ref byte[] data, ref int offset)
         {
-            Type ValueType = Value.GetType();
+            Type ValueType = value.GetType();
 
             if (ValueType == typeof(sbyte))
-                AddFieldSByte(Output, ref Data, ref Offset, (sbyte)Value);
+                AddFieldSByte(ref data, ref offset, (sbyte)value);
 
             else if (ValueType == typeof(byte))
-                AddFieldByte(Output, ref Data, ref Offset, (byte)Value);
+                AddFieldByte(ref data, ref offset, (byte)value);
 
             else if (ValueType == typeof(bool))
-                AddFieldBool(Output, ref Data, ref Offset, (bool)Value);
+                AddFieldBool(ref data, ref offset, (bool)value);
 
             else if (ValueType == typeof(char))
-                AddFieldChar(Output, ref Data, ref Offset, (char)Value);
+                AddFieldChar(ref data, ref offset, (char)value);
 
             else if (ValueType == typeof(decimal))
-                AddFieldDecimal(Output, ref Data, ref Offset, (decimal)Value);
+                AddFieldDecimal(ref data, ref offset, (decimal)value);
 
             else if (ValueType == typeof(double))
-                AddFieldDouble(Output, ref Data, ref Offset, (double)Value);
+                AddFieldDouble(ref data, ref offset, (double)value);
 
             else if (ValueType == typeof(float))
-                AddFieldFloat(Output, ref Data, ref Offset, (float)Value);
+                AddFieldFloat(ref data, ref offset, (float)value);
 
             else if (ValueType == typeof(int))
-                AddFieldInt(Output, ref Data, ref Offset, (int)Value);
+                AddFieldInt(ref data, ref offset, (int)value);
 
             else if (ValueType == typeof(long))
-                AddFieldLong(Output, ref Data, ref Offset, (long)Value);
+                AddFieldLong(ref data, ref offset, (long)value);
 
             else if (ValueType == typeof(short))
-                AddFieldShort(Output, ref Data, ref Offset, (short)Value);
+                AddFieldShort(ref data, ref offset, (short)value);
 
             else if (ValueType == typeof(uint))
-                AddFieldUInt(Output, ref Data, ref Offset, (uint)Value);
+                AddFieldUInt(ref data, ref offset, (uint)value);
 
             else if (ValueType == typeof(ulong))
-                AddFieldULong(Output, ref Data, ref Offset, (ulong)Value);
+                AddFieldULong(ref data, ref offset, (ulong)value);
 
             else if (ValueType == typeof(ushort))
-                AddFieldUShort(Output, ref Data, ref Offset, (ushort)Value);
+                AddFieldUShort(ref data, ref offset, (ushort)value);
 
             else if (ValueType == typeof(string))
-                AddFieldString(Output, ref Data, ref Offset, (string)Value);
+                AddFieldString(ref data, ref offset, (string)value);
 
             else if (ValueType == typeof(Guid))
-                AddFieldGuid(Output, ref Data, ref Offset, (Guid)Value);
+                AddFieldGuid(ref data, ref offset, (Guid)value);
 
             else if (ValueType.IsEnum)
             {
                 Type UnderlyingSystemType = ValueType.GetEnumUnderlyingType();
                 if (UnderlyingSystemType == typeof(sbyte))
-                    AddFieldSByte(Output, ref Data, ref Offset, (sbyte)Value);
+                    AddFieldSByte(ref data, ref offset, (sbyte)value);
                 else if (UnderlyingSystemType == typeof(byte))
-                    AddFieldByte(Output, ref Data, ref Offset, (byte)Value);
+                    AddFieldByte(ref data, ref offset, (byte)value);
                 else if (UnderlyingSystemType == typeof(short))
-                    AddFieldShort(Output, ref Data, ref Offset, (short)Value);
+                    AddFieldShort(ref data, ref offset, (short)value);
                 else if (UnderlyingSystemType == typeof(ushort))
-                    AddFieldUShort(Output, ref Data, ref Offset, (ushort)Value);
+                    AddFieldUShort(ref data, ref offset, (ushort)value);
                 else if (UnderlyingSystemType == typeof(int))
-                    AddFieldInt(Output, ref Data, ref Offset, (int)Value);
+                    AddFieldInt(ref data, ref offset, (int)value);
                 else if (UnderlyingSystemType == typeof(uint))
-                    AddFieldUInt(Output, ref Data, ref Offset, (uint)Value);
+                    AddFieldUInt(ref data, ref offset, (uint)value);
                 else if (UnderlyingSystemType == typeof(long))
-                    AddFieldLong(Output, ref Data, ref Offset, (long)Value);
+                    AddFieldLong(ref data, ref offset, (long)value);
                 else if (UnderlyingSystemType == typeof(ulong))
-                    AddFieldULong(Output, ref Data, ref Offset, (ulong)Value);
+                    AddFieldULong(ref data, ref offset, (ulong)value);
                 else
-                    AddFieldInt(Output, ref Data, ref Offset, (int)Value);
+                    AddFieldInt(ref data, ref offset, (int)value);
             }
 
             else
@@ -381,111 +349,361 @@ namespace PolySerializer
             return true;
         }
 
-        private void ProcessSerializable(object Reference, ref byte[] Data, ref int Offset)
+        private void ProcessSerializable(object reference, ref byte[] data, ref int offset)
         {
-            if (Reference == null)
+            if (reference == null)
             {
-                AddFieldNull(Output, ref Data, ref Offset);
+                AddFieldNull(ref data, ref offset);
                 return;
             }
 
-            if (SerializeBasicType(Reference, ref Data, ref Offset))
+            if (SerializeBasicType(reference, ref data, ref offset))
                 return;
 
-            Type ReferenceType = SerializableAncestor(Reference.GetType());
-            AddFieldType(Output, ref Data, ref Offset, ReferenceType);
+            Type ReferenceType = SerializableAncestor(reference.GetType());
+            AddFieldType(ref data, ref offset, ReferenceType);
 
             if (ReferenceType.IsValueType)
-                Serialize(Output, Reference, ReferenceType, -1, ref Data, ref Offset, null);
+                Serialize(reference, ReferenceType, -1, ref data, ref offset, null);
             else
             {
-                if (CycleDetectionTable.ContainsKey(Reference))
+                if (CycleDetectionTable.ContainsKey(reference))
                 {
-                    long ReferenceIndex = SerializedObjectList.IndexOf(CycleDetectionTable[Reference]);
+                    long ReferenceIndex = SerializedObjectList.IndexOf(CycleDetectionTable[reference]);
 
                     if (IsSerializedAsText)
-                        AddFieldStringDirect(Output, ref Data, ref Offset, $" #{ReferenceIndex}\n");
+                        AddFieldStringDirect(ref data, ref offset, $" #{ReferenceIndex}\n");
                     else
                     {
-                        AddFieldByte(Output, ref Data, ref Offset, (byte)ObjectTag.ObjectIndex);
-                        AddFieldLong(Output, ref Data, ref Offset, ReferenceIndex);
+                        AddFieldByte(ref data, ref offset, (byte)ObjectTag.ObjectIndex);
+                        AddFieldLong(ref data, ref offset, ReferenceIndex);
                     }
                 }
                 else
                 {
-                    long Count = GetCollectionCount(Reference);
+                    long Count = GetCollectionCount(reference);
                     if (Count < 0)
                     {
                         List<SerializedMember> ConstructorParameters;
-                        if (ListConstructorParameters(Reference, ReferenceType, out ConstructorParameters))
+                        if (ListConstructorParameters(reference, ReferenceType, out ConstructorParameters))
                         {
                             if (IsSerializedAsText)
-                                AddFieldStringDirect(Output, ref Data, ref Offset, " !");
+                                AddFieldStringDirect(ref data, ref offset, " !");
                             else
-                                AddFieldByte(Output, ref Data, ref Offset, (byte)ObjectTag.ConstructedObject);
+                                AddFieldByte(ref data, ref offset, (byte)ObjectTag.ConstructedObject);
 
                             int ParameterIndex = 0;
                             foreach (SerializedMember Member in ConstructorParameters)
                             {
                                 if (ParameterIndex++ > 0 && IsSerializedAsText)
-                                    AddFieldStringDirect(Output, ref Data, ref Offset, ";");
+                                    AddFieldStringDirect(ref data, ref offset, ";");
 
                                 PropertyInfo AsPropertyInfo;
                                 AsPropertyInfo = Member.MemberInfo as PropertyInfo;
-                                object MemberValue = AsPropertyInfo.GetValue(Reference);
+                                object MemberValue = AsPropertyInfo.GetValue(reference);
 
-                                ProcessSerializable(MemberValue, ref Data, ref Offset);
+                                ProcessSerializable(MemberValue, ref data, ref offset);
                             }
 
                             if (IsSerializedAsText)
-                                AddFieldStringDirect(Output, ref Data, ref Offset, "\n");
+                                AddFieldStringDirect(ref data, ref offset, "\n");
                         }
                         else
                         {
                             if (IsSerializedAsText)
-                                AddFieldStringDirect(Output, ref Data, ref Offset, "\n");
+                                AddFieldStringDirect(ref data, ref offset, "\n");
                             else
-                                AddFieldByte(Output, ref Data, ref Offset, (byte)ObjectTag.ObjectReference);
+                                AddFieldByte(ref data, ref offset, (byte)ObjectTag.ObjectReference);
                         }
                     }
                     else
                     {
                         if (IsSerializedAsText)
-                            AddFieldStringDirect(Output, ref Data, ref Offset, $" *{Count}\n");
+                            AddFieldStringDirect(ref data, ref offset, $" *{Count}\n");
                         else
                         {
-                            AddFieldByte(Output, ref Data, ref Offset, (byte)ObjectTag.ObjectList);
-                            AddFieldLong(Output, ref Data, ref Offset, Count);
+                            AddFieldByte(ref data, ref offset, (byte)ObjectTag.ObjectList);
+                            AddFieldLong(ref data, ref offset, Count);
                         }
                     }
 
-                    AddSerializedObject(Reference, Count);
+                    AddSerializedObject(reference, Count);
                 }
             }
         }
 
-        private List<ISerializableObject> SerializedObjectList = new List<ISerializableObject>();
+        private void AddSerializedObject(object reference, long count)
+        {
+            Type SerializedType = SerializableAncestor(reference.GetType());
+            SerializableObject NewSerialized = new SerializableObject(reference, SerializedType, count);
+            SerializedObjectList.Add(NewSerialized);
+
+            CycleDetectionTable.Add(reference, NewSerialized);
+        }
+
+        private long GetCollectionCount(object reference)
+        {
+            IEnumerable AsEnumerable;
+
+            long Count = 0;
+            if ((AsEnumerable = reference as IEnumerable) != null)
+            {
+                IEnumerator Enumerator = AsEnumerable.GetEnumerator();
+                while (Enumerator.MoveNext())
+                    Count++;
+
+                return Count;
+            }
+            else
+                return -1;
+        }
+
+        private List<SerializedMember> ListSerializedMembers(object reference, Type serializedType, ref byte[] data, ref int offset)
+        {
+            List<MemberInfo> Members = new List<MemberInfo>(serializedType.GetMembers());
+            List<SerializedMember> SerializedMembers = new List<SerializedMember>();
+
+            foreach (MemberInfo MemberInfo in Members)
+            {
+                SerializedMember NewMember = new SerializedMember(MemberInfo);
+
+                if (IsSerializableMember(reference, serializedType, NewMember))
+                    SerializedMembers.Add(NewMember);
+            }
+
+            if (Mode == SerializationMode.Default)
+                SerializedMembers.Sort(SortByName);
+
+            else if (Mode == SerializationMode.MemberName)
+                AddFieldMembers(ref data, ref offset, SerializedMembers);
+
+            return SerializedMembers;
+        }
+
+        private void AddFieldSByte(ref byte[] data, ref int offset, sbyte value)
+        {
+            if (IsSerializedAsText)
+                AddFieldStringDirect(ref data, ref offset, $"0x{((byte)value).ToString("X02")}");
+            else
+                AddField(ref data, ref offset, new byte[1] { (byte)value });
+        }
+
+        private void AddFieldByte(ref byte[] data, ref int offset, byte value)
+        {
+            if (IsSerializedAsText)
+                AddFieldStringDirect(ref data, ref offset, $"0x{value.ToString("X02")}");
+            else
+                AddField(ref data, ref offset, new byte[1] { value });
+        }
+
+        private void AddFieldBool(ref byte[] data, ref int offset, bool value)
+        {
+            if (IsSerializedAsText)
+                AddFieldStringDirect(ref data, ref offset, $"{value}");
+            else
+                AddField(ref data, ref offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldChar(ref byte[] data, ref int offset, char value)
+        {
+            if (IsSerializedAsText)
+            {
+                if (value == '\'')
+                    AddFieldStringDirect(ref data, ref offset, @"'\''");
+                else
+                    AddFieldStringDirect(ref data, ref offset, $"'{value}'");
+            }
+            else
+                AddField(ref data, ref offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldDecimal(ref byte[] data, ref int offset, decimal value)
+        {
+            if (IsSerializedAsText)
+                AddFieldStringDirect(ref data, ref offset, $"{value.ToString(CultureInfo.InvariantCulture)}m");
+            else
+            {
+                int[] DecimalInts = decimal.GetBits(value);
+                for (int i = 0; i < 4; i++)
+                {
+                    byte[] DecimalBytes = BitConverter.GetBytes(DecimalInts[i]);
+                    AddField(ref data, ref offset, DecimalBytes);
+                }
+            }
+        }
+
+        private void AddFieldDouble(ref byte[] data, ref int offset, double value)
+        {
+            if (IsSerializedAsText)
+                AddFieldStringDirect(ref data, ref offset, $"{value.ToString(CultureInfo.InvariantCulture)}d");
+            else
+                AddField(ref data, ref offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldFloat(ref byte[] data, ref int offset, float value)
+        {
+            if (IsSerializedAsText)
+                AddFieldStringDirect(ref data, ref offset, $"{value.ToString(CultureInfo.InvariantCulture)}f");
+            else
+                AddField(ref data, ref offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldInt(ref byte[] data, ref int offset, int value)
+        {
+            if (IsSerializedAsText)
+                AddFieldStringDirect(ref data, ref offset, $"0x{value.ToString("X08")}");
+            else
+                AddField(ref data, ref offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldLong(ref byte[] data, ref int offset, long value)
+        {
+            if (IsSerializedAsText)
+                AddFieldStringDirect(ref data, ref offset, $"0x{value.ToString("X16")}");
+            else
+                AddField(ref data, ref offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldShort(ref byte[] data, ref int offset, short value)
+        {
+            if (IsSerializedAsText)
+                AddFieldStringDirect(ref data, ref offset, $"0x{value.ToString("X04")}");
+            else
+                AddField(ref data, ref offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldUInt(ref byte[] data, ref int offset, uint value)
+        {
+            if (IsSerializedAsText)
+                AddFieldStringDirect(ref data, ref offset, $"0x{value.ToString("X08")}");
+            else
+                AddField(ref data, ref offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldULong(ref byte[] data, ref int offset, ulong value)
+        {
+            if (IsSerializedAsText)
+                AddFieldStringDirect(ref data, ref offset, $"0x{value.ToString("X16")}");
+            else
+                AddField(ref data, ref offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldUShort(ref byte[] data, ref int offset, ushort value)
+        {
+            if (IsSerializedAsText)
+                AddFieldStringDirect(ref data, ref offset, $"0x{value.ToString("X04")}");
+            else
+                AddField(ref data, ref offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldString(ref byte[] data, ref int offset, string value)
+        {
+            if (IsSerializedAsText)
+            {
+                if (value == null)
+                    value = "null";
+                else
+                    value = "\"" + value.Replace("\"", "\\\"") + "\"";
+
+                AddField(ref data, ref offset, Encoding.UTF8.GetBytes(value));
+            }
+            else
+                AddField(ref data, ref offset, String2Bytes(value));
+        }
+
+        private void AddFieldGuid(ref byte[] data, ref int offset, Guid value)
+        {
+            if (IsSerializedAsText)
+                AddFieldStringDirect(ref data, ref offset, value.ToString("B"));
+            else
+                AddField(ref data, ref offset, value.ToByteArray());
+        }
+
+        private void AddFieldNull(ref byte[] data, ref int offset)
+        {
+            if (IsSerializedAsText)
+                AddFieldStringDirect(ref data, ref offset, "null");
+            else
+                AddField(ref data, ref offset, new byte[CountByteSize] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF });
+        }
+
+        private void AddFieldType(ref byte[] data, ref int offset, Type value)
+        {
+            if (IsSerializedAsText)
+                AddFieldStringDirect(ref data, ref offset, $"{{{value.AssemblyQualifiedName}}}");
+            else
+                AddFieldString(ref data, ref offset, value.AssemblyQualifiedName);
+        }
+
+        private void AddFieldStringDirect(ref byte[] data, ref int offset, string s)
+        {
+            AddField(ref data, ref offset, Encoding.UTF8.GetBytes(s));
+        }
+
+        private void AddFieldMembers(ref byte[] data, ref int offset, List<SerializedMember> serializedMembers)
+        {
+            if (IsSerializedAsText)
+            {
+                for (int i = 0; i < serializedMembers.Count; i++)
+                {
+                    if (i > 0)
+                        AddFieldStringDirect(ref data, ref offset, ",");
+
+                    SerializedMember Member = serializedMembers[i];
+                    AddFieldStringDirect(ref data, ref offset, Member.MemberInfo.Name);
+                }
+
+                AddFieldStringDirect(ref data, ref offset, "\n");
+            }
+            else
+            {
+                AddFieldInt(ref data, ref offset, serializedMembers.Count);
+
+                foreach (SerializedMember Member in serializedMembers)
+                    AddFieldString(ref data, ref offset, Member.MemberInfo.Name);
+            }
+        }
+
+        private void AddField(ref byte[] data, ref int offset, byte[] content)
+        {
+            if (offset + content.Length > data.Length)
+            {
+                Output.Write(data, 0, offset);
+                offset = 0;
+
+                if (data.Length < content.Length)
+                    data = new byte[content.Length];
+            }
+
+            for (int i = 0; i < content.Length; i++)
+                data[offset++] = content[i];
+        }
+
         private bool IsSerializedAsText;
+        private List<ISerializableObject> SerializedObjectList = new List<ISerializableObject>();
+        private Dictionary<object, SerializableObject> CycleDetectionTable = new Dictionary<object, SerializableObject>();
         #endregion
 
         #region Deserialization
-        public object Deserialize(Stream Input)
+        public object Deserialize(Stream input)
         {
+            Input = input;
+
             byte[] Data = new byte[MinAllocatedSize];
             int Offset = 0;
 
-            ReadField(Input, ref Data, ref Offset, 4);
+            ReadField(ref Data, ref Offset, 4);
 
             if (FileFormat == SerializationFormat.TextPreferred || FileFormat == SerializationFormat.BinaryPreferred)
-                IsSerializedAsText = (Data[0] == 'M' && Data[1] == 'o' && Data[2] == 'd' && Data[3] == 'e');
+                IsDeserializedAsText = (Data[0] == 'M' && Data[1] == 'o' && Data[2] == 'd' && Data[3] == 'e');
             else
-                IsSerializedAsText = (FileFormat == SerializationFormat.TextOnly);
+                IsDeserializedAsText = (FileFormat == SerializationFormat.TextOnly);
 
-            if (IsSerializedAsText)
+            if (IsDeserializedAsText)
             {
                 Offset += 4;
 
-                ReadField(Input, ref Data, ref Offset, 8);
+                ReadField(ref Data, ref Offset, 8);
                 string s = Encoding.UTF8.GetString(Data, Offset, 8).Substring(1, 7);
 
                 if (s == SerializationMode.Default.ToString())
@@ -515,7 +733,7 @@ namespace PolySerializer
             DeserializedObjectList.Clear();
 
             object Reference;
-            ProcessDeserializable(Input, RootType, ref Data, ref Offset, out Reference);
+            ProcessDeserializable(RootType, ref Data, ref Offset, out Reference);
 
             Root = Reference;
 
@@ -527,60 +745,60 @@ namespace PolySerializer
             {
                 IDeserializedObject NextDeserialized = DeserializedObjectList[i++];
                 Reference = NextDeserialized.Reference;
-                Deserialize(Input, ref Reference, NextDeserialized.DeserializedType, NextDeserialized.Count, ref Data, ref Offset, NextDeserialized);
+                Deserialize(ref Reference, NextDeserialized.DeserializedType, NextDeserialized.Count, ref Data, ref Offset, NextDeserialized);
             }
 
             return Root;
         }
 
-        private void Deserialize(Stream Input, ref object Reference, Type ReferenceType, long Count, ref byte[] Data, ref int Offset, IDeserializedObject NextDeserialized)
+        private void Deserialize(ref object reference, Type referenceType, long count, ref byte[] data, ref int offset, IDeserializedObject nextDeserialized)
         {
-            if (Count >= 0)
+            if (count >= 0)
             {
                 IInserter Inserter;
                 Type ItemType;
-                if (IsWriteableCollection(Reference, ReferenceType, out Inserter, out ItemType))
+                if (IsWriteableCollection(reference, referenceType, out Inserter, out ItemType))
                 {
-                    for (long i = 0; i < Count; i++)
+                    for (long i = 0; i < count; i++)
                     {
-                        if (i > 0 && IsSerializedAsText)
+                        if (i > 0 && IsDeserializedAsText)
                         {
-                            ReadField(Input, ref Data, ref Offset, 1);
-                            char c = (char)Data[Offset];
-                            Offset++;
+                            ReadField(ref data, ref offset, 1);
+                            char c = (char)data[offset];
+                            offset++;
                         }
 
                         object Item;
-                        ProcessDeserializable(Input, ItemType, ref Data, ref Offset, out Item);
+                        ProcessDeserializable(ItemType, ref data, ref offset, out Item);
 
                         Inserter.AddItem(Item);
                     }
                 }
             }
 
-            Type DeserializedType = SerializableAncestor(ReferenceType);
-            List<DeserializedMember> DeserializedMembers = ListDeserializedMembers(Input, DeserializedType, ref Data, ref Offset);
+            Type DeserializedType = SerializableAncestor(referenceType);
+            List<DeserializedMember> DeserializedMembers = ListDeserializedMembers(DeserializedType, ref data, ref offset);
 
             int MemberIndex = 0;
             foreach (DeserializedMember Member in DeserializedMembers)
             {
-                if (MemberIndex++ > 0 && IsSerializedAsText)
+                if (MemberIndex++ > 0 && IsDeserializedAsText)
                 {
-                    ReadField(Input, ref Data, ref Offset, 1);
-                    char c = (char)Data[Offset];
-                    Offset++;
+                    ReadField(ref data, ref offset, 1);
+                    char c = (char)data[offset];
+                    offset++;
                 }
 
                 if (Member.HasCondition)
                 {
-                    bool ConditionValue = ReadFieldBool(Input, ref Data, ref Offset);
+                    bool ConditionValue = ReadFieldBool(ref data, ref offset);
                     if (!ConditionValue)
                         continue;
 
-                    if (IsSerializedAsText)
+                    if (IsDeserializedAsText)
                     {
-                        ReadField(Input, ref Data, ref Offset, 1);
-                        Offset++;
+                        ReadField(ref data, ref offset, 1);
+                        offset++;
                     }
                 }
 
@@ -599,159 +817,157 @@ namespace PolySerializer
                     MemberType = AsPropertyInfo.PropertyType;
                 }
 
-                ProcessDeserializable(Input, MemberType, ref Data, ref Offset, out MemberValue);
+                ProcessDeserializable(MemberType, ref data, ref offset, out MemberValue);
 
                 if ((AsFieldInfo = Member.MemberInfo as FieldInfo) != null)
-                    AsFieldInfo.SetValue(Reference, MemberValue);
+                    AsFieldInfo.SetValue(reference, MemberValue);
 
                 else
                 {
                     AsPropertyInfo = Member.MemberInfo as PropertyInfo;
                     if (Member.PropertySetter == null)
-                        AsPropertyInfo.SetValue(Reference, MemberValue);
+                        AsPropertyInfo.SetValue(reference, MemberValue);
                     else
-                        Member.PropertySetter.Invoke(Reference, new object[] { MemberValue });
+                        Member.PropertySetter.Invoke(reference, new object[] { MemberValue });
                 }
             }
 
-            if (NextDeserialized != null)
-                NextDeserialized.SetDeserialized();
+            if (nextDeserialized != null)
+                nextDeserialized.SetDeserialized();
         }
 
-        private bool DeserializeBasicType(Stream Input, Type ValueType, ref byte[] Data, ref int Offset, out object Value)
+        private bool DeserializeBasicType(Type valueType, ref byte[] data, ref int offset, out object value)
         {
-            if (ValueType == typeof(sbyte))
-                Value = ReadFieldSByte(Input, ref Data, ref Offset);
+            if (valueType == typeof(sbyte))
+                value = ReadFieldSByte(ref data, ref offset);
 
-            else if (ValueType == typeof(byte))
-                Value = ReadFieldByte(Input, ref Data, ref Offset);
+            else if (valueType == typeof(byte))
+                value = ReadFieldByte(ref data, ref offset);
 
-            else if (ValueType == typeof(bool))
-                Value = ReadFieldBool(Input, ref Data, ref Offset);
+            else if (valueType == typeof(bool))
+                value = ReadFieldBool(ref data, ref offset);
 
-            else if (ValueType == typeof(char))
-                Value = ReadFieldChar(Input, ref Data, ref Offset);
+            else if (valueType == typeof(char))
+                value = ReadFieldChar(ref data, ref offset);
 
-            else if (ValueType == typeof(decimal))
-                Value = ReadFieldDecimal(Input, ref Data, ref Offset);
+            else if (valueType == typeof(decimal))
+                value = ReadFieldDecimal(ref data, ref offset);
 
-            else if (ValueType == typeof(double))
-                Value = ReadFieldDouble(Input, ref Data, ref Offset);
+            else if (valueType == typeof(double))
+                value = ReadFieldDouble(ref data, ref offset);
 
-            else if (ValueType == typeof(float))
-                Value = ReadFieldFloat(Input, ref Data, ref Offset);
+            else if (valueType == typeof(float))
+                value = ReadFieldFloat(ref data, ref offset);
 
-            else if (ValueType == typeof(int))
-                Value = ReadFieldInt(Input, ref Data, ref Offset);
+            else if (valueType == typeof(int))
+                value = ReadFieldInt(ref data, ref offset);
 
-            else if (ValueType == typeof(long))
-                Value = ReadFieldLong(Input, ref Data, ref Offset);
+            else if (valueType == typeof(long))
+                value = ReadFieldLong(ref data, ref offset);
 
-            else if (ValueType == typeof(short))
-                Value = ReadFieldShort(Input, ref Data, ref Offset);
+            else if (valueType == typeof(short))
+                value = ReadFieldShort(ref data, ref offset);
 
-            else if (ValueType == typeof(uint))
-                Value = ReadFieldUInt(Input, ref Data, ref Offset);
+            else if (valueType == typeof(uint))
+                value = ReadFieldUInt(ref data, ref offset);
 
-            else if (ValueType == typeof(ulong))
-                Value = ReadFieldULong(Input, ref Data, ref Offset);
+            else if (valueType == typeof(ulong))
+                value = ReadFieldULong(ref data, ref offset);
 
-            else if (ValueType == typeof(ushort))
-                Value = ReadFieldUShort(Input, ref Data, ref Offset);
+            else if (valueType == typeof(ushort))
+                value = ReadFieldUShort(ref data, ref offset);
 
-            else if (ValueType == typeof(string))
-                Value = ReadFieldString(Input, ref Data, ref Offset);
+            else if (valueType == typeof(string))
+                value = ReadFieldString(ref data, ref offset);
             
-            else if (ValueType == typeof(Guid))
-                Value = ReadFieldGuid(Input, ref Data, ref Offset);
+            else if (valueType == typeof(Guid))
+                value = ReadFieldGuid(ref data, ref offset);
 
-            else if (ValueType != null && ValueType.IsEnum)
+            else if (valueType != null && valueType.IsEnum)
             {
-                Type UnderlyingSystemType = ValueType.GetEnumUnderlyingType();
+                Type UnderlyingSystemType = valueType.GetEnumUnderlyingType();
                 if (UnderlyingSystemType == typeof(sbyte))
-                    Value = Enum.ToObject(ValueType, ReadFieldSByte(Input, ref Data, ref Offset));
+                    value = Enum.ToObject(valueType, ReadFieldSByte(ref data, ref offset));
                 else if (UnderlyingSystemType == typeof(byte))
-                    Value = Enum.ToObject(ValueType, ReadFieldByte(Input, ref Data, ref Offset));
+                    value = Enum.ToObject(valueType, ReadFieldByte(ref data, ref offset));
                 else if (UnderlyingSystemType == typeof(short))
-                    Value = Enum.ToObject(ValueType, ReadFieldShort(Input, ref Data, ref Offset));
+                    value = Enum.ToObject(valueType, ReadFieldShort(ref data, ref offset));
                 else if (UnderlyingSystemType == typeof(ushort))
-                    Value = Enum.ToObject(ValueType, ReadFieldUShort(Input, ref Data, ref Offset));
+                    value = Enum.ToObject(valueType, ReadFieldUShort(ref data, ref offset));
                 else if (UnderlyingSystemType == typeof(int))
-                    Value = Enum.ToObject(ValueType, ReadFieldInt(Input, ref Data, ref Offset));
+                    value = Enum.ToObject(valueType, ReadFieldInt(ref data, ref offset));
                 else if (UnderlyingSystemType == typeof(uint))
-                    Value = Enum.ToObject(ValueType, ReadFieldUInt(Input, ref Data, ref Offset));
+                    value = Enum.ToObject(valueType, ReadFieldUInt(ref data, ref offset));
                 else if (UnderlyingSystemType == typeof(long))
-                    Value = Enum.ToObject(ValueType, ReadFieldLong(Input, ref Data, ref Offset));
+                    value = Enum.ToObject(valueType, ReadFieldLong(ref data, ref offset));
                 else if (UnderlyingSystemType == typeof(ulong))
-                    Value = Enum.ToObject(ValueType, ReadFieldULong(Input, ref Data, ref Offset));
+                    value = Enum.ToObject(valueType, ReadFieldULong(ref data, ref offset));
                 else
-                    Value = Enum.ToObject(ValueType, ReadFieldInt(Input, ref Data, ref Offset));
+                    value = Enum.ToObject(valueType, ReadFieldInt(ref data, ref offset));
             }
 
             else
             {
-                Value = null;
+                value = null;
                 return false;
             }
 
             return true;
         }
 
-        private void ReadStringField(Stream Input, ref byte[] Data, ref int Offset, out string Value)
+        private void ReadStringField(ref byte[] data, ref int offset, out string value)
         {
-            ReadField(Input, ref Data, ref Offset, CountByteSize);
-            int CharCount = BitConverter.ToInt32(Data, Offset);
-            //if (CharCount > 10000)
-            //    CharCount = 10000;
+            ReadField(ref data, ref offset, CountByteSize);
+            int CharCount = BitConverter.ToInt32(data, offset);
 
-            Offset += CountByteSize;
+            offset += CountByteSize;
             if (CharCount < 0)
-                Value = null;
+                value = null;
             else
             {
-                ReadField(Input, ref Data, ref Offset, CharCount * 2);
-                Value = Bytes2String(CharCount, Data, Offset);
-                Offset += CharCount * 2;
+                ReadField(ref data, ref offset, CharCount * 2);
+                value = Bytes2String(CharCount, data, offset);
+                offset += CharCount * 2;
             }
         }
 
-        private void CreateObject(Type ReferenceType, ref object Reference)
+        private void CreateObject(Type referenceType, ref object reference)
         {
             try
             {
-                Reference = Activator.CreateInstance(ReferenceType);
+                reference = Activator.CreateInstance(referenceType);
             }
             catch
             {
             }
         }
 
-        private void CreateObject(Type ReferenceType, object[] Parameters, ref object Reference)
+        private void CreateObject(Type referenceType, object[] parameters, ref object reference)
         {
             try
             {
-                Reference = Activator.CreateInstance(ReferenceType, Parameters);
+                reference = Activator.CreateInstance(referenceType, parameters);
             }
             catch
             {
             }
         }
 
-        private void CreateObject(Type ValueType, long Count, ref object Reference)
+        private void CreateObject(Type valueType, long count, ref object reference)
         {
             try
             {
-                if (ValueType.IsArray)
+                if (valueType.IsArray)
                 {
-                    Type ArrayType = ValueType.GetElementType();
-                    Reference = Array.CreateInstance(ArrayType, Count);
+                    Type ArrayType = valueType.GetElementType();
+                    reference = Array.CreateInstance(ArrayType, count);
                 }
-                else if (Count < int.MaxValue)
+                else if (count < int.MaxValue)
                 {
-                    Reference = Activator.CreateInstance(ValueType, (int)Count);
+                    reference = Activator.CreateInstance(valueType, (int)count);
                 }
                 else
-                    Reference = Activator.CreateInstance(ValueType, Count);
+                    reference = Activator.CreateInstance(valueType, count);
             }
             catch
             {
@@ -763,122 +979,122 @@ namespace PolySerializer
             return Type.GetType(typeName);
         }
 
-        private void ProcessDeserializable(Stream Input, Type ReferenceType, ref byte[] Data, ref int Offset, out object Reference)
+        private void ProcessDeserializable(Type referenceType, ref byte[] data, ref int offset, out object reference)
         {
-            if (DeserializeBasicType(Input, ReferenceType, ref Data, ref Offset, out Reference))
+            if (DeserializeBasicType(referenceType, ref data, ref offset, out reference))
                 return;
 
-            string ReferenceTypeName = ReadFieldType(Input, ref Data, ref Offset);
+            string ReferenceTypeName = ReadFieldType(ref data, ref offset);
             if (ReferenceTypeName == null)
             {
-                Reference = null;
+                reference = null;
                 return;
             }
 
-            ReferenceType = Type.GetType(ReferenceTypeName);
-            Type OriginalType = ReferenceType;
-            OverrideType(ref ReferenceType);
-            Type NewType = ReferenceType;
-            ReferenceType = OriginalType;
+            referenceType = Type.GetType(ReferenceTypeName);
+            Type OriginalType = referenceType;
+            OverrideType(ref referenceType);
+            Type NewType = referenceType;
+            referenceType = OriginalType;
 
-            if (ReferenceType.IsValueType)
+            if (referenceType.IsValueType)
             {
-                CreateObject(NewType, ref Reference);
-                Deserialize(Input, ref Reference, ReferenceType, -1, ref Data, ref Offset, null);
+                CreateObject(NewType, ref reference);
+                Deserialize(ref reference, referenceType, -1, ref data, ref offset, null);
             }
 
             else
             {
-                ObjectTag ReferenceTag = ReadFieldTag(Input, ref Data, ref Offset);
+                ObjectTag ReferenceTag = ReadFieldTag(ref data, ref offset);
 
                 if (ReferenceTag == ObjectTag.ObjectIndex)
                 {
-                    int ReferenceIndex = ReadFieldObjectIndex(Input, ref Data, ref Offset);
-                    Reference = DeserializedObjectList[ReferenceIndex].Reference;
+                    int ReferenceIndex = ReadFieldObjectIndex(ref data, ref offset);
+                    reference = DeserializedObjectList[ReferenceIndex].Reference;
                 }
 
                 else if (ReferenceTag == ObjectTag.ObjectReference)
                 {
-                    CreateObject(NewType, ref Reference);
-                    AddDeserializedObject(Reference, ReferenceType, -1);
+                    CreateObject(NewType, ref reference);
+                    AddDeserializedObject(reference, referenceType, -1);
                 }
 
                 else if (ReferenceTag == ObjectTag.ObjectList)
                 {
-                    long Count = ReadFieldCount(Input, ref Data, ref Offset);
+                    long Count = ReadFieldCount(ref data, ref offset);
 
-                    CreateObject(NewType, Count, ref Reference);
-                    AddDeserializedObject(Reference, ReferenceType, Count);
+                    CreateObject(NewType, Count, ref reference);
+                    AddDeserializedObject(reference, referenceType, Count);
                 }
 
                 else if (ReferenceTag == ObjectTag.ConstructedObject)
                 {
                     List<SerializedMember> ConstructorParameters;
-                    if (ListConstructorParameters(Reference, ReferenceType, out ConstructorParameters))
+                    if (ListConstructorParameters(reference, referenceType, out ConstructorParameters))
                     {
                         object[] Parameters = new object[ConstructorParameters.Count];
 
                         for (int i = 0; i < Parameters.Length; i++)
                         {
-                            if (i > 0 && IsSerializedAsText)
+                            if (i > 0 && IsDeserializedAsText)
                             {
-                                ReadField(Input, ref Data, ref Offset, 1);
-                                char c = (char)Data[Offset];
-                                Offset++;
+                                ReadField(ref data, ref offset, 1);
+                                char c = (char)data[offset];
+                                offset++;
                             }
 
                             PropertyInfo AsPropertyInfo = ConstructorParameters[i].MemberInfo as PropertyInfo;
 
                             object MemberValue;
                             Type MemberType = AsPropertyInfo.PropertyType;
-                            ProcessDeserializable(Input, MemberType, ref Data, ref Offset, out MemberValue);
+                            ProcessDeserializable(MemberType, ref data, ref offset, out MemberValue);
 
                             Parameters[i] = MemberValue;
                         }
 
-                        if (IsSerializedAsText)
+                        if (IsDeserializedAsText)
                         {
-                            ReadField(Input, ref Data, ref Offset, 1);
-                            char c = (char)Data[Offset];
-                            Offset++;
+                            ReadField(ref data, ref offset, 1);
+                            char c = (char)data[offset];
+                            offset++;
                         }
 
-                        CreateObject(NewType, Parameters, ref Reference);
-                        AddDeserializedObject(Reference, ReferenceType, -1);
+                        CreateObject(NewType, Parameters, ref reference);
+                        AddDeserializedObject(reference, referenceType, -1);
                     }
                 }
             }
         }
 
-        private bool OverrideType(ref Type ReferenceType)
+        private bool OverrideType(ref Type referenceType)
         {
             if (TypeOverrideTable.Count == 0 && AssemblyOverrideTable.Count == 0 && NamespaceOverrideTable.Count == 0)
                 return false;
 
             if (TypeOverrideTable.Count > 0)
             {
-                if (OverrideDirectType(ref ReferenceType))
+                if (OverrideDirectType(ref referenceType))
                     return true;
 
-                if (OverrideGenericDefinitionType(ref ReferenceType))
+                if (OverrideGenericDefinitionType(ref referenceType))
                     return true;
             }
             
             if (AssemblyOverrideTable.Count > 0 || NamespaceOverrideTable.Count > 0)
             {
                 Type[] TypeList;
-                if (ReferenceType.IsGenericType && !ReferenceType.IsGenericTypeDefinition)
+                if (referenceType.IsGenericType && !referenceType.IsGenericTypeDefinition)
                 {
-                    Type[] GenericArguments = ReferenceType.GetGenericArguments();
+                    Type[] GenericArguments = referenceType.GetGenericArguments();
                     TypeList = new Type[1 + GenericArguments.Length];
-                    TypeList[0] = ReferenceType.GetGenericTypeDefinition();
+                    TypeList[0] = referenceType.GetGenericTypeDefinition();
                     for (int i = 0; i < GenericArguments.Length; i++)
                         TypeList[i + 1] = GenericArguments[i];
                 }
                 else
                 {
                     TypeList = new Type[1];
-                    TypeList[0] = ReferenceType;
+                    TypeList[0] = referenceType;
                 }
 
                 bool GlobalOverride = false;
@@ -935,13 +1151,13 @@ namespace PolySerializer
                 if (GlobalOverride)
                 {
                     if (TypeList.Length == 1)
-                        ReferenceType = TypeList[0];
+                        referenceType = TypeList[0];
                     else
                     {
                         Type[] GenericArguments = new Type[TypeList.Length - 1];
                         for (int i = 1; i < TypeList.Length; i++)
                             GenericArguments[i - 1] = TypeList[i];
-                        ReferenceType = TypeList[0].MakeGenericType(GenericArguments);
+                        referenceType = TypeList[0].MakeGenericType(GenericArguments);
                     }
 
                     return true;
@@ -951,418 +1167,307 @@ namespace PolySerializer
             return false;
         }
 
-        private bool OverrideDirectType(ref Type ReferenceType)
+        private bool OverrideDirectType(ref Type referenceType)
         {
-            if (!TypeOverrideTable.ContainsKey(ReferenceType))
+            if (!TypeOverrideTable.ContainsKey(referenceType))
                 return false;
 
-            ReferenceType = TypeOverrideTable[ReferenceType];
+            referenceType = TypeOverrideTable[referenceType];
             return true;
         }
 
-        private bool OverrideGenericDefinitionType(ref Type ReferenceType)
+        private bool OverrideGenericDefinitionType(ref Type referenceType)
         {
-            if (!ReferenceType.IsGenericType || ReferenceType.IsGenericTypeDefinition)
+            if (!referenceType.IsGenericType || referenceType.IsGenericTypeDefinition)
                 return false;
 
             bool Override = false;
 
-            Type GenericTypeDefinition = ReferenceType.GetGenericTypeDefinition();
+            Type GenericTypeDefinition = referenceType.GetGenericTypeDefinition();
             Override |= OverrideType(ref GenericTypeDefinition);
 
-            Type[] GenericArguments = ReferenceType.GetGenericArguments();
+            Type[] GenericArguments = referenceType.GetGenericArguments();
             if (OverrideGenericArguments)
                 for (int i = 0; i < GenericArguments.Length; i++)
                     Override |= OverrideType(ref GenericArguments[i]);
 
             if (Override)
             {
-                ReferenceType = GenericTypeDefinition.MakeGenericType(GenericArguments);
+                referenceType = GenericTypeDefinition.MakeGenericType(GenericArguments);
                 return true;
             }
 
             return false;
         }
 
-        private List<IDeserializedObject> DeserializedObjectList = new List<IDeserializedObject>();
-        #endregion
-
-        #region Check
-        public bool Check(Stream Input)
+        private void AddDeserializedObject(object Reference, Type DeserializedType, long Count)
         {
+            DeserializedObjectList.Add(new DeserializedObject(Reference, DeserializedType, Count));
+        }
+
+        private List<DeserializedMember> ListDeserializedMembers(Type deserializedType, ref byte[] data, ref int offset)
+        {
+            List<DeserializedMember> DeserializedMembers = new List<DeserializedMember>();
+
+            if (Mode == SerializationMode.MemberName)
+            {
+                List<string> MemberNames = ReadFieldMembers(ref data, ref offset);
+                foreach (string MemberName in MemberNames)
+                {
+                    MemberInfo[] MatchingMembers = deserializedType.GetMember(MemberName);
+                    DeserializedMember NewMember = new DeserializedMember(MatchingMembers[0]);
+
+                    CheckForSerializedCondition(NewMember);
+                    DeserializedMembers.Add(NewMember);
+                }
+            }
+
+            else
+            {
+                List<MemberInfo> Members = new List<MemberInfo>(deserializedType.GetMembers());
+
+                foreach (MemberInfo MemberInfo in Members)
+                {
+                    DeserializedMember NewMember = new DeserializedMember(MemberInfo);
+
+                    if (!IsDeserializableMember(deserializedType, NewMember))
+                        continue;
+
+                    DeserializedMembers.Add(NewMember);
+                }
+
+                if (Mode == SerializationMode.Default)
+                    DeserializedMembers.Sort(SortByName);
+            }
+
+            return DeserializedMembers;
+        }
+
+        private bool IsDeserializableMember(Type deserializedType, DeserializedMember newMember)
+        {
+            if (newMember.MemberInfo.MemberType != MemberTypes.Field && newMember.MemberInfo.MemberType != MemberTypes.Property)
+                return false;
+
+            if (IsStaticOrReadOnly(newMember.MemberInfo))
+                return false;
+
+            if (IsExcludedFromDeserialization(newMember))
+                return false;
+
+            if (IsReadOnlyPropertyWithNoValidSetter(deserializedType, newMember))
+                return false;
+
+            if (IsExcludedIndexer(newMember))
+                return false;
+
+            CheckForSerializedCondition(newMember);
+
+            return true;
+        }
+
+        private bool IsExcludedFromDeserialization(DeserializedMember newMember)
+        {
+            SerializableAttribute CustomSerializable = newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
+            if (CustomSerializable != null)
+            {
+                if (CustomSerializable.Exclude)
+                    return true;
+            }
+
             return false;
         }
-        #endregion
 
-        #region Misc
-        public static Type SerializableAncestor(Type ReferenceType)
+        private bool IsReadOnlyPropertyWithNoValidSetter(Type deserializedType, DeserializedMember newMember)
         {
-            Type t = ReferenceType;
-
-            while (t != null && !t.Attributes.HasFlag(TypeAttributes.Serializable) && t.GetCustomAttribute(typeof(PolySerializer.SerializableAttribute)) == null)
-                t = t.BaseType;
-
-            return t;
-        }
-
-        private long GetCollectionCount(object Reference)
-        {
-            IEnumerable AsEnumerable;
-
-            long Count = 0;
-            if ((AsEnumerable = Reference as IEnumerable) != null)
+            PropertyInfo AsPropertyInfo;
+            if ((AsPropertyInfo = newMember.MemberInfo as PropertyInfo) != null)
             {
-                IEnumerator Enumerator = AsEnumerable.GetEnumerator();
-                while (Enumerator.MoveNext())
-                    Count++;
-
-                return Count;
-            }
-            else
-                return -1;
-        }
-
-        private void AddSerializedObject(object Reference, long Count)
-        {
-            Type SerializedType = SerializableAncestor(Reference.GetType());
-            SerializableObject NewSerialized = new SerializableObject(Reference, SerializedType, Count);
-            SerializedObjectList.Add(NewSerialized);
-
-            CycleDetectionTable.Add(Reference, NewSerialized);
-        }
-
-        private int SortByName(SerializedMember p1, SerializedMember p2)
-        {
-            return p1.MemberInfo.Name.CompareTo(p2.MemberInfo.Name);
-        }
-
-        private int SortByName(DeserializedMember p1, DeserializedMember p2)
-        {
-            return p1.MemberInfo.Name.CompareTo(p2.MemberInfo.Name);
-        }
-
-        private object GetPropertyValue(PropertyInfo SerializedProperty, object Reference)
-        {
-            return SerializedProperty.GetValue(Reference, null);
-        }
-
-        private void AddFieldSByte(Stream Output, ref byte[] Data, ref int Offset, sbyte value)
-        {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(Output, ref Data, ref Offset, $"0x{((byte)value).ToString("X02")}");
-            else
-                AddField(Output, ref Data, ref Offset, new byte[1] { (byte)value });
-        }
-
-        private void AddFieldByte(Stream Output, ref byte[] Data, ref int Offset, byte value)
-        {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(Output, ref Data, ref Offset, $"0x{value.ToString("X02")}");
-            else
-                AddField(Output, ref Data, ref Offset, new byte[1] { value });
-        }
-
-        private void AddFieldBool(Stream Output, ref byte[] Data, ref int Offset, bool value)
-        {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(Output, ref Data, ref Offset, $"{value}");
-            else
-                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(value));
-        }
-
-        private void AddFieldChar(Stream Output, ref byte[] Data, ref int Offset, char value)
-        {
-            if (IsSerializedAsText)
-            {
-                if (value == '\'')
-                    AddFieldStringDirect(Output, ref Data, ref Offset, @"'\''");
-                else
-                    AddFieldStringDirect(Output, ref Data, ref Offset, $"'{value}'");
-            }
-            else
-                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(value));
-        }
-
-        private void AddFieldDecimal(Stream Output, ref byte[] Data, ref int Offset, decimal value)
-        {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(Output, ref Data, ref Offset, $"{value.ToString(CultureInfo.InvariantCulture)}m");
-            else
-            {
-                int[] DecimalInts = decimal.GetBits(value);
-                for (int i = 0; i < 4; i++)
+                if (AsPropertyInfo.CanWrite)
                 {
-                    byte[] DecimalBytes = BitConverter.GetBytes(DecimalInts[i]);
-                    AddField(Output, ref Data, ref Offset, DecimalBytes);
-                }
-            }
-        }
-
-        private void AddFieldDouble(Stream Output, ref byte[] Data, ref int Offset, double value)
-        {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(Output, ref Data, ref Offset, $"{value.ToString(CultureInfo.InvariantCulture)}d");
-            else
-                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(value));
-        }
-
-        private void AddFieldFloat(Stream Output, ref byte[] Data, ref int Offset, float value)
-        {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(Output, ref Data, ref Offset, $"{value.ToString(CultureInfo.InvariantCulture)}f");
-            else
-                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(value));
-        }
-
-        private void AddFieldInt(Stream Output, ref byte[] Data, ref int Offset, int value)
-        {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(Output, ref Data, ref Offset, $"0x{value.ToString("X08")}");
-            else
-                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(value));
-        }
-
-        private void AddFieldLong(Stream Output, ref byte[] Data, ref int Offset, long value)
-        {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(Output, ref Data, ref Offset, $"0x{value.ToString("X16")}");
-            else
-                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(value));
-        }
-
-        private void AddFieldShort(Stream Output, ref byte[] Data, ref int Offset, short value)
-        {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(Output, ref Data, ref Offset, $"0x{value.ToString("X04")}");
-            else
-                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(value));
-        }
-
-        private void AddFieldUInt(Stream Output, ref byte[] Data, ref int Offset, uint value)
-        {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(Output, ref Data, ref Offset, $"0x{value.ToString("X08")}");
-            else
-                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(value));
-        }
-
-        private void AddFieldULong(Stream Output, ref byte[] Data, ref int Offset, ulong value)
-        {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(Output, ref Data, ref Offset, $"0x{value.ToString("X16")}");
-            else
-                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(value));
-        }
-
-        private void AddFieldUShort(Stream Output, ref byte[] Data, ref int Offset, ushort value)
-        {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(Output, ref Data, ref Offset, $"0x{value.ToString("X04")}");
-            else
-                AddField(Output, ref Data, ref Offset, BitConverter.GetBytes(value));
-        }
-
-        private void AddFieldString(Stream Output, ref byte[] Data, ref int Offset, string value)
-        {
-            if (IsSerializedAsText)
-            {
-                if (value == null)
-                    value = "null";
-                else
-                    value = "\"" + value.Replace("\"", "\\\"") + "\"";
-
-                AddField(Output, ref Data, ref Offset, Encoding.UTF8.GetBytes(value));
-            }
-            else
-                AddField(Output, ref Data, ref Offset, String2Bytes(value));
-        }
-
-        private void AddFieldGuid(Stream Output, ref byte[] Data, ref int Offset, Guid value)
-        {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(Output, ref Data, ref Offset, value.ToString("B"));
-            else
-                AddField(Output, ref Data, ref Offset, value.ToByteArray());
-        }
-
-        private void AddFieldNull(Stream Output, ref byte[] Data, ref int Offset)
-        {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(Output, ref Data, ref Offset, "null");
-            else
-                AddField(Output, ref Data, ref Offset, new byte[CountByteSize] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF });
-        }
-
-        private void AddFieldType(Stream Output, ref byte[] Data, ref int Offset, Type value)
-        {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(Output, ref Data, ref Offset, $"{{{value.AssemblyQualifiedName}}}");
-            else
-                AddFieldString(Output, ref Data, ref Offset, value.AssemblyQualifiedName);
-        }
-
-        private void AddFieldStringDirect(Stream Output, ref byte[] Data, ref int Offset, string s)
-        {
-            AddField(Output, ref Data, ref Offset, Encoding.UTF8.GetBytes(s));
-        }
-
-        private void AddFieldMembers(Stream Output, ref byte[] Data, ref int Offset, List<SerializedMember> SerializedMembers)
-        {
-            if (IsSerializedAsText)
-            {
-                for (int i = 0; i < SerializedMembers.Count; i++)
-                {
-                    if (i > 0)
-                        AddFieldStringDirect(Output, ref Data, ref Offset, ",");
-
-                    SerializedMember Member = SerializedMembers[i];
-                    AddFieldStringDirect(Output, ref Data, ref Offset, Member.MemberInfo.Name);
+                    Debug.Assert(AsPropertyInfo.SetMethod != null);
+                    MethodInfo Setter = AsPropertyInfo.SetMethod;
+                    if (Setter.Attributes.HasFlag(MethodAttributes.Public))
+                        return false;
                 }
 
-                AddFieldStringDirect(Output, ref Data, ref Offset, "\n");
+                SerializableAttribute CustomSerializable = newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
+                if (CustomSerializable != null)
+                {
+                    if (CustomSerializable.Setter != null)
+                    {
+                        MemberInfo[] SetterMembers = deserializedType.GetMember(CustomSerializable.Setter);
+                        if (SetterMembers != null)
+                        {
+                            Type ExpectedParameterType = AsPropertyInfo.PropertyType;
+
+                            foreach (MemberInfo SetterMember in SetterMembers)
+                            {
+                                MethodInfo AsMethodInfo;
+
+                                if ((AsMethodInfo = SetterMember as MethodInfo) != null)
+                                {
+                                    ParameterInfo[] Parameters = AsMethodInfo.GetParameters();
+                                    if (Parameters != null && Parameters.Length == 1)
+                                    {
+                                        ParameterInfo Parameter = Parameters[0];
+                                        if (Parameter.ParameterType == ExpectedParameterType)
+                                        {
+                                            newMember.SetPropertySetter(AsMethodInfo);
+                                            return false;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
             else
-            {
-                AddFieldInt(Output, ref Data, ref Offset, SerializedMembers.Count);
+                return false;
 
-                foreach (SerializedMember Member in SerializedMembers)
-                    AddFieldString(Output, ref Data, ref Offset, Member.MemberInfo.Name);
-            }
+            return true;
         }
 
-        private void AddField(Stream Output, ref byte[] Data, ref int Offset, byte[] FieldContent)
+        private bool IsExcludedIndexer(DeserializedMember newMember)
         {
-            if (Offset + FieldContent.Length > Data.Length)
-            {
-                Output.Write(Data, 0, Offset);
-                Offset = 0;
+            SerializableAttribute CustomSerializable = newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
+            if (CustomSerializable != null)
+                return false;
 
-                if (Data.Length < FieldContent.Length)
-                    Data = new byte[FieldContent.Length];
-            }
+            if (newMember.MemberInfo.Name == "Item" && newMember.MemberInfo.MemberType == MemberTypes.Property)
+                return true;
 
-            for (int i = 0; i < FieldContent.Length; i++)
-                Data[Offset++] = FieldContent[i];
+            return false;
         }
 
-        private sbyte ReadFieldSByte(Stream Input, ref byte[] Data, ref int Offset)
+        private void CheckForSerializedCondition(DeserializedMember newMember)
+        {
+            SerializableAttribute CustomSerializable = newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
+            if (CustomSerializable != null)
+            {
+                if (CustomSerializable.Condition != null)
+                    newMember.SetHasCondition();
+            }
+        }
+
+        private sbyte ReadFieldSByte(ref byte[] data, ref int offset)
         {
             sbyte Value;
 
             if (IsSerializedAsText)
             {
-                ReadField(Input, ref Data, ref Offset, 4);
+                ReadField(ref data, ref offset, 4);
 
                 uint n = 0;
                 for (int i = 0; i < 2; i++)
-                    n = (n * 16) + (uint)FromHexDigit(Data, Offset + 2 + i);
+                    n = (n * 16) + (uint)FromHexDigit(data, offset + 2 + i);
 
                 Value = (sbyte)n;
-                Offset += 4;
+                offset += 4;
             }
             else
             {
-                ReadField(Input, ref Data, ref Offset, 1);
-                Value = (sbyte)Data[Offset];
-                Offset++;
+                ReadField(ref data, ref offset, 1);
+                Value = (sbyte)data[offset];
+                offset++;
             }
 
             return Value;
         }
 
-        private byte ReadFieldByte(Stream Input, ref byte[] Data, ref int Offset)
+        private byte ReadFieldByte(ref byte[] data, ref int offset)
         {
             byte Value;
 
             if (IsSerializedAsText)
             {
-                ReadField(Input, ref Data, ref Offset, 4);
+                ReadField(ref data, ref offset, 4);
 
                 uint n = 0;
                 for (int i = 0; i < 2; i++)
-                    n = (n * 16) + (uint)FromHexDigit(Data, Offset + 2 + i);
+                    n = (n * 16) + (uint)FromHexDigit(data, offset + 2 + i);
 
                 Value = (byte)n;
-                Offset += 4;
+                offset += 4;
             }
             else
             {
-                ReadField(Input, ref Data, ref Offset, 1);
-                Value = Data[Offset];
-                Offset++;
+                ReadField(ref data, ref offset, 1);
+                Value = data[offset];
+                offset++;
             }
 
             return Value;
         }
 
-        private bool ReadFieldBool(Stream Input, ref byte[] Data, ref int Offset)
+        private bool ReadFieldBool(ref byte[] data, ref int offset)
         {
             bool Value;
 
             if (IsSerializedAsText)
             {
-                ReadField(Input, ref Data, ref Offset, 4);
+                ReadField(ref data, ref offset, 4);
 
-                Value = (Data[Offset + 0] == 'T' && Data[Offset + 1] == 'r' && Data[Offset + 2] == 'u' && Data[Offset + 3] == 'e');
-                Offset += 4;
+                Value = (data[offset + 0] == 'T' && data[offset + 1] == 'r' && data[offset + 2] == 'u' && data[offset + 3] == 'e');
+                offset += 4;
 
                 if (!Value)
                 {
-                    ReadField(Input, ref Data, ref Offset, 1);
-                    Offset++;
+                    ReadField(ref data, ref offset, 1);
+                    offset++;
                 }
             }
             else
             {
-                ReadField(Input, ref Data, ref Offset, 1);
-                Value = BitConverter.ToBoolean(Data, Offset);
-                Offset += 1;
+                ReadField(ref data, ref offset, 1);
+                Value = BitConverter.ToBoolean(data, offset);
+                offset += 1;
             }
 
             return Value;
         }
 
-        private char ReadFieldChar(Stream Input, ref byte[] Data, ref int Offset)
+        private char ReadFieldChar(ref byte[] data, ref int offset)
         {
             char Value;
 
             if (IsSerializedAsText)
             {
-                ReadField(Input, ref Data, ref Offset, 2);
-                int CharOffset = Offset;
-                Offset += 2;
+                ReadField(ref data, ref offset, 2);
+                int CharOffset = offset;
+                offset += 2;
 
                 do
-                    ReadField(Input, ref Data, ref Offset, 1);
-                while (Data[Offset++] != '\'');
+                    ReadField(ref data, ref offset, 1);
+                while (data[offset++] != '\'');
 
-                if (Offset == CharOffset + 4 && Data[CharOffset + 1] == '\\' && Data[CharOffset + 2] == '\'')
+                if (offset == CharOffset + 4 && data[CharOffset + 1] == '\\' && data[CharOffset + 2] == '\'')
                     Value = '\'';
                 else
-                    Value = Encoding.UTF8.GetString(Data, CharOffset + 1, Offset - CharOffset - 2)[0];
+                    Value = Encoding.UTF8.GetString(data, CharOffset + 1, offset - CharOffset - 2)[0];
             }
             else
             {
-                ReadField(Input, ref Data, ref Offset, 2);
-                Value = BitConverter.ToChar(Data, Offset);
-                Offset += 2;
+                ReadField(ref data, ref offset, 2);
+                Value = BitConverter.ToChar(data, offset);
+                offset += 2;
             }
 
             return Value;
         }
 
-        private decimal ReadFieldDecimal(Stream Input, ref byte[] Data, ref int Offset)
+        private decimal ReadFieldDecimal(ref byte[] data, ref int offset)
         {
             decimal Value;
 
             if (IsSerializedAsText)
             {
-                int BaseOffset = Offset;
+                int BaseOffset = offset;
                 do
-                    ReadField(Input, ref Data, ref Offset, 1);
-                while (Data[Offset++] != 'm');
+                    ReadField(ref data, ref offset, 1);
+                while (data[offset++] != 'm');
 
-                string s = Encoding.UTF8.GetString(Data, BaseOffset, Offset - BaseOffset - 1);
+                string s = Encoding.UTF8.GetString(data, BaseOffset, offset - BaseOffset - 1);
                 if (decimal.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal Parsed))
                     Value = Parsed;
                 else
@@ -1370,12 +1475,12 @@ namespace PolySerializer
             }
             else
             {
-                ReadField(Input, ref Data, ref Offset, 16);
+                ReadField(ref data, ref offset, 16);
                 int[] DecimalInts = new int[4];
                 for (int i = 0; i < 4; i++)
                 {
-                    DecimalInts[i] = BitConverter.ToInt32(Data, Offset);
-                    Offset += 4;
+                    DecimalInts[i] = BitConverter.ToInt32(data, offset);
+                    offset += 4;
                 }
 
                 Value = new decimal(DecimalInts);
@@ -1384,18 +1489,18 @@ namespace PolySerializer
             return Value;
         }
 
-        private double ReadFieldDouble(Stream Input, ref byte[] Data, ref int Offset)
+        private double ReadFieldDouble(ref byte[] data, ref int offset)
         {
             double Value;
 
             if (IsSerializedAsText)
             {
-                int BaseOffset = Offset;
+                int BaseOffset = offset;
                 do
-                    ReadField(Input, ref Data, ref Offset, 1);
-                while (Data[Offset++] != 'd');
+                    ReadField(ref data, ref offset, 1);
+                while (data[offset++] != 'd');
 
-                string s = Encoding.UTF8.GetString(Data, BaseOffset, Offset - BaseOffset - 1);
+                string s = Encoding.UTF8.GetString(data, BaseOffset, offset - BaseOffset - 1);
                 if (double.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out double Parsed))
                     Value = Parsed;
                 else
@@ -1403,26 +1508,26 @@ namespace PolySerializer
             }
             else
             {
-                ReadField(Input, ref Data, ref Offset, 8);
-                Value = BitConverter.ToDouble(Data, Offset);
-                Offset += 8;
+                ReadField(ref data, ref offset, 8);
+                Value = BitConverter.ToDouble(data, offset);
+                offset += 8;
             }
 
             return Value;
         }
 
-        private float ReadFieldFloat(Stream Input, ref byte[] Data, ref int Offset)
+        private float ReadFieldFloat(ref byte[] data, ref int offset)
         {
             float Value;
 
             if (IsSerializedAsText)
             {
-                int BaseOffset = Offset;
+                int BaseOffset = offset;
                 do
-                    ReadField(Input, ref Data, ref Offset, 1);
-                while (Data[Offset++] != 'f');
+                    ReadField(ref data, ref offset, 1);
+                while (data[offset++] != 'f');
 
-                string s = Encoding.UTF8.GetString(Data, BaseOffset, Offset - BaseOffset - 1);
+                string s = Encoding.UTF8.GetString(data, BaseOffset, offset - BaseOffset - 1);
                 if (float.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out float Parsed))
                     Value = Parsed;
                 else
@@ -1430,228 +1535,228 @@ namespace PolySerializer
             }
             else
             {
-                ReadField(Input, ref Data, ref Offset, 4);
-                Value = BitConverter.ToSingle(Data, Offset);
-                Offset += 4;
+                ReadField(ref data, ref offset, 4);
+                Value = BitConverter.ToSingle(data, offset);
+                offset += 4;
             }
 
             return Value;
         }
 
-        private int ReadFieldInt(Stream Input, ref byte[] Data, ref int Offset)
+        private int ReadFieldInt(ref byte[] data, ref int offset)
         {
             int Value;
 
             if (IsSerializedAsText)
             {
-                ReadField(Input, ref Data, ref Offset, 10);
+                ReadField(ref data, ref offset, 10);
 
                 uint n = 0;
                 for (int i = 0; i < 8; i++)
-                    n = (n * 16) + (uint)FromHexDigit(Data, Offset + 2 + i);
+                    n = (n * 16) + (uint)FromHexDigit(data, offset + 2 + i);
 
                 Value = (int)n;
-                Offset += 10;
+                offset += 10;
             }
             else
             {
-                ReadField(Input, ref Data, ref Offset, 4);
-                Value = BitConverter.ToInt32(Data, Offset);
-                Offset += 4;
+                ReadField(ref data, ref offset, 4);
+                Value = BitConverter.ToInt32(data, offset);
+                offset += 4;
             }
 
             return Value;
         }
 
-        private long ReadFieldLong(Stream Input, ref byte[] Data, ref int Offset)
+        private long ReadFieldLong(ref byte[] data, ref int offset)
         {
             long Value;
 
             if (IsSerializedAsText)
             {
-                ReadField(Input, ref Data, ref Offset, 18);
+                ReadField(ref data, ref offset, 18);
 
                 ulong n = 0;
                 for (int i = 0; i < 16; i++)
-                    n = (n * 16) + (ulong)FromHexDigit(Data, Offset + 2 + i);
+                    n = (n * 16) + (ulong)FromHexDigit(data, offset + 2 + i);
 
                 Value = (long)n;
-                Offset += 18;
+                offset += 18;
             }
             else
             {
-                ReadField(Input, ref Data, ref Offset, 8);
-                Value = BitConverter.ToInt64(Data, Offset);
-                Offset += 8;
+                ReadField(ref data, ref offset, 8);
+                Value = BitConverter.ToInt64(data, offset);
+                offset += 8;
             }
 
             return Value;
         }
 
-        private short ReadFieldShort(Stream Input, ref byte[] Data, ref int Offset)
+        private short ReadFieldShort(ref byte[] data, ref int offset)
         {
             short Value;
 
             if (IsSerializedAsText)
             {
-                ReadField(Input, ref Data, ref Offset, 6);
+                ReadField(ref data, ref offset, 6);
 
                 uint n = 0;
                 for (int i = 0; i < 4; i++)
-                    n = (n * 16) + (uint)FromHexDigit(Data, Offset + 2 + i);
+                    n = (n * 16) + (uint)FromHexDigit(data, offset + 2 + i);
 
                 Value = (short)n;
-                Offset += 6;
+                offset += 6;
             }
             else
             {
-                ReadField(Input, ref Data, ref Offset, 2);
-                Value = BitConverter.ToInt16(Data, Offset);
-                Offset += 2;
+                ReadField(ref data, ref offset, 2);
+                Value = BitConverter.ToInt16(data, offset);
+                offset += 2;
             }
 
             return Value;
         }
 
-        private uint ReadFieldUInt(Stream Input, ref byte[] Data, ref int Offset)
+        private uint ReadFieldUInt(ref byte[] data, ref int offset)
         {
             uint Value;
 
             if (IsSerializedAsText)
             {
-                ReadField(Input, ref Data, ref Offset, 10);
+                ReadField(ref data, ref offset, 10);
 
                 uint n = 0;
                 for (int i = 0; i < 8; i++)
-                    n = (n * 16) + (uint)FromHexDigit(Data, Offset + 2 + i);
+                    n = (n * 16) + (uint)FromHexDigit(data, offset + 2 + i);
 
                 Value = n;
-                Offset += 10;
+                offset += 10;
             }
             else
             {
-                ReadField(Input, ref Data, ref Offset, 4);
-                Value = BitConverter.ToUInt32(Data, Offset);
-                Offset += 4;
+                ReadField(ref data, ref offset, 4);
+                Value = BitConverter.ToUInt32(data, offset);
+                offset += 4;
             }
 
             return Value;
         }
 
-        private ulong ReadFieldULong(Stream Input, ref byte[] Data, ref int Offset)
+        private ulong ReadFieldULong(ref byte[] data, ref int offset)
         {
             ulong Value;
 
             if (IsSerializedAsText)
             {
-                ReadField(Input, ref Data, ref Offset, 18);
+                ReadField(ref data, ref offset, 18);
 
                 ulong n = 0;
                 for (int i = 0; i < 16; i++)
-                    n = (n * 16) + (ulong)FromHexDigit(Data, Offset + 2 + i);
+                    n = (n * 16) + (ulong)FromHexDigit(data, offset + 2 + i);
 
                 Value = n;
-                Offset += 18;
+                offset += 18;
             }
             else
             {
-                ReadField(Input, ref Data, ref Offset, 8);
-                Value = BitConverter.ToUInt64(Data, Offset);
-                Offset += 8;
+                ReadField(ref data, ref offset, 8);
+                Value = BitConverter.ToUInt64(data, offset);
+                offset += 8;
             }
 
             return Value;
         }
 
-        private ushort ReadFieldUShort(Stream Input, ref byte[] Data, ref int Offset)
+        private ushort ReadFieldUShort(ref byte[] data, ref int offset)
         {
             ushort Value;
 
             if (IsSerializedAsText)
             {
-                ReadField(Input, ref Data, ref Offset, 6);
+                ReadField(ref data, ref offset, 6);
 
                 uint n = 0;
                 for (int i = 0; i < 4; i++)
-                    n = (n * 16) + (uint)FromHexDigit(Data, Offset + 2 + i);
+                    n = (n * 16) + (uint)FromHexDigit(data, offset + 2 + i);
 
                 Value = (ushort)n;
-                Offset += 6;
+                offset += 6;
             }
             else
             {
-                ReadField(Input, ref Data, ref Offset, 2);
-                Value = BitConverter.ToUInt16(Data, Offset);
-                Offset += 2;
+                ReadField(ref data, ref offset, 2);
+                Value = BitConverter.ToUInt16(data, offset);
+                offset += 2;
             }
 
             return Value;
         }
 
-        private string ReadFieldString(Stream Input, ref byte[] Data, ref int Offset)
+        private string ReadFieldString(ref byte[] data, ref int offset)
         {
             string Value;
 
             if (IsSerializedAsText)
             {
-                ReadField(Input, ref Data, ref Offset, 1);
-                if (Data[Offset] == 'n')
+                ReadField(ref data, ref offset, 1);
+                if (data[offset] == 'n')
                 {
-                    Offset++;
-                    ReadField(Input, ref Data, ref Offset, 3);
-                    if (Data[Offset + 0] == 'u' && Data[Offset + 1] == 'l' && Data[Offset + 2] == 'l')
-                        Offset += 3;
+                    offset++;
+                    ReadField(ref data, ref offset, 3);
+                    if (data[offset + 0] == 'u' && data[offset + 1] == 'l' && data[offset + 2] == 'l')
+                        offset += 3;
 
                     return null;
                 }
 
-                if (Data[Offset] != '"')
+                if (data[offset] != '"')
                 {
-                    Offset++;
+                    offset++;
                     return null;
                 }
 
-                int BaseOffset = Offset++;
+                int BaseOffset = offset++;
 
-                for (;;)
+                for (; ; )
                 {
-                    ReadField(Input, ref Data, ref Offset, 1);
-                    if (Data[Offset] == '\\')
+                    ReadField(ref data, ref offset, 1);
+                    if (data[offset] == '\\')
                     {
-                        Offset++;
-                        ReadField(Input, ref Data, ref Offset, 1);
+                        offset++;
+                        ReadField(ref data, ref offset, 1);
                     }
-                    else if (Data[Offset] == '"')
+                    else if (data[offset] == '"')
                     {
-                        Offset++;
+                        offset++;
                         break;
                     }
 
-                    Offset++;
+                    offset++;
                 }
 
-                string Content = Encoding.UTF8.GetString(Data, BaseOffset + 1, Offset - BaseOffset - 2);
+                string Content = Encoding.UTF8.GetString(data, BaseOffset + 1, offset - BaseOffset - 2);
                 Value = Content.Replace("\\\"", "\"");
             }
             else
             {
                 string StringValue;
-                ReadStringField(Input, ref Data, ref Offset, out StringValue);
+                ReadStringField(ref data, ref offset, out StringValue);
                 Value = StringValue;
             }
 
             return Value;
         }
 
-        private Guid ReadFieldGuid(Stream Input, ref byte[] Data, ref int Offset)
+        private Guid ReadFieldGuid(ref byte[] data, ref int offset)
         {
             Guid Value;
 
             if (IsSerializedAsText)
             {
-                ReadField(Input, ref Data, ref Offset, 38);
-                string Content = Encoding.UTF8.GetString(Data, Offset, 38);
-                Offset += 38;
+                ReadField(ref data, ref offset, 38);
+                string Content = Encoding.UTF8.GetString(data, offset, 38);
+                offset += 38;
 
                 if (Guid.TryParse(Content, out Guid AsGuid))
                     Value = AsGuid;
@@ -1660,10 +1765,10 @@ namespace PolySerializer
             }
             else
             {
-                ReadField(Input, ref Data, ref Offset, 16);
+                ReadField(ref data, ref offset, 16);
                 byte[] GuidBytes = new byte[16];
                 for (int i = 0; i < 16; i++)
-                    GuidBytes[i] = Data[Offset++];
+                    GuidBytes[i] = data[offset++];
                 Value = new Guid(GuidBytes);
                 //Value = Guid.NewGuid();
             }
@@ -1671,53 +1776,55 @@ namespace PolySerializer
             return Value;
         }
 
-        private string ReadFieldType(Stream Input, ref byte[] Data, ref int Offset)
+        private string ReadFieldType(ref byte[] data, ref int offset)
         {
             string Value;
 
             if (IsSerializedAsText)
             {
-                int BaseOffset = Offset;
+                int BaseOffset = offset;
 
-                ReadField(Input, ref Data, ref Offset, 1);
-                if (Data[Offset] != '{')
+                ReadField(ref data, ref offset, 1);
+                if (data[offset] != '{')
                 {
-                    if (Data[Offset++] == 'n')
+                    if (data[offset++] == 'n')
                     {
-                        ReadField(Input, ref Data, ref Offset, 3);
-                        if (Data[Offset + 0] == 'u' && Data[Offset + 1] == 'l' && Data[Offset + 2] == 'l')
-                            Offset += 3;
+                        ReadField(ref data, ref offset, 3);
+                        if (data[offset + 0] == 'u' && data[offset + 1] == 'l' && data[offset + 2] == 'l')
+                            offset += 3;
                     }
 
                     return null;
                 }
 
                 do
-                    ReadField(Input, ref Data, ref Offset, 1);
-                while (Data[Offset++] != '}');
+                    ReadField(ref data, ref offset, 1);
+                while (data[offset++] != '}');
 
-                Value = Encoding.UTF8.GetString(Data, BaseOffset + 1, Offset - BaseOffset - 2);
+                Value = Encoding.UTF8.GetString(data, BaseOffset + 1, offset - BaseOffset - 2);
             }
             else
             {
-                ReadStringField(Input, ref Data, ref Offset, out string AsString);
+                ReadStringField(ref data, ref offset, out string AsString);
                 Value = AsString;
             }
 
             return Value;
         }
 
-        private void ReadFieldMembers(Stream Input, ref byte[] Data, ref int Offset, out List<string> MemberNames)
+        private List<string> ReadFieldMembers(ref byte[] data, ref int offset)
         {
+            List<string> MemberNames;
+
             if (IsSerializedAsText)
             {
-                int BaseOffset = Offset;
+                int BaseOffset = offset;
 
                 do
-                    ReadField(Input, ref Data, ref Offset, 1);
-                while (Data[Offset++] != '\n');
+                    ReadField(ref data, ref offset, 1);
+                while (data[offset++] != '\n');
 
-                string AllNames = Encoding.UTF8.GetString(Data, BaseOffset, Offset - BaseOffset - 1);
+                string AllNames = Encoding.UTF8.GetString(data, BaseOffset, offset - BaseOffset - 1);
                 string[] Splitted = AllNames.Split(',');
                 MemberNames = new List<string>(Splitted);
             }
@@ -1725,33 +1832,35 @@ namespace PolySerializer
             {
                 MemberNames = new List<string>();
 
-                ReadField(Input, ref Data, ref Offset, 4);
-                int MemberCount = BitConverter.ToInt32(Data, Offset);
-                Offset += 4;
+                ReadField(ref data, ref offset, 4);
+                int MemberCount = BitConverter.ToInt32(data, offset);
+                offset += 4;
 
                 for (int i = 0; i < MemberCount; i++)
                 {
                     string MemberName;
-                    ReadStringField(Input, ref Data, ref Offset, out MemberName);
+                    ReadStringField(ref data, ref offset, out MemberName);
                     MemberNames.Add(MemberName);
                 }
             }
+
+            return MemberNames;
         }
 
-        private ObjectTag ReadFieldTag(Stream Input, ref byte[] Data, ref int Offset)
+        private ObjectTag ReadFieldTag(ref byte[] data, ref int offset)
         {
             ObjectTag Value;
 
             if (IsSerializedAsText)
             {
-                ReadField(Input, ref Data, ref Offset, 1);
-                char c = (char)Data[Offset++];
+                ReadField(ref data, ref offset, 1);
+                char c = (char)data[offset++];
                 if (c == '\n')
                     Value = ObjectTag.ObjectReference;
                 else if (c == ' ')
                 {
-                    ReadField(Input, ref Data, ref Offset, 1);
-                    c = (char)Data[Offset++];
+                    ReadField(ref data, ref offset, 1);
+                    c = (char)data[offset++];
 
                     if (c == '#')
                         Value = ObjectTag.ObjectIndex;
@@ -1767,87 +1876,99 @@ namespace PolySerializer
             }
             else
             {
-                ReadField(Input, ref Data, ref Offset, 1);
-                Value = (ObjectTag)Data[Offset++];
+                ReadField(ref data, ref offset, 1);
+                Value = (ObjectTag)data[offset++];
             }
 
             return Value;
         }
 
-        private int ReadFieldObjectIndex(Stream Input, ref byte[] Data, ref int Offset)
+        private int ReadFieldObjectIndex(ref byte[] data, ref int offset)
         {
             int Value;
 
             if (IsSerializedAsText)
             {
-                int BaseOffset = Offset;
+                int BaseOffset = offset;
                 do
-                    ReadField(Input, ref Data, ref Offset, 1);
-                while (Data[Offset++] != '\n');
+                    ReadField(ref data, ref offset, 1);
+                while (data[offset++] != '\n');
 
                 int n = 0;
-                for (int i = BaseOffset; i + 1 < Offset; i++)
-                    n = (n * 10) + FromDecimalDigit(Data, i);
+                for (int i = BaseOffset; i + 1 < offset; i++)
+                    n = (n * 10) + FromDecimalDigit(data, i);
 
                 Value = n;
             }
             else
-                Value = (int)ReadFieldLong(Input, ref Data, ref Offset);
+                Value = (int)ReadFieldLong(ref data, ref offset);
 
             return Value;
         }
 
-        private long ReadFieldCount(Stream Input, ref byte[] Data, ref int Offset)
+        private long ReadFieldCount(ref byte[] data, ref int offset)
         {
             long Value;
 
             if (IsSerializedAsText)
             {
-                int BaseOffset = Offset;
+                int BaseOffset = offset;
                 do
-                    ReadField(Input, ref Data, ref Offset, 1);
-                while (Data[Offset++] != '\n');
+                    ReadField(ref data, ref offset, 1);
+                while (data[offset++] != '\n');
 
                 long n = 0;
-                for (int i = BaseOffset; i + 1 < Offset; i++)
-                    n = (n * 10) + FromDecimalDigit(Data, i);
+                for (int i = BaseOffset; i + 1 < offset; i++)
+                    n = (n * 10) + FromDecimalDigit(data, i);
 
                 Value = n;
             }
             else
-                Value = ReadFieldLong(Input, ref Data, ref Offset);
+                Value = ReadFieldLong(ref data, ref offset);
 
             return Value;
         }
 
-        private void ReadField(Stream Input, ref byte[] Data, ref int Offset, int MinLength)
+        private void ReadField(ref byte[] data, ref int offset, int minLength)
         {
             bool Reload = false;
 
-            if (Offset + MinLength > Data.Length)
+            if (offset + minLength > data.Length)
             {
                 int i;
-                for (i = 0; i < Data.Length - Offset; i++)
-                    Data[i] = Data[i + Offset];
-                Offset = i;
+                for (i = 0; i < data.Length - offset; i++)
+                    data[i] = data[i + offset];
+                offset = i;
 
                 Reload = true;
             }
-            else if (Offset == 0)
+            else if (offset == 0)
                 Reload = true;
 
             if (Reload)
             {
                 long Length = (Input.Length - Input.Position);
-                if (Length > Data.Length - Offset)
-                    Length = Data.Length - Offset;
+                if (Length > data.Length - offset)
+                    Length = data.Length - offset;
 
-                Input.Read(Data, Offset, (int)Length);
-                Offset = 0;
+                Input.Read(data, offset, (int)Length);
+                offset = 0;
             }
         }
 
-        public static bool IsReadableCollection(Type t, object Reference, out IEnumerator Enumerator)
+        private bool IsDeserializedAsText;
+        private List<IDeserializedObject> DeserializedObjectList = new List<IDeserializedObject>();
+        #endregion
+
+        #region Check
+        public bool Check(Stream Input)
+        {
+            return false;
+        }
+        #endregion
+
+        #region Tools
+        public static bool IsReadableCollection(Type t, object reference, out IEnumerator enumerator)
         {
             Type CurrentType;
 
@@ -1862,26 +1983,26 @@ namespace PolySerializer
                 foreach (Type Interface in Interfaces)
                     if (Interface == typeof(IEnumerable))
                     {
-                        Enumerator = Interface.InvokeMember("GetEnumerator", BindingFlags.Public, null, Reference, null) as IEnumerator;
+                        enumerator = Interface.InvokeMember("GetEnumerator", BindingFlags.Public, null, reference, null) as IEnumerator;
                         return true;
                     }
 
                 CurrentType = CurrentType.BaseType;
             }
 
-            Enumerator = null;
+            enumerator = null;
             return false;
         }
 
-        public bool IsWriteableCollection(object Reference, Type ReferenceType, out IInserter Inserter, out Type ItemType)
+        public bool IsWriteableCollection(object reference, Type referenceType, out IInserter inserter, out Type itemType)
         {
             foreach (IInserter TestInserter in CustomInserters)
             {
                 Type TestType;
-                if (TestInserter.TrySetReference(Reference, ReferenceType, out TestType))
+                if (TestInserter.TrySetReference(reference, referenceType, out TestType))
                 {
-                    Inserter = TestInserter;
-                    ItemType = TestType;
+                    inserter = TestInserter;
+                    itemType = TestType;
                     return true;
                 }
             }
@@ -1889,47 +2010,69 @@ namespace PolySerializer
             foreach (IInserter TestInserter in BuiltInInserters)
             {
                 Type TestType;
-                if (TestInserter.TrySetReference(Reference, ReferenceType, out TestType))
+                if (TestInserter.TrySetReference(reference, referenceType, out TestType))
                 {
-                    Inserter = TestInserter;
-                    ItemType = TestType;
+                    inserter = TestInserter;
+                    itemType = TestType;
                     return true;
                 }
             }
 
-            Inserter = null;
-            ItemType = null;
+            inserter = null;
+            itemType = null;
             return false;
         }
+        #endregion
 
-        private bool IsSerializableConstructor(ConstructorInfo Constructor, object Reference, Type SerializedType, out List<SerializedMember> ConstructorParameters)
+        #region Misc
+        public static Type SerializableAncestor(Type referenceType)
         {
-            SerializableAttribute CustomAttribute = Constructor.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
+            Type t = referenceType;
+
+            while (t != null && !t.Attributes.HasFlag(TypeAttributes.Serializable) && t.GetCustomAttribute(typeof(PolySerializer.SerializableAttribute)) == null)
+                t = t.BaseType;
+
+            return t;
+        }
+
+        private int SortByName(SerializedMember p1, SerializedMember p2)
+        {
+            return p1.MemberInfo.Name.CompareTo(p2.MemberInfo.Name);
+        }
+
+        private int SortByName(DeserializedMember p1, DeserializedMember p2)
+        {
+            return p1.MemberInfo.Name.CompareTo(p2.MemberInfo.Name);
+        }
+
+        private bool IsSerializableConstructor(ConstructorInfo constructor, object reference, Type serializedType, out List<SerializedMember> constructorParameters)
+        {
+            SerializableAttribute CustomAttribute = constructor.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
             if (CustomAttribute == null)
             {
-                ConstructorParameters = null;
+                constructorParameters = null;
                 return false;
             }
 
             if (CustomAttribute.Constructor == null)
             {
-                ConstructorParameters = null;
+                constructorParameters = null;
                 return false;
             }
 
             string[] Properties = CustomAttribute.Constructor.Split(',');
-            ParameterInfo[] Parameters = Constructor.GetParameters();
+            ParameterInfo[] Parameters = constructor.GetParameters();
             if (Properties.Length == 0 || Properties.Length != Parameters.Length)
             {
-                ConstructorParameters = null;
+                constructorParameters = null;
                 return false;
             }
 
-            ConstructorParameters = new List<SerializedMember>();
+            constructorParameters = new List<SerializedMember>();
             for (int i = 0; i < Properties.Length; i++)
             {
                 string PropertyName = Properties[i].Trim();
-                MemberInfo[] Members = SerializedType.GetMember(PropertyName);
+                MemberInfo[] Members = serializedType.GetMember(PropertyName);
                 if (Members.Length != 1)
                     return false;
 
@@ -1938,38 +2081,38 @@ namespace PolySerializer
                     return false;
 
                 SerializedMember NewMember = new SerializedMember(Member);
-                ConstructorParameters.Add(NewMember);
+                constructorParameters.Add(NewMember);
             }
 
             return true;
         }
 
-        private bool IsSerializableMember(object Reference, Type SerializedType, SerializedMember NewMember)
+        private bool IsSerializableMember(object reference, Type serializedType, SerializedMember newMember)
         {
-            if (NewMember.MemberInfo.MemberType != MemberTypes.Field && NewMember.MemberInfo.MemberType != MemberTypes.Property)
+            if (newMember.MemberInfo.MemberType != MemberTypes.Field && newMember.MemberInfo.MemberType != MemberTypes.Property)
                 return false;
 
-            if (IsStaticOrReadOnly(NewMember.MemberInfo))
+            if (IsStaticOrReadOnly(newMember.MemberInfo))
                 return false;
 
-            if (IsExcludedFromSerialization(NewMember))
+            if (IsExcludedFromSerialization(newMember))
                 return false;
 
-            if (IsReadOnlyPropertyWithNoSetter(NewMember))
+            if (IsReadOnlyPropertyWithNoSetter(newMember))
                 return false;
 
-            if (IsExcludedIndexer(NewMember))
+            if (IsExcludedIndexer(newMember))
                 return false;
 
-            CheckSerializationCondition(Reference, SerializedType, NewMember);
+            CheckSerializationCondition(reference, serializedType, newMember);
 
             return true;
         }
 
-        private bool IsStaticOrReadOnly(MemberInfo MemberInfo)
+        private bool IsStaticOrReadOnly(MemberInfo memberInfo)
         {
             FieldInfo AsFieldInfo;
-            if ((AsFieldInfo = MemberInfo as FieldInfo) != null)
+            if ((AsFieldInfo = memberInfo as FieldInfo) != null)
             {
                 if (AsFieldInfo.Attributes.HasFlag(FieldAttributes.Static) || AsFieldInfo.Attributes.HasFlag(FieldAttributes.InitOnly))
                     return true;
@@ -1978,9 +2121,9 @@ namespace PolySerializer
             return false;
         }
 
-        private bool IsExcludedFromSerialization(SerializedMember NewMember)
+        private bool IsExcludedFromSerialization(SerializedMember newMember)
         {
-            SerializableAttribute CustomSerializable = NewMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
+            SerializableAttribute CustomSerializable = newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
             if (CustomSerializable != null)
             {
                 if (CustomSerializable.Exclude)
@@ -1990,10 +2133,10 @@ namespace PolySerializer
             return false;
         }
 
-        private bool IsReadOnlyPropertyWithNoSetter(SerializedMember NewMember)
+        private bool IsReadOnlyPropertyWithNoSetter(SerializedMember newMember)
         {
             PropertyInfo AsPropertyInfo;
-            if ((AsPropertyInfo = NewMember.MemberInfo as PropertyInfo) != null)
+            if ((AsPropertyInfo = newMember.MemberInfo as PropertyInfo) != null)
             {
                 if (AsPropertyInfo.CanWrite)
                 {
@@ -2006,7 +2149,7 @@ namespace PolySerializer
             else
                 return false;
 
-            SerializableAttribute CustomSerializable = NewMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
+            SerializableAttribute CustomSerializable = newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
             if (CustomSerializable != null)
             {
                 if (CustomSerializable.Setter != null)
@@ -2016,26 +2159,26 @@ namespace PolySerializer
             return true;
         }
 
-        private bool IsExcludedIndexer(SerializedMember NewMember)
+        private bool IsExcludedIndexer(SerializedMember newMember)
         {
-            SerializableAttribute CustomSerializable = NewMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
+            SerializableAttribute CustomSerializable = newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
             if (CustomSerializable != null)
                 return false;
 
-            if (NewMember.MemberInfo.Name == "Item" && NewMember.MemberInfo.MemberType == MemberTypes.Property)
+            if (newMember.MemberInfo.Name == "Item" && newMember.MemberInfo.MemberType == MemberTypes.Property)
                 return true;
 
             return false;
         }
 
-        private void CheckSerializationCondition(object Reference, Type SerializedType, SerializedMember NewMember)
+        private void CheckSerializationCondition(object reference, Type serializedType, SerializedMember newMember)
         {
-            SerializableAttribute CustomSerializable = NewMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
+            SerializableAttribute CustomSerializable = newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
             if (CustomSerializable != null)
             {
                 if (CustomSerializable.Condition != null)
                 {
-                    MemberInfo[] ConditionMembers = SerializedType.GetMember(CustomSerializable.Condition);
+                    MemberInfo[] ConditionMembers = serializedType.GetMember(CustomSerializable.Condition);
                     if (ConditionMembers != null)
                     {
                         foreach (MemberInfo ConditionMember in ConditionMembers)
@@ -2046,13 +2189,13 @@ namespace PolySerializer
                             if ((AsFieldInfo = ConditionMember as FieldInfo) != null)
                             {
                                 if (AsFieldInfo.FieldType == typeof(bool))
-                                    NewMember.SetCondition((bool)AsFieldInfo.GetValue(Reference));
+                                    newMember.SetCondition((bool)AsFieldInfo.GetValue(reference));
                             }
 
                             else if ((AsPropertyInfo = ConditionMember as PropertyInfo) != null)
                             {
                                 if (AsPropertyInfo.PropertyType == typeof(bool))
-                                    NewMember.SetCondition((bool)AsPropertyInfo.GetValue(Reference));
+                                    newMember.SetCondition((bool)AsPropertyInfo.GetValue(reference));
                             }
                         }
                     }
@@ -2060,9 +2203,16 @@ namespace PolySerializer
             }
         }
 
-        private void AddDeserializedObject(object Reference, Type DeserializedType, long Count)
+        private bool ListConstructorParameters(object reference, Type serializedType, out List<SerializedMember> constructorParameters)
         {
-            DeserializedObjectList.Add(new DeserializedObject(Reference, DeserializedType, Count));
+            List<ConstructorInfo> Constructors = new List<ConstructorInfo>(serializedType.GetConstructors());
+
+            foreach (ConstructorInfo Constructor in Constructors)
+                if (IsSerializableConstructor(Constructor, reference, serializedType, out constructorParameters))
+                    return true;
+
+            constructorParameters = null;
+            return false;
         }
         #endregion
 
@@ -2097,20 +2247,20 @@ namespace PolySerializer
             return StringBytes;
         }
 
-        private string Bytes2String(int CharCount, byte[] Data, int Offset)
+        private string Bytes2String(int count, byte[] data, int offset)
         {
-            int i = Offset;
-            char[] StringChars = new char[CharCount];
+            int i = offset;
+            char[] StringChars = new char[count];
 
-            for (i = 0; i < CharCount; i++)
-                StringChars[i] = BitConverter.ToChar(Data, Offset + i * 2);
+            for (i = 0; i < count; i++)
+                StringChars[i] = BitConverter.ToChar(data, offset + i * 2);
 
             return new string(StringChars);
         }
 
-        private int FromHexDigit(byte[] Data, int Offset)
+        private int FromHexDigit(byte[] data, int offset)
         {
-            int Digit = Data[Offset];
+            int Digit = data[offset];
             if (Digit >= '0' && Digit <= '9')
                 return Digit - '0';
             else if (Digit >= 'a' && Digit <= 'f')
@@ -2121,194 +2271,13 @@ namespace PolySerializer
                 return 0;
         }
 
-        private int FromDecimalDigit(byte[] Data, int Offset)
+        private int FromDecimalDigit(byte[] data, int offset)
         {
-            int Digit = Data[Offset];
+            int Digit = data[offset];
             if (Digit >= '0' && Digit <= '9')
                 return Digit - '0';
             else
                 return 0;
-        }
-
-        private bool ListConstructorParameters(object Reference, Type SerializedType, out List<SerializedMember> ConstructorParameters)
-        {
-            List<ConstructorInfo> Constructors = new List<ConstructorInfo>(SerializedType.GetConstructors());
-
-            foreach (ConstructorInfo Constructor in Constructors)
-                if (IsSerializableConstructor(Constructor, Reference, SerializedType, out ConstructorParameters))
-                    return true;
-
-            ConstructorParameters = null;
-            return false;
-        }
-
-        private List<SerializedMember> ListSerializedMembers(object Reference, Type SerializedType, ref byte[] Data, ref int Offset)
-        {
-            List<MemberInfo> Members = new List<MemberInfo>(SerializedType.GetMembers());
-            List<SerializedMember> SerializedMembers = new List<SerializedMember>();
-
-            foreach (MemberInfo MemberInfo in Members)
-            {
-                SerializedMember NewMember = new SerializedMember(MemberInfo);
-
-                if (IsSerializableMember(Reference, SerializedType, NewMember))
-                    SerializedMembers.Add(NewMember);
-            }
-
-            if (Mode == SerializationMode.Default)
-                SerializedMembers.Sort(SortByName);
-
-            else if (Mode == SerializationMode.MemberName)
-                AddFieldMembers(Output, ref Data, ref Offset, SerializedMembers);
-
-            return SerializedMembers;
-        }
-
-        private List<DeserializedMember> ListDeserializedMembers(Stream Input, Type DeserializedType, ref byte[] Data, ref int Offset)
-        {
-            List<DeserializedMember> DeserializedMembers = new List<DeserializedMember>();
-
-            if (Mode == SerializationMode.MemberName)
-            {
-                List<string> MemberNames;
-                ReadFieldMembers(Input, ref Data, ref Offset, out MemberNames);
-
-                foreach (string MemberName in MemberNames)
-                {
-                    MemberInfo[] MatchingMembers = DeserializedType.GetMember(MemberName);
-                    DeserializedMember NewMember = new DeserializedMember(MatchingMembers[0]);
-
-                    CheckForSerializedCondition(NewMember);
-                    DeserializedMembers.Add(NewMember);
-                }
-            }
-
-            else
-            {
-                List<MemberInfo> Members = new List<MemberInfo>(DeserializedType.GetMembers());
-
-                foreach (MemberInfo MemberInfo in Members)
-                {
-                    DeserializedMember NewMember = new DeserializedMember(MemberInfo);
-
-                    if (!IsDeserializableMember(DeserializedType, NewMember))
-                        continue;
-
-                    DeserializedMembers.Add(NewMember);
-                }
-
-                if (Mode == SerializationMode.Default)
-                    DeserializedMembers.Sort(SortByName);
-            }
-
-            return DeserializedMembers;
-        }
-
-        private bool IsDeserializableMember(Type DeserializedType, DeserializedMember NewMember)
-        {
-            if (NewMember.MemberInfo.MemberType != MemberTypes.Field && NewMember.MemberInfo.MemberType != MemberTypes.Property)
-                return false;
-
-            if (IsStaticOrReadOnly(NewMember.MemberInfo))
-                return false;
-
-            if (IsExcludedFromDeserialization(NewMember))
-                return false;
-
-            if (IsReadOnlyPropertyWithNoValidSetter(DeserializedType, NewMember))
-                return false;
-
-            if (IsExcludedIndexer(NewMember))
-                return false;
-
-            CheckForSerializedCondition(NewMember);
-
-            return true;
-        }
-
-        private bool IsExcludedFromDeserialization(DeserializedMember NewMember)
-        {
-            SerializableAttribute CustomSerializable = NewMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
-            if (CustomSerializable != null)
-            {
-                if (CustomSerializable.Exclude)
-                    return true;
-            }
-
-            return false;
-        }
-
-        private bool IsReadOnlyPropertyWithNoValidSetter(Type DeserializedType, DeserializedMember NewMember)
-        {
-            PropertyInfo AsPropertyInfo;
-            if ((AsPropertyInfo = NewMember.MemberInfo as PropertyInfo) != null)
-            {
-                if (AsPropertyInfo.CanWrite)
-                {
-                    Debug.Assert(AsPropertyInfo.SetMethod != null);
-                    MethodInfo Setter = AsPropertyInfo.SetMethod;
-                    if (Setter.Attributes.HasFlag(MethodAttributes.Public))
-                        return false;
-                }
-
-                SerializableAttribute CustomSerializable = NewMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
-                if (CustomSerializable != null)
-                {
-                    if (CustomSerializable.Setter != null)
-                    {
-                        MemberInfo[] SetterMembers = DeserializedType.GetMember(CustomSerializable.Setter);
-                        if (SetterMembers != null)
-                        {
-                            Type ExpectedParameterType = AsPropertyInfo.PropertyType;
-
-                            foreach (MemberInfo SetterMember in SetterMembers)
-                            {
-                                MethodInfo AsMethodInfo;
-
-                                if ((AsMethodInfo = SetterMember as MethodInfo) != null)
-                                {
-                                    ParameterInfo[] Parameters = AsMethodInfo.GetParameters();
-                                    if (Parameters != null && Parameters.Length == 1)
-                                    {
-                                        ParameterInfo Parameter = Parameters[0];
-                                        if (Parameter.ParameterType == ExpectedParameterType)
-                                        {
-                                            NewMember.SetPropertySetter(AsMethodInfo);
-                                            return false;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            else
-                return false;
-
-            return true;
-        }
-
-        private bool IsExcludedIndexer(DeserializedMember NewMember)
-        {
-            SerializableAttribute CustomSerializable = NewMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
-            if (CustomSerializable != null)
-                return false;
-
-            if (NewMember.MemberInfo.Name == "Item" && NewMember.MemberInfo.MemberType == MemberTypes.Property)
-                return true;
-
-            return false;
-        }
-
-        private void CheckForSerializedCondition(DeserializedMember NewMember)
-        {
-            SerializableAttribute CustomSerializable = NewMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
-            if (CustomSerializable != null)
-            {
-                if (CustomSerializable.Condition != null)
-                    NewMember.SetHasCondition();
-            }
         }
         #endregion
     }

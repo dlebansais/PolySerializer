@@ -42,7 +42,7 @@ namespace TestDebug
         static void Main(string[] args)
         {
             Serializer s = new Serializer();
-            s.FileFormat = SerializationFormat.TextPreferred;
+            s.FileFormat = SerializationFormat.BinaryPreferred;
             s.Mode = SerializationMode.MemberName;
 
             ParentA parentA0 = new ParentA("x", "test7");
