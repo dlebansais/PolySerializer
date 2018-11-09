@@ -197,259 +197,6 @@ namespace PolySerializer
             Progress = 0;
         }
 
-        private void INTERNAL_Serialize()
-        {
-            RootType = Root.GetType();
-
-            byte[] Data = new byte[MinAllocatedSize];
-            int Offset = 0;
-
-            IsSerializedAsText = (FileFormat == SerializationFormat.TextPreferred) || (FileFormat == SerializationFormat.TextOnly);
-
-            if (IsSerializedAsText)
-                AddFieldStringDirect(ref Data, ref Offset, $"Mode={Mode}\n");
-            else
-                AddFieldInt(ref Data, ref Offset, (int)Mode);
-
-            SerializedObjectList.Clear();
-            CycleDetectionTable.Clear();
-            ProcessSerializable(Root, ref Data, ref Offset);
-
-            int i = 0;
-            while (i < SerializedObjectList.Count)
-            {
-                Progress = i / (double)SerializedObjectList.Count;
-
-                ISerializableObject NextSerialized = SerializedObjectList[i++];
-                object Reference = NextSerialized.Reference;
-                Serialize(Reference, NextSerialized.ReferenceType, NextSerialized.Count, ref Data, ref Offset, NextSerialized);
-            }
-
-            Output.Write(Data, 0, Offset);
-            LastAllocatedSize = (uint)Data.Length;
-
-            Progress = 1.0;
-        }
-
-        private void Serialize(object reference, Type serializedType, long count, ref byte[] data, ref int offset, ISerializableObject nextSerialized)
-        {
-            if (count >= 0)
-            {
-                IEnumerable AsEnumerable = reference as IEnumerable;
-                IEnumerator Enumerator = AsEnumerable.GetEnumerator();
-
-                for (long i = 0; i < count; i++)
-                {
-                    if (i > 0 && IsSerializedAsText)
-                        AddFieldStringDirect(ref data, ref offset, ";");
-
-                    Enumerator.MoveNext();
-
-                    object Item = Enumerator.Current;
-                    ProcessSerializable(Item, ref data, ref offset);
-                }
-            }
-
-            List<SerializedMember> SerializedMembers = ListSerializedMembers(reference, serializedType, ref data, ref offset);
-
-            int MemberIndex = 0;
-            foreach (SerializedMember Member in SerializedMembers)
-            {
-                if (MemberIndex++ > 0 && IsSerializedAsText)
-                    AddFieldStringDirect(ref data, ref offset, ";");
-
-                if (Member.Condition.HasValue)
-                {
-                    AddFieldBool(ref data, ref offset, Member.Condition.Value);
-                    if (!Member.Condition.Value)
-                        continue;
-
-                    if (IsSerializedAsText)
-                        AddFieldStringDirect(ref data, ref offset, " ");
-                }
-
-                object MemberValue;
-
-                FieldInfo AsFieldInfo;
-                PropertyInfo AsPropertyInfo;
-
-                if ((AsFieldInfo = Member.MemberInfo as FieldInfo) != null)
-                    MemberValue = AsFieldInfo.GetValue(reference);
-
-                else
-                {
-                    AsPropertyInfo = Member.MemberInfo as PropertyInfo;
-                    MemberValue = AsPropertyInfo.GetValue(reference);
-                }
-
-                ProcessSerializable(MemberValue, ref data, ref offset);
-            }
-
-            if (nextSerialized != null)
-                nextSerialized.SetSerialized();
-        }
-
-        private bool SerializeBasicType(object value, ref byte[] data, ref int offset)
-        {
-            Type ValueType = value.GetType();
-
-            if (ValueType == typeof(sbyte))
-                AddFieldSByte(ref data, ref offset, (sbyte)value);
-
-            else if (ValueType == typeof(byte))
-                AddFieldByte(ref data, ref offset, (byte)value);
-
-            else if (ValueType == typeof(bool))
-                AddFieldBool(ref data, ref offset, (bool)value);
-
-            else if (ValueType == typeof(char))
-                AddFieldChar(ref data, ref offset, (char)value);
-
-            else if (ValueType == typeof(decimal))
-                AddFieldDecimal(ref data, ref offset, (decimal)value);
-
-            else if (ValueType == typeof(double))
-                AddFieldDouble(ref data, ref offset, (double)value);
-
-            else if (ValueType == typeof(float))
-                AddFieldFloat(ref data, ref offset, (float)value);
-
-            else if (ValueType == typeof(int))
-                AddFieldInt(ref data, ref offset, (int)value);
-
-            else if (ValueType == typeof(long))
-                AddFieldLong(ref data, ref offset, (long)value);
-
-            else if (ValueType == typeof(short))
-                AddFieldShort(ref data, ref offset, (short)value);
-
-            else if (ValueType == typeof(uint))
-                AddFieldUInt(ref data, ref offset, (uint)value);
-
-            else if (ValueType == typeof(ulong))
-                AddFieldULong(ref data, ref offset, (ulong)value);
-
-            else if (ValueType == typeof(ushort))
-                AddFieldUShort(ref data, ref offset, (ushort)value);
-
-            else if (ValueType == typeof(string))
-                AddFieldString(ref data, ref offset, (string)value);
-
-            else if (ValueType == typeof(Guid))
-                AddFieldGuid(ref data, ref offset, (Guid)value);
-
-            else if (ValueType.IsEnum)
-            {
-                Type UnderlyingSystemType = ValueType.GetEnumUnderlyingType();
-                if (UnderlyingSystemType == typeof(sbyte))
-                    AddFieldSByte(ref data, ref offset, (sbyte)value);
-                else if (UnderlyingSystemType == typeof(byte))
-                    AddFieldByte(ref data, ref offset, (byte)value);
-                else if (UnderlyingSystemType == typeof(short))
-                    AddFieldShort(ref data, ref offset, (short)value);
-                else if (UnderlyingSystemType == typeof(ushort))
-                    AddFieldUShort(ref data, ref offset, (ushort)value);
-                else if (UnderlyingSystemType == typeof(int))
-                    AddFieldInt(ref data, ref offset, (int)value);
-                else if (UnderlyingSystemType == typeof(uint))
-                    AddFieldUInt(ref data, ref offset, (uint)value);
-                else if (UnderlyingSystemType == typeof(long))
-                    AddFieldLong(ref data, ref offset, (long)value);
-                else if (UnderlyingSystemType == typeof(ulong))
-                    AddFieldULong(ref data, ref offset, (ulong)value);
-                else
-                    AddFieldInt(ref data, ref offset, (int)value);
-            }
-
-            else
-                return false;
-
-            return true;
-        }
-
-        private void ProcessSerializable(object reference, ref byte[] data, ref int offset)
-        {
-            if (reference == null)
-            {
-                AddFieldNull(ref data, ref offset);
-                return;
-            }
-
-            if (SerializeBasicType(reference, ref data, ref offset))
-                return;
-
-            Type ReferenceType = SerializableAncestor(reference.GetType());
-            AddFieldType(ref data, ref offset, ReferenceType);
-
-            if (ReferenceType.IsValueType)
-                Serialize(reference, ReferenceType, -1, ref data, ref offset, null);
-            else
-            {
-                if (CycleDetectionTable.ContainsKey(reference))
-                {
-                    long ReferenceIndex = SerializedObjectList.IndexOf(CycleDetectionTable[reference]);
-
-                    if (IsSerializedAsText)
-                        AddFieldStringDirect(ref data, ref offset, $" #{ReferenceIndex}\n");
-                    else
-                    {
-                        AddFieldByte(ref data, ref offset, (byte)ObjectTag.ObjectIndex);
-                        AddFieldLong(ref data, ref offset, ReferenceIndex);
-                    }
-                }
-                else
-                {
-                    long Count = GetCollectionCount(reference);
-                    if (Count < 0)
-                    {
-                        List<SerializedMember> ConstructorParameters;
-                        if (ListConstructorParameters(reference, ReferenceType, out ConstructorParameters))
-                        {
-                            if (IsSerializedAsText)
-                                AddFieldStringDirect(ref data, ref offset, " !");
-                            else
-                                AddFieldByte(ref data, ref offset, (byte)ObjectTag.ConstructedObject);
-
-                            int ParameterIndex = 0;
-                            foreach (SerializedMember Member in ConstructorParameters)
-                            {
-                                if (ParameterIndex++ > 0 && IsSerializedAsText)
-                                    AddFieldStringDirect(ref data, ref offset, ";");
-
-                                PropertyInfo AsPropertyInfo;
-                                AsPropertyInfo = Member.MemberInfo as PropertyInfo;
-                                object MemberValue = AsPropertyInfo.GetValue(reference);
-
-                                ProcessSerializable(MemberValue, ref data, ref offset);
-                            }
-
-                            if (IsSerializedAsText)
-                                AddFieldStringDirect(ref data, ref offset, "\n");
-                        }
-                        else
-                        {
-                            if (IsSerializedAsText)
-                                AddFieldStringDirect(ref data, ref offset, "\n");
-                            else
-                                AddFieldByte(ref data, ref offset, (byte)ObjectTag.ObjectReference);
-                        }
-                    }
-                    else
-                    {
-                        if (IsSerializedAsText)
-                            AddFieldStringDirect(ref data, ref offset, $" *{Count}\n");
-                        else
-                        {
-                            AddFieldByte(ref data, ref offset, (byte)ObjectTag.ObjectList);
-                            AddFieldLong(ref data, ref offset, Count);
-                        }
-                    }
-
-                    AddSerializedObject(reference, Count);
-                }
-            }
-        }
-
         private void AddSerializedObject(object reference, long count)
         {
             Type SerializedType = SerializableAncestor(reference.GetType());
@@ -476,7 +223,343 @@ namespace PolySerializer
                 return -1;
         }
 
-        private List<SerializedMember> ListSerializedMembers(object reference, Type serializedType, ref byte[] data, ref int offset)
+        private void AddField(ref byte[] data, ref int offset, byte[] content)
+        {
+            if (offset + content.Length > data.Length)
+            {
+                Output.Write(data, 0, offset);
+                offset = 0;
+
+                if (data.Length < content.Length)
+                    data = new byte[content.Length];
+            }
+
+            for (int i = 0; i < content.Length; i++)
+                data[offset++] = content[i];
+        }
+
+        private void INTERNAL_Serialize()
+        {
+            bool IsSerializedAsText = (FileFormat == SerializationFormat.TextPreferred) || (FileFormat == SerializationFormat.TextOnly);
+
+            if (IsSerializedAsText)
+                INTERNAL_Serialize_TEXT();
+            else
+                INTERNAL_Serialize_BINARY();
+        }
+
+        private void INTERNAL_Serialize_BINARY()
+        {
+            RootType = Root.GetType();
+
+            byte[] Data = new byte[MinAllocatedSize];
+            int Offset = 0;
+
+            AddFieldInt_BINARY(ref Data, ref Offset, (int)Mode);
+
+            SerializedObjectList.Clear();
+            CycleDetectionTable.Clear();
+            ProcessSerializable_BINARY(Root, ref Data, ref Offset);
+
+            int i = 0;
+            while (i < SerializedObjectList.Count)
+            {
+                Progress = i / (double)SerializedObjectList.Count;
+
+                ISerializableObject NextSerialized = SerializedObjectList[i++];
+                object Reference = NextSerialized.Reference;
+                Serialize_BINARY(Reference, NextSerialized.ReferenceType, NextSerialized.Count, ref Data, ref Offset, NextSerialized);
+            }
+
+            Output.Write(Data, 0, Offset);
+            LastAllocatedSize = (uint)Data.Length;
+
+            Progress = 1.0;
+        }
+
+        private void Serialize_BINARY(object reference, Type serializedType, long count, ref byte[] data, ref int offset, ISerializableObject nextSerialized)
+        {
+            if (count >= 0)
+            {
+                IEnumerable AsEnumerable = reference as IEnumerable;
+                IEnumerator Enumerator = AsEnumerable.GetEnumerator();
+
+                for (long i = 0; i < count; i++)
+                {
+                    Enumerator.MoveNext();
+
+                    object Item = Enumerator.Current;
+                    ProcessSerializable_BINARY(Item, ref data, ref offset);
+                }
+            }
+
+            List<SerializedMember> SerializedMembers = ListSerializedMembers_BINARY(reference, serializedType, ref data, ref offset);
+
+            foreach (SerializedMember Member in SerializedMembers)
+            {
+                if (Member.Condition.HasValue)
+                {
+                    AddFieldBool_BINARY(ref data, ref offset, Member.Condition.Value);
+                    if (!Member.Condition.Value)
+                        continue;
+                }
+
+                object MemberValue;
+
+                FieldInfo AsFieldInfo;
+                PropertyInfo AsPropertyInfo;
+
+                if ((AsFieldInfo = Member.MemberInfo as FieldInfo) != null)
+                    MemberValue = AsFieldInfo.GetValue(reference);
+
+                else
+                {
+                    AsPropertyInfo = Member.MemberInfo as PropertyInfo;
+                    MemberValue = AsPropertyInfo.GetValue(reference);
+                }
+
+                ProcessSerializable_BINARY(MemberValue, ref data, ref offset);
+            }
+
+            if (nextSerialized != null)
+                nextSerialized.SetSerialized();
+        }
+
+        private bool SerializeBasicType_BINARY(object value, ref byte[] data, ref int offset)
+        {
+            Type ValueType = value.GetType();
+
+            if (ValueType == typeof(sbyte))
+                AddFieldSByte_BINARY(ref data, ref offset, (sbyte)value);
+
+            else if (ValueType == typeof(byte))
+                AddFieldByte_BINARY(ref data, ref offset, (byte)value);
+
+            else if (ValueType == typeof(bool))
+                AddFieldBool_BINARY(ref data, ref offset, (bool)value);
+
+            else if (ValueType == typeof(char))
+                AddFieldChar_BINARY(ref data, ref offset, (char)value);
+
+            else if (ValueType == typeof(decimal))
+                AddFieldDecimal_BINARY(ref data, ref offset, (decimal)value);
+
+            else if (ValueType == typeof(double))
+                AddFieldDouble_BINARY(ref data, ref offset, (double)value);
+
+            else if (ValueType == typeof(float))
+                AddFieldFloat_BINARY(ref data, ref offset, (float)value);
+
+            else if (ValueType == typeof(int))
+                AddFieldInt_BINARY(ref data, ref offset, (int)value);
+
+            else if (ValueType == typeof(long))
+                AddFieldLong_BINARY(ref data, ref offset, (long)value);
+
+            else if (ValueType == typeof(short))
+                AddFieldShort_BINARY(ref data, ref offset, (short)value);
+
+            else if (ValueType == typeof(uint))
+                AddFieldUInt_BINARY(ref data, ref offset, (uint)value);
+
+            else if (ValueType == typeof(ulong))
+                AddFieldULong_BINARY(ref data, ref offset, (ulong)value);
+
+            else if (ValueType == typeof(ushort))
+                AddFieldUShort_BINARY(ref data, ref offset, (ushort)value);
+
+            else if (ValueType == typeof(string))
+                AddFieldString_BINARY(ref data, ref offset, (string)value);
+
+            else if (ValueType == typeof(Guid))
+                AddFieldGuid_BINARY(ref data, ref offset, (Guid)value);
+
+            else if (ValueType.IsEnum)
+            {
+                Type UnderlyingSystemType = ValueType.GetEnumUnderlyingType();
+                if (UnderlyingSystemType == typeof(sbyte))
+                    AddFieldSByte_BINARY(ref data, ref offset, (sbyte)value);
+                else if (UnderlyingSystemType == typeof(byte))
+                    AddFieldByte_BINARY(ref data, ref offset, (byte)value);
+                else if (UnderlyingSystemType == typeof(short))
+                    AddFieldShort_BINARY(ref data, ref offset, (short)value);
+                else if (UnderlyingSystemType == typeof(ushort))
+                    AddFieldUShort_BINARY(ref data, ref offset, (ushort)value);
+                else if (UnderlyingSystemType == typeof(int))
+                    AddFieldInt_BINARY(ref data, ref offset, (int)value);
+                else if (UnderlyingSystemType == typeof(uint))
+                    AddFieldUInt_BINARY(ref data, ref offset, (uint)value);
+                else if (UnderlyingSystemType == typeof(long))
+                    AddFieldLong_BINARY(ref data, ref offset, (long)value);
+                else if (UnderlyingSystemType == typeof(ulong))
+                    AddFieldULong_BINARY(ref data, ref offset, (ulong)value);
+                else
+                    AddFieldInt_BINARY(ref data, ref offset, (int)value);
+            }
+
+            else
+                return false;
+
+            return true;
+        }
+
+        private void ProcessSerializable_BINARY(object reference, ref byte[] data, ref int offset)
+        {
+            if (reference == null)
+            {
+                AddFieldNull_BINARY(ref data, ref offset);
+                return;
+            }
+
+            if (SerializeBasicType_BINARY(reference, ref data, ref offset))
+                return;
+
+            Type ReferenceType = SerializableAncestor(reference.GetType());
+            AddFieldType_BINARY(ref data, ref offset, ReferenceType);
+
+            if (ReferenceType.IsValueType)
+                Serialize_BINARY(reference, ReferenceType, -1, ref data, ref offset, null);
+            else
+            {
+                if (CycleDetectionTable.ContainsKey(reference))
+                {
+                    long ReferenceIndex = SerializedObjectList.IndexOf(CycleDetectionTable[reference]);
+
+                    AddFieldByte_BINARY(ref data, ref offset, (byte)ObjectTag.ObjectIndex);
+                    AddFieldLong_BINARY(ref data, ref offset, ReferenceIndex);
+                }
+                else
+                {
+                    long Count = GetCollectionCount(reference);
+                    if (Count < 0)
+                    {
+                        List<SerializedMember> ConstructorParameters;
+                        if (ListConstructorParameters(reference, ReferenceType, out ConstructorParameters))
+                        {
+                            AddFieldByte_BINARY(ref data, ref offset, (byte)ObjectTag.ConstructedObject);
+
+                            foreach (SerializedMember Member in ConstructorParameters)
+                            {
+                                PropertyInfo AsPropertyInfo;
+                                AsPropertyInfo = Member.MemberInfo as PropertyInfo;
+                                object MemberValue = AsPropertyInfo.GetValue(reference);
+
+                                ProcessSerializable_BINARY(MemberValue, ref data, ref offset);
+                            }
+                        }
+                        else
+                            AddFieldByte_BINARY(ref data, ref offset, (byte)ObjectTag.ObjectReference);
+                    }
+                    else
+                    {
+                        AddFieldByte_BINARY(ref data, ref offset, (byte)ObjectTag.ObjectList);
+                        AddFieldLong_BINARY(ref data, ref offset, Count);
+                    }
+
+                    AddSerializedObject(reference, Count);
+                }
+            }
+        }
+
+        private void AddFieldSByte_BINARY(ref byte[] data, ref int offset, sbyte value)
+        {
+            AddField(ref data, ref offset, new byte[1] { (byte)value });
+        }
+
+        private void AddFieldByte_BINARY(ref byte[] data, ref int offset, byte value)
+        {
+            AddField(ref data, ref offset, new byte[1] { value });
+        }
+
+        private void AddFieldBool_BINARY(ref byte[] data, ref int offset, bool value)
+        {
+            AddField(ref data, ref offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldChar_BINARY(ref byte[] data, ref int offset, char value)
+        {
+            AddField(ref data, ref offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldDecimal_BINARY(ref byte[] data, ref int offset, decimal value)
+        {
+            int[] DecimalInts = decimal.GetBits(value);
+            for (int i = 0; i < 4; i++)
+            {
+                byte[] DecimalBytes = BitConverter.GetBytes(DecimalInts[i]);
+                AddField(ref data, ref offset, DecimalBytes);
+            }
+        }
+
+        private void AddFieldDouble_BINARY(ref byte[] data, ref int offset, double value)
+        {
+            AddField(ref data, ref offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldFloat_BINARY(ref byte[] data, ref int offset, float value)
+        {
+            AddField(ref data, ref offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldInt_BINARY(ref byte[] data, ref int offset, int value)
+        {
+            AddField(ref data, ref offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldLong_BINARY(ref byte[] data, ref int offset, long value)
+        {
+            AddField(ref data, ref offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldShort_BINARY(ref byte[] data, ref int offset, short value)
+        {
+            AddField(ref data, ref offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldUInt_BINARY(ref byte[] data, ref int offset, uint value)
+        {
+            AddField(ref data, ref offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldULong_BINARY(ref byte[] data, ref int offset, ulong value)
+        {
+            AddField(ref data, ref offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldUShort_BINARY(ref byte[] data, ref int offset, ushort value)
+        {
+            AddField(ref data, ref offset, BitConverter.GetBytes(value));
+        }
+
+        private void AddFieldString_BINARY(ref byte[] data, ref int offset, string value)
+        {
+            AddField(ref data, ref offset, String2Bytes(value));
+        }
+
+        private void AddFieldGuid_BINARY(ref byte[] data, ref int offset, Guid value)
+        {
+            AddField(ref data, ref offset, value.ToByteArray());
+        }
+
+        private void AddFieldNull_BINARY(ref byte[] data, ref int offset)
+        {
+            AddField(ref data, ref offset, new byte[CountByteSize] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF });
+        }
+
+        private void AddFieldType_BINARY(ref byte[] data, ref int offset, Type value)
+        {
+            AddFieldString_BINARY(ref data, ref offset, value.AssemblyQualifiedName);
+        }
+
+        private void AddFieldMembers_BINARY(ref byte[] data, ref int offset, List<SerializedMember> serializedMembers)
+        {
+            AddFieldInt_BINARY(ref data, ref offset, serializedMembers.Count);
+
+            foreach (SerializedMember Member in serializedMembers)
+                AddFieldString_BINARY(ref data, ref offset, Member.MemberInfo.Name);
+        }
+
+        private List<SerializedMember> ListSerializedMembers_BINARY(object reference, Type serializedType, ref byte[] data, ref int offset)
         {
             List<MemberInfo> Members = new List<MemberInfo>(serializedType.GetMembers());
             List<SerializedMember> SerializedMembers = new List<SerializedMember>();
@@ -493,216 +576,374 @@ namespace PolySerializer
                 SerializedMembers.Sort(SortByName);
 
             else if (Mode == SerializationMode.MemberName)
-                AddFieldMembers(ref data, ref offset, SerializedMembers);
+                AddFieldMembers_BINARY(ref data, ref offset, SerializedMembers);
 
             return SerializedMembers;
         }
 
-        private void AddFieldSByte(ref byte[] data, ref int offset, sbyte value)
+        private void INTERNAL_Serialize_TEXT()
         {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(ref data, ref offset, $"0x{((byte)value).ToString("X02")}");
-            else
-                AddField(ref data, ref offset, new byte[1] { (byte)value });
-        }
+            RootType = Root.GetType();
 
-        private void AddFieldByte(ref byte[] data, ref int offset, byte value)
-        {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(ref data, ref offset, $"0x{value.ToString("X02")}");
-            else
-                AddField(ref data, ref offset, new byte[1] { value });
-        }
+            byte[] Data = new byte[MinAllocatedSize];
+            int Offset = 0;
 
-        private void AddFieldBool(ref byte[] data, ref int offset, bool value)
-        {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(ref data, ref offset, $"{value}");
-            else
-                AddField(ref data, ref offset, BitConverter.GetBytes(value));
-        }
+            AddFieldStringDirect_TEXT(ref Data, ref Offset, $"Mode={Mode}\n");
 
-        private void AddFieldChar(ref byte[] data, ref int offset, char value)
-        {
-            if (IsSerializedAsText)
+            SerializedObjectList.Clear();
+            CycleDetectionTable.Clear();
+            ProcessSerializable_TEXT(Root, ref Data, ref Offset);
+
+            int i = 0;
+            while (i < SerializedObjectList.Count)
             {
-                if (value == '\'')
-                    AddFieldStringDirect(ref data, ref offset, @"'\''");
-                else
-                    AddFieldStringDirect(ref data, ref offset, $"'{value}'");
+                Progress = i / (double)SerializedObjectList.Count;
+
+                ISerializableObject NextSerialized = SerializedObjectList[i++];
+                object Reference = NextSerialized.Reference;
+                Serialize_TEXT(Reference, NextSerialized.ReferenceType, NextSerialized.Count, ref Data, ref Offset, NextSerialized);
             }
-            else
-                AddField(ref data, ref offset, BitConverter.GetBytes(value));
+
+            Output.Write(Data, 0, Offset);
+            LastAllocatedSize = (uint)Data.Length;
+
+            Progress = 1.0;
         }
 
-        private void AddFieldDecimal(ref byte[] data, ref int offset, decimal value)
+        private void Serialize_TEXT(object reference, Type serializedType, long count, ref byte[] data, ref int offset, ISerializableObject nextSerialized)
         {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(ref data, ref offset, $"{value.ToString(CultureInfo.InvariantCulture)}m");
+            if (count >= 0)
+            {
+                IEnumerable AsEnumerable = reference as IEnumerable;
+                IEnumerator Enumerator = AsEnumerable.GetEnumerator();
+
+                for (long i = 0; i < count; i++)
+                {
+                    if (i > 0)
+                        AddFieldStringDirect_TEXT(ref data, ref offset, ";");
+
+                    Enumerator.MoveNext();
+
+                    object Item = Enumerator.Current;
+                    ProcessSerializable_TEXT(Item, ref data, ref offset);
+                }
+            }
+
+            List<SerializedMember> SerializedMembers = ListSerializedMembers_TEXT(reference, serializedType, ref data, ref offset);
+
+            int MemberIndex = 0;
+            foreach (SerializedMember Member in SerializedMembers)
+            {
+                if (MemberIndex++ > 0)
+                    AddFieldStringDirect_TEXT(ref data, ref offset, ";");
+
+                if (Member.Condition.HasValue)
+                {
+                    AddFieldBool_TEXT(ref data, ref offset, Member.Condition.Value);
+                    if (!Member.Condition.Value)
+                        continue;
+
+                    AddFieldStringDirect_TEXT(ref data, ref offset, " ");
+                }
+
+                object MemberValue;
+
+                FieldInfo AsFieldInfo;
+                PropertyInfo AsPropertyInfo;
+
+                if ((AsFieldInfo = Member.MemberInfo as FieldInfo) != null)
+                    MemberValue = AsFieldInfo.GetValue(reference);
+
+                else
+                {
+                    AsPropertyInfo = Member.MemberInfo as PropertyInfo;
+                    MemberValue = AsPropertyInfo.GetValue(reference);
+                }
+
+                ProcessSerializable_TEXT(MemberValue, ref data, ref offset);
+            }
+
+            if (nextSerialized != null)
+                nextSerialized.SetSerialized();
+        }
+
+        private bool SerializeBasicType_TEXT(object value, ref byte[] data, ref int offset)
+        {
+            Type ValueType = value.GetType();
+
+            if (ValueType == typeof(sbyte))
+                AddFieldSByte_TEXT(ref data, ref offset, (sbyte)value);
+
+            else if (ValueType == typeof(byte))
+                AddFieldByte_TEXT(ref data, ref offset, (byte)value);
+
+            else if (ValueType == typeof(bool))
+                AddFieldBool_TEXT(ref data, ref offset, (bool)value);
+
+            else if (ValueType == typeof(char))
+                AddFieldChar_TEXT(ref data, ref offset, (char)value);
+
+            else if (ValueType == typeof(decimal))
+                AddFieldDecimal_TEXT(ref data, ref offset, (decimal)value);
+
+            else if (ValueType == typeof(double))
+                AddFieldDouble_TEXT(ref data, ref offset, (double)value);
+
+            else if (ValueType == typeof(float))
+                AddFieldFloat_TEXT(ref data, ref offset, (float)value);
+
+            else if (ValueType == typeof(int))
+                AddFieldInt_TEXT(ref data, ref offset, (int)value);
+
+            else if (ValueType == typeof(long))
+                AddFieldLong_TEXT(ref data, ref offset, (long)value);
+
+            else if (ValueType == typeof(short))
+                AddFieldShort_TEXT(ref data, ref offset, (short)value);
+
+            else if (ValueType == typeof(uint))
+                AddFieldUInt_TEXT(ref data, ref offset, (uint)value);
+
+            else if (ValueType == typeof(ulong))
+                AddFieldULong_TEXT(ref data, ref offset, (ulong)value);
+
+            else if (ValueType == typeof(ushort))
+                AddFieldUShort_TEXT(ref data, ref offset, (ushort)value);
+
+            else if (ValueType == typeof(string))
+                AddFieldString_TEXT(ref data, ref offset, (string)value);
+
+            else if (ValueType == typeof(Guid))
+                AddFieldGuid_TEXT(ref data, ref offset, (Guid)value);
+
+            else if (ValueType.IsEnum)
+            {
+                Type UnderlyingSystemType = ValueType.GetEnumUnderlyingType();
+                if (UnderlyingSystemType == typeof(sbyte))
+                    AddFieldSByte_TEXT(ref data, ref offset, (sbyte)value);
+                else if (UnderlyingSystemType == typeof(byte))
+                    AddFieldByte_TEXT(ref data, ref offset, (byte)value);
+                else if (UnderlyingSystemType == typeof(short))
+                    AddFieldShort_TEXT(ref data, ref offset, (short)value);
+                else if (UnderlyingSystemType == typeof(ushort))
+                    AddFieldUShort_TEXT(ref data, ref offset, (ushort)value);
+                else if (UnderlyingSystemType == typeof(int))
+                    AddFieldInt_TEXT(ref data, ref offset, (int)value);
+                else if (UnderlyingSystemType == typeof(uint))
+                    AddFieldUInt_TEXT(ref data, ref offset, (uint)value);
+                else if (UnderlyingSystemType == typeof(long))
+                    AddFieldLong_TEXT(ref data, ref offset, (long)value);
+                else if (UnderlyingSystemType == typeof(ulong))
+                    AddFieldULong_TEXT(ref data, ref offset, (ulong)value);
+                else
+                    AddFieldInt_TEXT(ref data, ref offset, (int)value);
+            }
+
+            else
+                return false;
+
+            return true;
+        }
+
+        private void ProcessSerializable_TEXT(object reference, ref byte[] data, ref int offset)
+        {
+            if (reference == null)
+            {
+                AddFieldNull_TEXT(ref data, ref offset);
+                return;
+            }
+
+            if (SerializeBasicType_TEXT(reference, ref data, ref offset))
+                return;
+
+            Type ReferenceType = SerializableAncestor(reference.GetType());
+            AddFieldType_TEXT(ref data, ref offset, ReferenceType);
+
+            if (ReferenceType.IsValueType)
+                Serialize_TEXT(reference, ReferenceType, -1, ref data, ref offset, null);
             else
             {
-                int[] DecimalInts = decimal.GetBits(value);
-                for (int i = 0; i < 4; i++)
+                if (CycleDetectionTable.ContainsKey(reference))
                 {
-                    byte[] DecimalBytes = BitConverter.GetBytes(DecimalInts[i]);
-                    AddField(ref data, ref offset, DecimalBytes);
+                    long ReferenceIndex = SerializedObjectList.IndexOf(CycleDetectionTable[reference]);
+
+                    AddFieldStringDirect_TEXT(ref data, ref offset, $" #{ReferenceIndex}\n");
+                }
+                else
+                {
+                    long Count = GetCollectionCount(reference);
+                    if (Count < 0)
+                    {
+                        List<SerializedMember> ConstructorParameters;
+                        if (ListConstructorParameters(reference, ReferenceType, out ConstructorParameters))
+                        {
+                            AddFieldStringDirect_TEXT(ref data, ref offset, " !");
+
+                            int ParameterIndex = 0;
+                            foreach (SerializedMember Member in ConstructorParameters)
+                            {
+                                if (ParameterIndex++ > 0)
+                                    AddFieldStringDirect_TEXT(ref data, ref offset, ";");
+
+                                PropertyInfo AsPropertyInfo;
+                                AsPropertyInfo = Member.MemberInfo as PropertyInfo;
+                                object MemberValue = AsPropertyInfo.GetValue(reference);
+
+                                ProcessSerializable_TEXT(MemberValue, ref data, ref offset);
+                            }
+
+                            AddFieldStringDirect_TEXT(ref data, ref offset, "\n");
+                        }
+                        else
+                            AddFieldStringDirect_TEXT(ref data, ref offset, "\n");
+                    }
+                    else
+                        AddFieldStringDirect_TEXT(ref data, ref offset, $" *{Count}\n");
+
+                    AddSerializedObject(reference, Count);
                 }
             }
         }
 
-        private void AddFieldDouble(ref byte[] data, ref int offset, double value)
+        private void AddFieldSByte_TEXT(ref byte[] data, ref int offset, sbyte value)
         {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(ref data, ref offset, $"{value.ToString(CultureInfo.InvariantCulture)}d");
-            else
-                AddField(ref data, ref offset, BitConverter.GetBytes(value));
+            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{((byte)value).ToString("X02")}");
         }
 
-        private void AddFieldFloat(ref byte[] data, ref int offset, float value)
+        private void AddFieldByte_TEXT(ref byte[] data, ref int offset, byte value)
         {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(ref data, ref offset, $"{value.ToString(CultureInfo.InvariantCulture)}f");
-            else
-                AddField(ref data, ref offset, BitConverter.GetBytes(value));
+            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{value.ToString("X02")}");
         }
 
-        private void AddFieldInt(ref byte[] data, ref int offset, int value)
+        private void AddFieldBool_TEXT(ref byte[] data, ref int offset, bool value)
         {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(ref data, ref offset, $"0x{value.ToString("X08")}");
-            else
-                AddField(ref data, ref offset, BitConverter.GetBytes(value));
+            AddFieldStringDirect_TEXT(ref data, ref offset, $"{value}");
         }
 
-        private void AddFieldLong(ref byte[] data, ref int offset, long value)
+        private void AddFieldChar_TEXT(ref byte[] data, ref int offset, char value)
         {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(ref data, ref offset, $"0x{value.ToString("X16")}");
+            if (value == '\'')
+                AddFieldStringDirect_TEXT(ref data, ref offset, @"'\''");
             else
-                AddField(ref data, ref offset, BitConverter.GetBytes(value));
+                AddFieldStringDirect_TEXT(ref data, ref offset, $"'{value}'");
         }
 
-        private void AddFieldShort(ref byte[] data, ref int offset, short value)
+        private void AddFieldDecimal_TEXT(ref byte[] data, ref int offset, decimal value)
         {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(ref data, ref offset, $"0x{value.ToString("X04")}");
-            else
-                AddField(ref data, ref offset, BitConverter.GetBytes(value));
+            AddFieldStringDirect_TEXT(ref data, ref offset, $"{value.ToString(CultureInfo.InvariantCulture)}m");
         }
 
-        private void AddFieldUInt(ref byte[] data, ref int offset, uint value)
+        private void AddFieldDouble_TEXT(ref byte[] data, ref int offset, double value)
         {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(ref data, ref offset, $"0x{value.ToString("X08")}");
-            else
-                AddField(ref data, ref offset, BitConverter.GetBytes(value));
+            AddFieldStringDirect_TEXT(ref data, ref offset, $"{value.ToString(CultureInfo.InvariantCulture)}d");
         }
 
-        private void AddFieldULong(ref byte[] data, ref int offset, ulong value)
+        private void AddFieldFloat_TEXT(ref byte[] data, ref int offset, float value)
         {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(ref data, ref offset, $"0x{value.ToString("X16")}");
-            else
-                AddField(ref data, ref offset, BitConverter.GetBytes(value));
+            AddFieldStringDirect_TEXT(ref data, ref offset, $"{value.ToString(CultureInfo.InvariantCulture)}f");
         }
 
-        private void AddFieldUShort(ref byte[] data, ref int offset, ushort value)
+        private void AddFieldInt_TEXT(ref byte[] data, ref int offset, int value)
         {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(ref data, ref offset, $"0x{value.ToString("X04")}");
-            else
-                AddField(ref data, ref offset, BitConverter.GetBytes(value));
+            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{value.ToString("X08")}");
         }
 
-        private void AddFieldString(ref byte[] data, ref int offset, string value)
+        private void AddFieldLong_TEXT(ref byte[] data, ref int offset, long value)
         {
-            if (IsSerializedAsText)
-            {
-                if (value == null)
-                    value = "null";
-                else
-                    value = "\"" + value.Replace("\"", "\\\"") + "\"";
-
-                AddField(ref data, ref offset, Encoding.UTF8.GetBytes(value));
-            }
-            else
-                AddField(ref data, ref offset, String2Bytes(value));
+            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{value.ToString("X16")}");
         }
 
-        private void AddFieldGuid(ref byte[] data, ref int offset, Guid value)
+        private void AddFieldShort_TEXT(ref byte[] data, ref int offset, short value)
         {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(ref data, ref offset, value.ToString("B"));
-            else
-                AddField(ref data, ref offset, value.ToByteArray());
+            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{value.ToString("X04")}");
         }
 
-        private void AddFieldNull(ref byte[] data, ref int offset)
+        private void AddFieldUInt_TEXT(ref byte[] data, ref int offset, uint value)
         {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(ref data, ref offset, "null");
-            else
-                AddField(ref data, ref offset, new byte[CountByteSize] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF });
+            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{value.ToString("X08")}");
         }
 
-        private void AddFieldType(ref byte[] data, ref int offset, Type value)
+        private void AddFieldULong_TEXT(ref byte[] data, ref int offset, ulong value)
         {
-            if (IsSerializedAsText)
-                AddFieldStringDirect(ref data, ref offset, $"{{{value.AssemblyQualifiedName}}}");
-            else
-                AddFieldString(ref data, ref offset, value.AssemblyQualifiedName);
+            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{value.ToString("X16")}");
         }
 
-        private void AddFieldStringDirect(ref byte[] data, ref int offset, string s)
+        private void AddFieldUShort_TEXT(ref byte[] data, ref int offset, ushort value)
+        {
+            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{value.ToString("X04")}");
+        }
+
+        private void AddFieldString_TEXT(ref byte[] data, ref int offset, string value)
+        {
+            if (value == null)
+                value = "null";
+            else
+                value = "\"" + value.Replace("\"", "\\\"") + "\"";
+
+            AddField(ref data, ref offset, Encoding.UTF8.GetBytes(value));
+        }
+
+        private void AddFieldGuid_TEXT(ref byte[] data, ref int offset, Guid value)
+        {
+            AddFieldStringDirect_TEXT(ref data, ref offset, value.ToString("B"));
+        }
+
+        private void AddFieldNull_TEXT(ref byte[] data, ref int offset)
+        {
+            AddFieldStringDirect_TEXT(ref data, ref offset, "null");
+        }
+
+        private void AddFieldType_TEXT(ref byte[] data, ref int offset, Type value)
+        {
+            AddFieldStringDirect_TEXT(ref data, ref offset, $"{{{value.AssemblyQualifiedName}}}");
+        }
+
+        private void AddFieldStringDirect_TEXT(ref byte[] data, ref int offset, string s)
         {
             AddField(ref data, ref offset, Encoding.UTF8.GetBytes(s));
         }
 
-        private void AddFieldMembers(ref byte[] data, ref int offset, List<SerializedMember> serializedMembers)
+        private void AddFieldMembers_TEXT(ref byte[] data, ref int offset, List<SerializedMember> serializedMembers)
         {
-            if (IsSerializedAsText)
+            for (int i = 0; i < serializedMembers.Count; i++)
             {
-                for (int i = 0; i < serializedMembers.Count; i++)
-                {
-                    if (i > 0)
-                        AddFieldStringDirect(ref data, ref offset, ",");
+                if (i > 0)
+                    AddFieldStringDirect_TEXT(ref data, ref offset, ",");
 
-                    SerializedMember Member = serializedMembers[i];
-                    AddFieldStringDirect(ref data, ref offset, Member.MemberInfo.Name);
-                }
-
-                AddFieldStringDirect(ref data, ref offset, "\n");
+                SerializedMember Member = serializedMembers[i];
+                AddFieldStringDirect_TEXT(ref data, ref offset, Member.MemberInfo.Name);
             }
-            else
-            {
-                AddFieldInt(ref data, ref offset, serializedMembers.Count);
 
-                foreach (SerializedMember Member in serializedMembers)
-                    AddFieldString(ref data, ref offset, Member.MemberInfo.Name);
-            }
+            AddFieldStringDirect_TEXT(ref data, ref offset, "\n");
         }
 
-        private void AddField(ref byte[] data, ref int offset, byte[] content)
+        private List<SerializedMember> ListSerializedMembers_TEXT(object reference, Type serializedType, ref byte[] data, ref int offset)
         {
-            if (offset + content.Length > data.Length)
-            {
-                Output.Write(data, 0, offset);
-                offset = 0;
+            List<MemberInfo> Members = new List<MemberInfo>(serializedType.GetMembers());
+            List<SerializedMember> SerializedMembers = new List<SerializedMember>();
 
-                if (data.Length < content.Length)
-                    data = new byte[content.Length];
+            foreach (MemberInfo MemberInfo in Members)
+            {
+                SerializedMember NewMember = new SerializedMember(MemberInfo);
+
+                if (IsSerializableMember(reference, serializedType, NewMember))
+                    SerializedMembers.Add(NewMember);
             }
 
-            for (int i = 0; i < content.Length; i++)
-                data[offset++] = content[i];
+            if (Mode == SerializationMode.Default)
+                SerializedMembers.Sort(SortByName);
+
+            else if (Mode == SerializationMode.MemberName)
+                AddFieldMembers_TEXT(ref data, ref offset, SerializedMembers);
+
+            return SerializedMembers;
         }
 
-        private bool IsSerializedAsText;
         private List<ISerializableObject> SerializedObjectList = new List<ISerializableObject>();
         private Dictionary<object, SerializableObject> CycleDetectionTable = new Dictionary<object, SerializableObject>();
-        #endregion
+#endregion
 
-        #region Deserialization
+#region Deserialization
         public object Deserialize(Stream input)
         {
             InitializeDeserialization(input);
@@ -1996,16 +2237,16 @@ namespace PolySerializer
 
         private bool IsDeserializedAsText;
         private List<IDeserializedObject> DeserializedObjectList = new List<IDeserializedObject>();
-        #endregion
+#endregion
 
-        #region Check
+#region Check
         public bool Check(Stream Input)
         {
             return false;
         }
-        #endregion
+#endregion
 
-        #region Tools
+#region Tools
         public static Type SerializableAncestor(Type referenceType)
         {
             Type t = referenceType;
@@ -2070,9 +2311,9 @@ namespace PolySerializer
             itemType = null;
             return false;
         }
-        #endregion
+#endregion
 
-        #region Misc
+#region Misc
         private int SortByName(SerializedMember p1, SerializedMember p2)
         {
             return p1.MemberInfo.Name.CompareTo(p2.MemberInfo.Name);
@@ -2252,9 +2493,9 @@ namespace PolySerializer
             constructorParameters = null;
             return false;
         }
-        #endregion
+#endregion
 
-        #region String conversions
+#region String conversions
         private byte[] String2Bytes(string s)
         {
             int CharCount;
@@ -2317,6 +2558,6 @@ namespace PolySerializer
             else
                 return 0;
         }
-        #endregion
+#endregion
     }
 }
