@@ -43,7 +43,7 @@ namespace TestDebug
         static void Main(string[] args)
         {
             Serializer s = new Serializer();
-            s.FileFormat = SerializationFormat.BinaryPreferred;
+            s.FileFormat = SerializationFormat.TextPreferred;
             s.Mode = SerializationMode.MemberName;
 
             ParentA parentA0 = new ParentA("x", "test7");
@@ -71,6 +71,7 @@ namespace TestDebug
             parentB0.m14 = parentB0;
 
             Serialize(s, parentA0);
+            Check(s);
             ParentA parentA1 = Deserialize(s);
         }
 
@@ -81,6 +82,16 @@ namespace TestDebug
                 Task t = s.SerializeAsync(fs, parentA);
                 ShowProgress(s, t);
                 System.Diagnostics.Debug.WriteLine("Serialized");
+            }
+        }
+
+        private static void Check(Serializer s)
+        {
+            using (FileStream fs = new FileStream("test.log", FileMode.Open, FileAccess.Read))
+            {
+                Task<bool> t = s.CheckAsync(fs);
+                ShowProgress(s, t);
+                System.Diagnostics.Debug.WriteLine($"Checked as {t.Result}");
             }
         }
 

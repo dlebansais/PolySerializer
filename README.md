@@ -3,10 +3,11 @@ Please wait a few days while I sort out tests of core features and optimize. Ser
 
 TODO:
 - [x] Conversion to human-readable text.
-- [ ] Checking validity of serialized streams and providing diagnostic information.
+- [X] Checking validity of serialized streams.
 - [X] Confirm support of very large collections (several billions items).
 - [X] Support of constructors with parameters.
 - [X] Asynchronous operations.
+- [ ] Missing: separate format and data.
 - [ ] Missing: Conversion to different endianness.
 - [ ] Optimization.
 - [ ] Doc and example.
@@ -21,18 +22,18 @@ PolySerializer takes C# objects and serializes them (i.e. copy them onto a strea
 ## Features
 PolySerializer supports the following features:
 * Partial serialization and deserialization of objects by their common serializable parent type. Even with different assemblies.
-* Binary output of either or both the object data or format. This allows saving many objects on one stream and their format once on another.
-* Conversion to human-readable text, using either data and format from the same stream, or data from one stream and format from another.
+* Binary output of either or both the object data or format. This allows saving many objects on one stream and their format once on another (**this is not implemented yet**).
+* Using human-readable text instead of binary data. This is much slower, but can be useful for searches.
 * Format conversion between types that have identical binary representation but different member names. This can be used to rename members in a type without loosing archived objects. Deserializing to a type with new members (initialized to their default value) is also supported.
 * Deserialization test to check if deserializing a stream would produce an exception.
 * Flexible collection recording: only objects in the collection are serialized, allowing interoperability between collection types (list, stacks, queues...). Only some form of GetNextItem and AddItem support being required.
 * Serialization and deserialization of read-only members, so that types can expose a read-only interface to the program and still support being deserialized.
 * Mutable members can be excluded. They can also be excluded only if a condition is false (this is useful in some scenarios).
-* Support of contructors with parameters for deserialized objects.
+* Support of constructors with parameters for deserialized objects.
 * Version tolerance: a full version identifier of the assembly implementing the serialized type can be saved in the output, and analyzed later to determine which assembly to use for deserialization or conversion.
 * Support of very large objects.
-* Asynchronous serialization/deserialization with progress, enabling previsualization of the deserialized object before completion.
-* Interoperability between platforms through conversion (see below).
+* Asynchronous serialization/deserialization with progress, allowing to see progress of the operation before completion.
+* Interoperability between platforms through conversion (see below) (**this is not implemented yet**).
 * Support for cyclic structures (for example, children linking to parents).
 
 ## Interoperability between platforms

@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PolySerializer", "PolySeria
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestDebug", "TestDebug\TestDebug.csproj", "{64480BB1-8A48-4157-AE88-D06BAF7C50FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Preprocessor", "Preprocessor\Preprocessor.csproj", "{19049F1C-9788-4C94-A564-C357F0D3F027}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,13 +33,6 @@ Global
 		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Release|x64.ActiveCfg = Release|x64
 		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Travis|Any CPU.ActiveCfg = Release|x64
 		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Travis|x64.ActiveCfg = Release|x64
-		{19049F1C-9788-4C94-A564-C357F0D3F027}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{19049F1C-9788-4C94-A564-C357F0D3F027}.Debug|x64.ActiveCfg = Debug|x64
-		{19049F1C-9788-4C94-A564-C357F0D3F027}.Debug|x64.Build.0 = Debug|x64
-		{19049F1C-9788-4C94-A564-C357F0D3F027}.Release|Any CPU.ActiveCfg = Release|x64
-		{19049F1C-9788-4C94-A564-C357F0D3F027}.Release|x64.ActiveCfg = Release|x64
-		{19049F1C-9788-4C94-A564-C357F0D3F027}.Travis|Any CPU.ActiveCfg = Release|x64
-		{19049F1C-9788-4C94-A564-C357F0D3F027}.Travis|x64.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

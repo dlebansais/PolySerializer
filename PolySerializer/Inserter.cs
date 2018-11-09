@@ -9,6 +9,7 @@ namespace PolySerializer
     {
         string Description { get; }
         bool TrySetReference(object Reference, Type ReferenceType, out Type ItemType);
+        bool TryMatchType(Type ReferenceType, out Type ItemType);
         void AddItem(object Item);
     }
 
@@ -22,6 +23,18 @@ namespace PolySerializer
             if ((AsArray = Reference as Array) != null)
             {
                 this.Reference = AsArray;
+                ItemType = ReferenceType.GetElementType();
+                return true;
+            }
+
+            ItemType = null;
+            return false;
+        }
+
+        public bool TryMatchType(Type ReferenceType, out Type ItemType)
+        {
+            if (ReferenceType.IsArray)
+            {
                 ItemType = ReferenceType.GetElementType();
                 return true;
             }
@@ -70,6 +83,28 @@ namespace PolySerializer
             return false;
         }
 
+        public bool TryMatchType(Type ReferenceType, out Type ItemType)
+        {
+            foreach (Type Interface in ReferenceType.GetInterfaces())
+            {
+                if (Interface.IsGenericType)
+                    if (Interface.GetGenericTypeDefinition() == typeof(IList<>))
+                    {
+                        Type[] GenericArguments = Interface.GetGenericArguments();
+                        if (GenericArguments.Length > 0)
+                        {
+                            Type GenericArgument = GenericArguments[0];
+
+                            ItemType = GenericArgument;
+                            return true;
+                        }
+                    }
+            }
+
+            ItemType = null;
+            return false;
+        }
+
         public IList Reference { get; private set; }
 
         public void AddItem(object Item)
@@ -109,6 +144,42 @@ namespace PolySerializer
                 if (AddMethod != null)
                 {
                     this.Reference = Reference;
+                    this.AddMethod = AddMethod;
+                    ItemType = GenericArgument;
+                    return true;
+                }
+            }
+
+            ItemType = null;
+            return false;
+        }
+
+        public bool TryMatchType(Type ReferenceType, out Type ItemType)
+        {
+            Type[] GenericArguments = ReferenceType.GetGenericArguments();
+            if (GenericArguments.Length > 0)
+            {
+                Type GenericArgument = GenericArguments[0];
+                MethodInfo AddMethod = null;
+
+                MethodInfo[] MethodInfos = ReferenceType.GetMethods();
+                foreach (MethodInfo MethodInfo in MethodInfos)
+                    if (MethodInfo.Name == "Add")
+                    {
+                        ParameterInfo[] ParameterInfos = MethodInfo.GetParameters();
+                        if (ParameterInfos.Length == 1)
+                        {
+                            ParameterInfo FirstParameterInfo = ParameterInfos[0];
+                            if (FirstParameterInfo.ParameterType == GenericArgument)
+                            {
+                                AddMethod = MethodInfo;
+                                break;
+                            }
+                        }
+                    }
+
+                if (AddMethod != null)
+                {
                     this.AddMethod = AddMethod;
                     ItemType = GenericArgument;
                     return true;

@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DeserializedMember.cs" />
+    <Compile Include="CheckedObject.cs" />
     <Compile Include="DeserializedObject.cs" />
     <Compile Include="Inserter.cs" />
     <Compile Include="ObjectTag.cs" />
