@@ -1,6 +1,4 @@
-# Status: alpha
-Please wait a few days while I sort out tests of core features and optimize. Serialized data generated today may not be backward-compatible tomorrow.
-
+# Status: beta
 TODO:
 - [x] Conversion to human-readable text.
 - [X] Checking validity of serialized streams.
@@ -9,8 +7,8 @@ TODO:
 - [X] Asynchronous operations.
 - [ ] Missing: separate format and data.
 - [ ] Missing: Conversion to different endianness.
-- [ ] Optimization.
-- [ ] Doc and example.
+- [x] Optimization.
+- [x] Doc and example.
 
 # Polymorphic Serializer
 A generic .NET serializer for object exchange between assemblies. Supports polymorphism and much more.
@@ -37,8 +35,54 @@ PolySerializer supports the following features:
 * Support for cyclic structures (for example, children linking to parents).
 
 ## Interoperability between platforms
+(**this is not implemented yet**)
 Very important: the binary format used doesn't allow exchange between platforms with different endianness or pointer size. To obtain that, either use another serializer more suited to platform-agnostic data exchange, or use the conversion feature of PolySerializer that let you transform data for object serialized for one platform to data serialized for another platform. This operation is not optimized for performance and does not support many of PolySerializer features (such as flexible collections, previsualization). But it does the job.
 
-## Performance
-
-
+## How to use
+The code to serialize an object is very simple. The following example demonstrate serialization to a file:
+    ```csharp
+    Serializer s = new Serializer();
+    MyClass myObject = new MyClass();
+    
+    using (FileStream fs = new FileStream("myfile.bin", FileMode.Create, FileAccess.Write))
+    {
+        s.Serialize(fs, myObject);
+    }
+    ```
+The code above created a file, `myfile.bin`. This file can be exchanged and deserialized as follow:
+    ```csharp
+    MyClass myObject;
+    using (FileStream fs = new FileStream("myfile.bin", FileMode.Open, FileAccess.Read))
+    {
+        myObject = (MyClass)s.Deserialize(fs);
+    }
+    ```
+Several options allow you to control these operations.
+### Mode
+Serialization can operate in one of 3 modes. It is critical to understand that the mode is decided at serialization time, and cannot be changed thereafter without some work.
+1. The default mode
+This mode assumes that MyClass' interface did not change after serialization and before deserialization, and in particular that no field or property was added, removed or renamed. Reordering is allowed so this is really about interface compatibility.
+2. The member name mode
+Suited for archiving, this mode allows new field or properties to be added, but does not allow removal or renaming. If an interface is extended with new members, old serialized files can still be deserialized, and new members will take default values.
+3. The member order mode
+In this mode, fields and properties are serialized in the order they are declared. In that case, renaming a member, or adding new members is supported, but not reordering. It matches more closely the class implementation rather than the interface. 
+### Format
+Serialization can output binary data, which is more efficient but opaque, or human-readable text. The later case is useful when performance isn't an issue, but it would be practical to work with text file. 
+For example, for the purpose of searches, one can serialize an object to a text stream and perform a complex search on the text. It is even possible to perform modifications on the text and then deserialize it, to obtain a modified object.
+### Progress
+Serializing or deserializing large object can take significant time. Fortunately, PolySerializer include some support for this:
+. Asynchronous operations with SerializeAsync and DeserializeAsync.
+. The `Progress` property that gives some idea of how the current operation is performing.
+While it could be possible to follow progress of the deserialization, since the size of the input stream can be known in most cases (such as file streams), this is inherently not possible during serialization.
+Instead, `Progress` provides an estimate of the number of objects that have been handled vs the number of objects detected. Both numbers grow together, so this can sometimes give a wierd result, but at least it consistent. In particular, if the object is a collection, `Progress` gives an excellent preview of the time it will take to completion.
+### Polymorphism
+One of the main features of PolySerializer is the ability to process only serializable parts of an object. This has interesting uses but may require some careful configuration.
+For example, consider an application manipulating data visually. Each data class can have a serializable ancestor with the meaningful content, and descendants containing transient graphical information, such as the position on the screen. When a user wants to save their work in a file, only the serializable part will be saved. When reading the file later, deserialization will provide a fresh object with all unimportant values set to their default.
+Another use of polymorphism features is object transformation. The serializer object, once created with Serializer s = new Serializer(); can be tuned to perform automatic replacement of serialized types by others:
+. AssemblyOverrideTable will replace the assembly that was used during serialization with another. As long as the new assembly contains similar types (same name and interface), objects created will be using types different than the original.
+. NamespaceOverrideTable is similar, and allows changing from types of one namespace to another.
+. TypeOverrideTable directly replace one type with another if the two options above would ot work.
+. OverrideGenericArguments indicates if the type replacement mechanism should apply to generic arguments or not.
+. Inserters
+They are objects used to convert between collection types. For example, you can convert from arrays to List<> and vice-versa. Custom inserters are used in the case of exotic collection types such as the one that was used to verify PolySerializer can handle collections of more than 5 billions items.
+ 
