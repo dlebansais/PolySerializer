@@ -39,6 +39,7 @@ Very important: the binary format used doesn't allow exchange between platforms 
 
 ## How to use
 The code to serialize an object is very simple. The following example demonstrate serialization to a file:
+
     ```cs
     Serializer s = new Serializer();
     MyClass myObject = new MyClass();
@@ -49,6 +50,7 @@ The code to serialize an object is very simple. The following example demonstrat
     }
     ```
 The code above created a file, `myfile.bin`. This file can be exchanged and deserialized as follow:
+
     ```cs
     MyClass myObject;
     using (FileStream fs = new FileStream("myfile.bin", FileMode.Open, FileAccess.Read))
