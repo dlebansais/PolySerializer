@@ -38,10 +38,40 @@ namespace TestDebug
         public ParentA m14;
     }
 
+    [Serializable]
+    public class ParentC
+    {
+        public void InitInt(int Value)
+        {
+            PropInt = Value;
+        }
+
+        public void InitString(string Value)
+        {
+            PropString = Value;
+        }
+
+        public void InitObject(object Value)
+        {
+            PropObject = Value;
+        }
+
+        public int PropInt { get; private set; }
+        public string PropString { get; private set; }
+        public object PropObject { get; private set; }
+    }
+
+    [System.Serializable]
+    public struct Struct0
+    {
+    }
+
     class Program
     {
         static void Main(string[] args)
         {
+            TestBasic10(1, 1);
+
             Serializer s = new Serializer();
             s.FileFormat = SerializationFormat.TextPreferred;
             s.Mode = SerializationMode.MemberName;
@@ -73,6 +103,31 @@ namespace TestDebug
             Serialize(s, parentA0);
             Check(s);
             ParentA parentA1 = Deserialize(s);
+        }
+
+        public static void TestBasic10(int mode, int format)
+        {
+            Serializer s = new Serializer();
+            s.Mode = (SerializationMode)mode;
+            s.FileFormat = (SerializationFormat)format;
+
+            Struct0 test0 = new Struct0();
+
+            using (FileStream fs = new FileStream("test.log", FileMode.Create, FileAccess.Write))
+            {
+                s.Serialize(fs, test0);
+            }
+
+            using (FileStream fs = new FileStream("test.log", FileMode.Open, FileAccess.Read))
+            {
+                bool c = s.Check(fs);
+            }
+
+            Struct0 test1;
+            using (FileStream fs = new FileStream("test.log", FileMode.Open, FileAccess.Read))
+            {
+                test1 = (Struct0)s.Deserialize(fs);
+            }
         }
 
         private static void Serialize(Serializer s, ParentA parentA)

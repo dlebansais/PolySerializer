@@ -2478,8 +2478,13 @@ namespace PolySerializer
             while (data[offset++] != '\n');
 
             string AllNames = Encoding.UTF8.GetString(data, BaseOffset, offset - BaseOffset - 1);
-            string[] Splitted = AllNames.Split(',');
-            MemberNames = new List<string>(Splitted);
+            if (AllNames.Length > 0)
+            {
+                string[] Splitted = AllNames.Split(',');
+                MemberNames = new List<string>(Splitted);
+            }
+            else
+                MemberNames = new List<string>();
 
             return MemberNames;
         }
