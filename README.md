@@ -40,24 +40,26 @@ Very important: the binary format used doesn't allow exchange between platforms 
 ## How to use
 The code to serialize an object is very simple. The following example demonstrate serialization to a file:
 
-    ```cs
-    Serializer s = new Serializer();
-    MyClass myObject = new MyClass();
+  ```cs
+  Serializer s = new Serializer();
+  MyClass myObject = new MyClass();
     
-    using (FileStream fs = new FileStream("myfile.bin", FileMode.Create, FileAccess.Write))
-    {
-        s.Serialize(fs, myObject);
-    }
-    ```
+  using (FileStream fs = new FileStream("myfile.bin", FileMode.Create, FileAccess.Write))
+  {
+    s.Serialize(fs, myObject);
+  }
+  ```
+
 The code above created a file, `myfile.bin`. This file can be exchanged and deserialized as follow:
 
-    ```cs
-    MyClass myObject;
-    using (FileStream fs = new FileStream("myfile.bin", FileMode.Open, FileAccess.Read))
-    {
-        myObject = (MyClass)s.Deserialize(fs);
-    }
-    ```
+  ```cs
+  MyClass myObject;
+  using (FileStream fs = new FileStream("myfile.bin", FileMode.Open, FileAccess.Read))
+  {
+    myObject = (MyClass)s.Deserialize(fs);
+  }
+  ```
+
 Several options allow you to control these operations.
 ### Modes
 Serialization can operate in one of 3 modes. It is critical to understand that the mode is decided at serialization time, and cannot be changed thereafter without some work.
