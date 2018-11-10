@@ -14,10 +14,10 @@ namespace PolySerializer
     internal class CheckedObject : ICheckedObject
     {
         #region Init
-        public CheckedObject(Type CheckedType, long Count)
+        public CheckedObject(Type checkedType, long count)
         {
-            this.CheckedType = CheckedType;
-            this.Count = Count;
+            CheckedType = checkedType;
+            Count = count;
             IsChecked = false;
         }
         #endregion

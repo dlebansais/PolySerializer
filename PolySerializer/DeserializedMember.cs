@@ -2,27 +2,34 @@
 
 namespace PolySerializer
 {
-    public class DeserializedMember
+    internal class DeserializedMember
     {
-        public DeserializedMember(MemberInfo MemberInfo)
+        #region Init
+        public DeserializedMember(MemberInfo memberInfo)
         {
-            this.MemberInfo = MemberInfo;
+            MemberInfo = memberInfo;
         }
+        #endregion
 
+        #region Properties
+        public MemberInfo MemberInfo { get; private set; }
+        public bool HasCondition { get; private set; }
+        public MethodInfo PropertySetter { get; private set; }
+        #endregion
+
+        #region Client Interface
         public void SetHasCondition()
         {
             HasCondition = true;
         }
 
-        public void SetPropertySetter(MethodInfo PropertySetter)
+        public void SetPropertySetter(MethodInfo propertySetter)
         {
-            this.PropertySetter = PropertySetter;
+            PropertySetter = propertySetter;
         }
+        #endregion
 
-        public MemberInfo MemberInfo { get; private set; }
-        public bool HasCondition { get; private set; }
-        public MethodInfo PropertySetter { get; private set; }
-
+        #region Debugging
         public override string ToString()
         {
             string Result = MemberInfo.Name;
@@ -32,5 +39,6 @@ namespace PolySerializer
 
             return Result;
         }
+        #endregion
     }
 }

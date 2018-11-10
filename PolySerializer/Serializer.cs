@@ -24,10 +24,10 @@ namespace PolySerializer
         /// <summary>
         ///     Defines how objects are serialized and deserialized.
         /// </summary>
-        SerializationFormat FileFormat { get; set; }
+        SerializationFormat Format { get; set; }
 
         /// <summary>
-        ///     Serializes <see cref="root"/> and write the serialized data to <see cref="output"/>.
+        ///     Serializes <paramref name="root"/> and write the serialized data to <paramref name="output"/>.
         /// </summary>
         /// <parameters>
         /// <param name="output">Stream receiving the serialized data.</param>
@@ -36,44 +36,59 @@ namespace PolySerializer
         void Serialize(Stream output, object root);
 
         /// <summary>
-        ///     Creates a new object from serialized content in <see cref="input"/>.
+        ///     Creates a new object from serialized content in <paramref name="input"/>.
         /// </summary>
         /// <parameters>
         /// <param name="input">Stream from which serialized data is read to create the new object.</param>
         /// </parameters>
+        /// <returns>
+        ///     The deserialized object.
+        /// </returns>
         object Deserialize(Stream input);
 
         /// <summary>
-        ///     Checks if serialized data in <see cref="input"/> is compatible with <see cref="RootType"/>.
+        ///     Checks if serialized data in <paramref name="input"/> is compatible with <see cref="RootType"/>.
         /// </summary>
         /// <parameters>
         /// <param name="input">Stream from which serialized data is read to check for compatibility.</param>
         /// </parameters>
+        /// <returns>
+        ///     True of the stream can be deserialized, False otherwise.
+        /// </returns>
         bool Check(Stream input);
 
         /// <summary>
-        ///     Serializes <see cref="root"/> and write the serialized data to <see cref="output"/>.
+        ///     Serializes <paramref name="root"/> and write the serialized data to <paramref name="output"/>.
         /// </summary>
         /// <parameters>
         /// <param name="output">Stream receiving the serialized data.</param>
         /// <param name="root">Serialized object.</param>
         /// </parameters>
+        /// <returns>
+        ///     A task representing the asynchronous operation.
+        /// </returns>
         Task SerializeAsync(Stream output, object root);
 
         /// <summary>
-        ///     Creates a new object from serialized content in <see cref="input"/>.
+        ///     Creates a new object from serialized content in <paramref name="input"/>.
         /// </summary>
         /// <parameters>
         /// <param name="input">Stream from which serialized data is read to create the new object.</param>
         /// </parameters>
+        /// <returns>
+        ///     A task representing the asynchronous operation.
+        /// </returns>
         Task<object> DeserializeAsync(Stream input);
 
         /// <summary>
-        ///     Checks if serialized data in <see cref="input"/> is compatible with <see cref="RootType"/>.
+        ///     Checks if serialized data in <paramref name="input"/> is compatible with <see cref="RootType"/>.
         /// </summary>
         /// <parameters>
         /// <param name="input">Stream from which serialized data is read to check for compatibility.</param>
         /// </parameters>
+        /// <returns>
+        ///     A task representing the asynchronous operation.
+        /// </returns>
         Task<bool> CheckAsync(Stream input);
 
         /// <summary>
@@ -90,11 +105,6 @@ namespace PolySerializer
         ///     The input stream from which deserialized data has been read from in <see cref="Deserialize"/>.
         /// </summary>
         Stream Input { get; }
-
-        /// <summary>
-        ///     If not null, the stream on which the format of the serialized data has been written to in <see cref="Serialize"/>, or read from in <see cref="Deserialize"/>.
-        /// </summary>
-        Stream Format { get; set; }
 
         /// <summary>
         ///     Type of the <see cref="Root"/> object after a call to <see cref="Serialize"/>, or type of the object to create in <see cref="Deserialize"/>.
@@ -139,51 +149,123 @@ namespace PolySerializer
     }
     #endregion
 
-    public delegate void SerializedHandler(object root, byte[] data);
-
+    /// <summary>
+    ///     Serialize objects to a stream, or deserialize objects from a stream.
+    /// </summary>
     public class Serializer : ISerializer
     {
         #region Constants
+        // Number of bytes used to store a count. Allows for collections of any size.
         private const int CountByteSize = 8;
         #endregion
 
-        #region Init
-        public Serializer()
-        {
-        }
-        #endregion
-
         #region Properties
+        /// <summary>
+        ///     Defines how objects are serialized and deserialized.
+        /// </summary>
+        public SerializationMode Mode { get; set; } = SerializationMode.Default;
+
+        /// <summary>
+        ///     Defines how objects are serialized and deserialized.
+        /// </summary>
+        public SerializationFormat Format { get; set; } = SerializationFormat.BinaryPreferred;
+
+        /// <summary>
+        ///     The output stream on which serialized data has been written to in <see cref="Serialize"/>.
+        /// </summary>
         public Stream Output { get; private set; } = null;
+
+        /// <summary>
+        ///     The object serialized (after a call to <see cref="Serialize"/>) or created (after a call to <see cref="Deserialize"/>).
+        /// </summary>
         public object Root { get; private set; } = null;
+
+        /// <summary>
+        ///     The input stream from which deserialized data has been read from in <see cref="Deserialize"/>.
+        /// </summary>
         public Stream Input { get; private set; } = null;
-        public Stream Format { get; set; } = null;
+
+        /// <summary>
+        ///     Type of the <see cref="Root"/> object after a call to <see cref="Serialize"/>, or type of the object to create in <see cref="Deserialize"/>.
+        ///     If null, <see cref="Deserialize"/> finds the type to use from the serialized data. If not null, the serialized data must be compatible with this type or <see cref="Deserialize"/> will throw an exception.
+        /// </summary>
         public Type RootType { get; set; } = null;
+
+        /// <summary>
+        /// Sets or gets a list of assemblies that can override the original assembly of a type during deserialization.
+        /// </summary>
         public IReadOnlyDictionary<Assembly, Assembly> AssemblyOverrideTable { get; set; } = new Dictionary<Assembly, Assembly>();
+
+        /// <summary>
+        /// Sets or gets a list of namespaces that can override the original namespace of a type during deserialization.
+        /// </summary>
         public IReadOnlyDictionary<string, string> NamespaceOverrideTable { get; set; } = new Dictionary<string, string>();
+
+        /// <summary>
+        /// Gets or sets a list of types that can override the original type during deserialization.
+        /// </summary>
         public IReadOnlyDictionary<Type, Type> TypeOverrideTable { get; set; } = new Dictionary<Type, Type>();
+
+        /// <summary>
+        /// Gets or sets a flag to indicate if argument of generic types should be overriden.
+        /// </summary>
         public bool OverrideGenericArguments { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a list of inserter objects that allow filling collection of items implemented using a custom type, or a type not natively supported (<seealso cref="BuiltInInserters"/>.
+        /// </summary>
         public IReadOnlyList<IInserter> CustomInserters { get; set; } = new List<IInserter>();
+
+        /// <summary>
+        /// Gets a list of inserters that can add items to various types of collections.
+        /// </summary>
         public IReadOnlyList<IInserter> BuiltInInserters { get; } = new List<IInserter>()
         {
             new ArrayInserter(),
             new ListInserter(),
             new GenericAddInserter(),
         };
-        public SerializationMode Mode { get; set; } = SerializationMode.Default;
-        public SerializationFormat FileFormat { get; set; } = SerializationFormat.BinaryPreferred;
+
+        /// <summary>
+        ///     The serialization or deserialization progress as a number between 0 and 1.
+        /// </summary>
         public double Progress { get; private set; }
+
+        /// <summary>
+        ///     Size of the first allocated block of data. Change this value to optimize memory or speed.
+        /// </summary>
         public uint MinAllocatedSize { get; set; } = 0x10000;
+
+        /// <summary>
+        ///     Last value used to allocate or reallocate data. Use this information to optimize memory management.
+        /// </summary>
         public uint LastAllocatedSize { get; private set; } = 0;
         #endregion
 
         #region Serialization
+        /// <summary>
+        ///     Serializes <paramref name="root"/> and write the serialized data to <paramref name="output"/>.
+        /// </summary>
+        /// <parameters>
+        /// <param name="output">Stream receiving the serialized data.</param>
+        /// <param name="root">Serialized object.</param>
+        /// </parameters>
         public void Serialize(Stream output, object root)
         {
             InitializeSerialization(output, root);
             INTERNAL_Serialize();
         }
 
+        /// <summary>
+        ///     Serializes <paramref name="root"/> and write the serialized data to <paramref name="output"/>.
+        /// </summary>
+        /// <parameters>
+        /// <param name="output">Stream receiving the serialized data.</param>
+        /// <param name="root">Serialized object.</param>
+        /// </parameters>
+        /// <returns>
+        ///     A task representing the asynchronous operation.
+        /// </returns>
         public Task SerializeAsync(Stream output, object root)
         {
             InitializeSerialization(output, root);
@@ -240,7 +322,7 @@ namespace PolySerializer
 
         private void INTERNAL_Serialize()
         {
-            bool IsSerializedAsText = (FileFormat == SerializationFormat.TextPreferred) || (FileFormat == SerializationFormat.TextOnly);
+            bool IsSerializedAsText = (Format == SerializationFormat.TextPreferred) || (Format == SerializationFormat.TextOnly);
 
             if (IsSerializedAsText)
                 INTERNAL_Serialize_TEXT();
@@ -948,12 +1030,30 @@ namespace PolySerializer
         #endregion
 
         #region Deserialization
+        /// <summary>
+        ///     Creates a new object from serialized content in <paramref name="input"/>.
+        /// </summary>
+        /// <parameters>
+        /// <param name="input">Stream from which serialized data is read to create the new object.</param>
+        /// </parameters>
+        /// <returns>
+        ///     The deserialized object.
+        /// </returns>
         public object Deserialize(Stream input)
         {
             InitializeDeserialization(input);
             return INTERNAL_Deserialize();
         }
 
+        /// <summary>
+        ///     Creates a new object from serialized content in <paramref name="input"/>.
+        /// </summary>
+        /// <parameters>
+        /// <param name="input">Stream from which serialized data is read to create the new object.</param>
+        /// </parameters>
+        /// <returns>
+        ///     A task representing the asynchronous operation.
+        /// </returns>
         public Task<object> DeserializeAsync(Stream input)
         {
             InitializeDeserialization(input);
@@ -974,10 +1074,10 @@ namespace PolySerializer
             ReadField(ref Data, ref Offset, 4);
 
             bool IsDeserializedAsText;
-            if (FileFormat == SerializationFormat.TextPreferred || FileFormat == SerializationFormat.BinaryPreferred)
+            if (Format == SerializationFormat.TextPreferred || Format == SerializationFormat.BinaryPreferred)
                 IsDeserializedAsText = (Data[0] == 'M' && Data[1] == 'o' && Data[2] == 'd' && Data[3] == 'e');
             else
-                IsDeserializedAsText = (FileFormat == SerializationFormat.TextOnly);
+                IsDeserializedAsText = (Format == SerializationFormat.TextOnly);
 
             if (IsDeserializedAsText)
                 return INTERNAL_Deserialize_TEXT(ref Data, ref Offset);
@@ -1183,9 +1283,9 @@ namespace PolySerializer
             return false;
         }
 
-        private void AddDeserializedObject(object Reference, Type DeserializedType, long Count)
+        private void AddDeserializedObject(object reference, Type deserializedType, long count)
         {
-            DeserializedObjectList.Add(new DeserializedObject(Reference, DeserializedType, Count));
+            DeserializedObjectList.Add(new DeserializedObject(reference, deserializedType, count));
         }
 
         private bool IsDeserializableMember(Type deserializedType, DeserializedMember newMember)
@@ -2565,12 +2665,30 @@ namespace PolySerializer
         #endregion
 
         #region Check
+        /// <summary>
+        ///     Checks if serialized data in <paramref name="input"/> is compatible with <see cref="RootType"/>.
+        /// </summary>
+        /// <parameters>
+        /// <param name="input">Stream from which serialized data is read to check for compatibility.</param>
+        /// </parameters>
+        /// <returns>
+        ///     True of the stream can be deserialized, False otherwise.
+        /// </returns>
         public bool Check(Stream input)
         {
             InitializeCheck(input);
             return INTERNAL_Check();
         }
 
+        /// <summary>
+        ///     Checks if serialized data in <paramref name="input"/> is compatible with <see cref="RootType"/>.
+        /// </summary>
+        /// <parameters>
+        /// <param name="input">Stream from which serialized data is read to check for compatibility.</param>
+        /// </parameters>
+        /// <returns>
+        ///     A task representing the asynchronous operation.
+        /// </returns>
         public Task<bool> CheckAsync(Stream input)
         {
             InitializeCheck(input);
@@ -2591,10 +2709,10 @@ namespace PolySerializer
             ReadField(ref Data, ref Offset, 4);
 
             bool IsCheckedAsText;
-            if (FileFormat == SerializationFormat.TextPreferred || FileFormat == SerializationFormat.BinaryPreferred)
+            if (Format == SerializationFormat.TextPreferred || Format == SerializationFormat.BinaryPreferred)
                 IsCheckedAsText = (Data[0] == 'M' && Data[1] == 'o' && Data[2] == 'd' && Data[3] == 'e');
             else
-                IsCheckedAsText = (FileFormat == SerializationFormat.TextOnly);
+                IsCheckedAsText = (Format == SerializationFormat.TextOnly);
 
             if (IsCheckedAsText)
                 return INTERNAL_Check_TEXT(ref Data, ref Offset);
@@ -3096,6 +3214,15 @@ namespace PolySerializer
         #endregion
 
         #region Tools
+        /// <summary>
+        ///     Finds the first serializable ancestor of <paramref name="referenceType"/>.
+        /// </summary>
+        /// <parameters>
+        /// <param name="referenceType">The type to search for serializable ancestors.</param>
+        /// </parameters>
+        /// <returns>
+        ///     The first ancestor type that can be serialized, null if none. If null is returned, <paramref name="referenceType"/> cannot be serialized.
+        /// </returns>
         public static Type SerializableAncestor(Type referenceType)
         {
             Type t = referenceType;
@@ -3106,14 +3233,25 @@ namespace PolySerializer
             return t;
         }
 
-        public static bool IsReadableCollection(Type t, object reference, out IEnumerator enumerator)
+        /// <summary>
+        ///     Checks if <paramref name="referenceType"/>, a base type of <paramref name="reference"/>, is a collection type and if so returns an enumerator for <paramref name="reference"/>.
+        /// </summary>
+        /// <parameters>
+        /// <param name="referenceType">The type to check.</param>
+        /// <param name="reference">The object for which to return an enumerator if successful.</param>
+        /// <param name="enumerator">The enumerator returned if successful.</param>
+        /// </parameters>
+        /// <returns>
+        ///     True if <paramref name="referenceType"/> is a readable collection.
+        /// </returns>
+        public static bool IsReadableCollection(Type referenceType, object reference, out IEnumerator enumerator)
         {
             Type CurrentType;
 
-            if (t.IsGenericType)
-                CurrentType = t.GetGenericTypeDefinition();
+            if (referenceType.IsGenericType)
+                CurrentType = referenceType.GetGenericTypeDefinition();
             else
-                CurrentType = t;
+                CurrentType = referenceType;
 
             while (CurrentType != null)
             {
@@ -3132,6 +3270,18 @@ namespace PolySerializer
             return false;
         }
 
+        /// <summary>
+        ///     Checks if <paramref name="referenceType"/>, a base type of <paramref name="reference"/>, is a supported collection type and if so returns an inserter for <paramref name="reference"/>.
+        /// </summary>
+        /// <parameters>
+        /// <param name="referenceType">The type to check.</param>
+        /// <param name="reference">The object for which to return an enumerator if successful.</param>
+        /// <param name="inserter">The inserter returned if successful.</param>
+        /// <param name="itemType">The type of items the inserter can take.</param>
+        /// </parameters>
+        /// <returns>
+        ///     True if <paramref name="referenceType"/> is a writeable collection.
+        /// </returns>
         public bool IsWriteableCollection(object reference, Type referenceType, out IInserter inserter, out Type itemType)
         {
             foreach (IInserter TestInserter in CustomInserters)
@@ -3161,6 +3311,17 @@ namespace PolySerializer
             return false;
         }
 
+        /// <summary>
+        ///     Checks if <paramref name="referenceType"/> is a supported collection type and if so returns the corresponding inserter.
+        /// </summary>
+        /// <parameters>
+        /// <param name="referenceType">The type to check.</param>
+        /// <param name="inserter">The inserter returned if successful.</param>
+        /// <param name="itemType">The type of items the inserter can take.</param>
+        /// </parameters>
+        /// <returns>
+        ///     True if <paramref name="referenceType"/> is a writeable collection.
+        /// </returns>
         public bool IsWriteableCollection(Type referenceType, out IInserter inserter, out Type itemType)
         {
             foreach (IInserter TestInserter in CustomInserters)

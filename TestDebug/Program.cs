@@ -73,7 +73,7 @@ namespace TestDebug
             TestBasic10(1, 1);
 
             Serializer s = new Serializer();
-            s.FileFormat = SerializationFormat.TextPreferred;
+            s.Format = SerializationFormat.TextPreferred;
             s.Mode = SerializationMode.MemberName;
 
             ParentA parentA0 = new ParentA("x", "test7");
@@ -109,7 +109,7 @@ namespace TestDebug
         {
             Serializer s = new Serializer();
             s.Mode = (SerializationMode)mode;
-            s.FileFormat = (SerializationFormat)format;
+            s.Format = (SerializationFormat)format;
 
             Struct0 test0 = new Struct0();
 

@@ -15,11 +15,11 @@ namespace PolySerializer
     internal class SerializableObject : ISerializableObject
     {
         #region Init
-        public SerializableObject(object Reference, Type ReferenceType, long Count)
+        public SerializableObject(object reference, Type referenceType, long count)
         {
-            this.Reference = Reference;
-            this.ReferenceType = ReferenceType;
-            this.Count = Count;
+            Reference = reference;
+            ReferenceType = referenceType;
+            Count = count;
             IsSerialized = false;
         }
         #endregion
@@ -43,12 +43,12 @@ namespace PolySerializer
         {
             string Result;
             if (Reference == null)
-                Result = "null for " + ReferenceType.Name;
+                Result = $"null for {ReferenceType.Name}";
             else
-                Result = Reference.ToString() + " as " + ReferenceType.FullName;
+                Result = $"{Reference} as {ReferenceType.FullName}";
 
             if (Count >= 0)
-                Result += " (*" + Count + ")";
+                Result += $" (*{Count})";
 
             if (IsSerialized)
                 Result += " (Serialized)";

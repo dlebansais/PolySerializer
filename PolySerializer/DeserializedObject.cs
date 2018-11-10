@@ -15,11 +15,11 @@ namespace PolySerializer
     internal class DeserializedObject : IDeserializedObject
     {
         #region Init
-        public DeserializedObject(object Reference, Type DeserializedType, long Count)
+        public DeserializedObject(object reference, Type deserializedType, long count)
         {
-            this.Reference = Reference;
-            this.DeserializedType = DeserializedType;
-            this.Count = Count;
+            Reference = reference;
+            DeserializedType = deserializedType;
+            Count = count;
             IsDeserialized = false;
         }
         #endregion
@@ -43,9 +43,9 @@ namespace PolySerializer
         {
             string Result;
             if (Reference == null)
-                Result = "null for " + DeserializedType.FullName;
+                Result = $"null for {DeserializedType.FullName}";
             else
-                Result = Reference.ToString() + " as " + DeserializedType.FullName;
+                Result = $"{Reference} as {DeserializedType.FullName}";
 
             if (IsDeserialized)
                 Result += " (Deserialized)";

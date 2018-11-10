@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("PolySerializer")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("A generic .NET serializer for object exchange between assemblies.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("PolySerializer")]
@@ -33,7 +33,7 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.90")]
-[assembly: AssemblyFileVersion("1.0.0.89")]
+[assembly: AssemblyVersion("1.0.0.95")]
+[assembly: AssemblyFileVersion("1.0.0.94")]
 [assembly: NeutralResourcesLanguage("en")]
 

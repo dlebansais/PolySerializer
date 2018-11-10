@@ -1,6 +1,6 @@
 ﻿namespace PolySerializer
 {
-    public enum ObjectTag : byte
+    internal enum ObjectTag : byte
     {
         Reserved,
         ObjectReference,   // Normal object

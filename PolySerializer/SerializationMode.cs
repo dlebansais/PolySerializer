@@ -20,7 +20,7 @@
 
         /// <summary>
         ///     Members are matched in the order they are found in serialized data and in the type.
-        ///     This is faster than <see cref="MatchByName"/>, and supports renaming members, but the source and destination types must match exactly.
+        ///     This is faster than <see cref="MemberName"/>, and supports renaming members, but the source and destination types must match exactly.
         ///     This also supports a destination type with more members then the original, if they appear at the end.
         /// </summary>
         MemberOrder,

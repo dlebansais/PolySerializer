@@ -2,21 +2,28 @@
 
 namespace PolySerializer
 {
-    public class SerializedMember
+    internal class SerializedMember
     {
-        public SerializedMember(MemberInfo MemberInfo)
+        #region Init
+        public SerializedMember(MemberInfo memberInfo)
         {
-            this.MemberInfo = MemberInfo;
+            MemberInfo = memberInfo;
         }
+        #endregion
 
-        public void SetCondition(bool ConditionValue)
-        {
-            Condition = ConditionValue;
-        }
-
+        #region Properties
         public MemberInfo MemberInfo { get; private set; }
         public bool? Condition { get; private set; }
+        #endregion
 
+        #region Client Interface
+        public void SetCondition(bool condition)
+        {
+            Condition = condition;
+        }
+        #endregion
+
+        #region Debugging
         public override string ToString()
         {
             string Result = MemberInfo.Name;
@@ -29,5 +36,6 @@ namespace PolySerializer
 
             return Result;
         }
+        #endregion
     }
 }
