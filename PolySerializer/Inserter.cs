@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
-
-namespace PolySerializer
+﻿namespace PolySerializer
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Reflection;
+
     #region Interface
     /// <summary>
     ///     Public interface of an inserter.
@@ -26,7 +26,7 @@ namespace PolySerializer
         /// <param name="itemType">The type of items in the collection.</param>
         /// </parameters>
         /// <returns>
-        ///     True if the inserter can handle the collection, false otherwise. 
+        ///     True if the inserter can handle the collection, false otherwise.
         /// </returns>
         bool TrySetReference(object reference, Type referenceType, out Type itemType);
 
@@ -39,7 +39,7 @@ namespace PolySerializer
         /// <param name="itemType">The type of items in the collection.</param>
         /// </parameters>
         /// <returns>
-        ///     True if the inserter can handle the collection type, false otherwise. 
+        ///     True if the inserter can handle the collection type, false otherwise.
         /// </returns>
         bool TryMatchType(Type referenceType, out Type itemType);
 
@@ -84,7 +84,7 @@ namespace PolySerializer
         /// <param name="itemType">The type of items in the collection.</param>
         /// </parameters>
         /// <returns>
-        ///     True if the inserter can handle the collection, false otherwise. 
+        ///     True if the inserter can handle the collection, false otherwise.
         /// </returns>
         public bool TrySetReference(object reference, Type referenceType, out Type itemType)
         {
@@ -108,7 +108,7 @@ namespace PolySerializer
         /// <param name="itemType">The type of items in the collection.</param>
         /// </parameters>
         /// <returns>
-        ///     True if the inserter can handle the collection type, false otherwise. 
+        ///     True if the inserter can handle the collection type, false otherwise.
         /// </returns>
         public bool TryMatchType(Type referenceType, out Type itemType)
         {
@@ -161,7 +161,7 @@ namespace PolySerializer
         /// <param name="itemType">The type of items in the collection.</param>
         /// </parameters>
         /// <returns>
-        ///     True if the inserter can handle the collection, false otherwise. 
+        ///     True if the inserter can handle the collection, false otherwise.
         /// </returns>
         public bool TrySetReference(object reference, Type referenceType, out Type itemType)
         {
@@ -198,7 +198,7 @@ namespace PolySerializer
         /// <param name="itemType">The type of items in the collection.</param>
         /// </parameters>
         /// <returns>
-        ///     True if the inserter can handle the collection type, false otherwise. 
+        ///     True if the inserter can handle the collection type, false otherwise.
         /// </returns>
         public bool TryMatchType(Type referenceType, out Type itemType)
         {
@@ -266,7 +266,7 @@ namespace PolySerializer
         /// <param name="itemType">The type of items in the collection.</param>
         /// </parameters>
         /// <returns>
-        ///     True if the inserter can handle the collection, false otherwise. 
+        ///     True if the inserter can handle the collection, false otherwise.
         /// </returns>
         public bool TrySetReference(object reference, Type referenceType, out Type itemType)
         {
@@ -314,7 +314,7 @@ namespace PolySerializer
         /// <param name="itemType">The type of items in the collection.</param>
         /// </parameters>
         /// <returns>
-        ///     True if the inserter can handle the collection type, false otherwise. 
+        ///     True if the inserter can handle the collection type, false otherwise.
         /// </returns>
         public bool TryMatchType(Type referenceType, out Type itemType)
         {

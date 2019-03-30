@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-
-namespace PolySerializer
+﻿namespace PolySerializer
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+
     /// <summary>
     /// Represents a .NET type name.
     /// </summary>
@@ -11,7 +11,7 @@ namespace PolySerializer
     {
         #region Init
         /// <summary>
-        /// Creates and initializes a new instance of a <see cref="TypeIdentifier"/> object.
+        /// Initializes a new instance of the <see cref="TypeIdentifier"/> class.
         /// </summary>
         /// <param name="name">The assembly qualified type name.</param>
         public TypeIdentifier(string name)
@@ -23,7 +23,7 @@ namespace PolySerializer
         }
 
         /// <summary>
-        /// Creates and initializes a new instance of a <see cref="TypeIdentifier"/> object.
+        /// Initializes a new instance of the <see cref="TypeIdentifier"/> class.
         /// </summary>
         /// <param name="name">The assembly qualified type name.</param>
         /// <param name="genericDefinition">The generic definition, for a generic type; The type name for a non-generic type.</param>
@@ -197,7 +197,7 @@ namespace PolySerializer
 
                 string Parameters = string.Empty;
 
-                foreach(TypeIdentifier GenericParameter in GenericParameters)
+                foreach (TypeIdentifier GenericParameter in GenericParameters)
                 {
                     if (Parameters.Length > 0)
                         Parameters += "],[";

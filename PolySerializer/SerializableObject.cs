@@ -1,13 +1,13 @@
-﻿using System;
-
-namespace PolySerializer
+﻿namespace PolySerializer
 {
+    using System;
+
     #region Interface
     internal interface ISerializableObject
     {
         object Reference { get; }
         Type ReferenceType { get; }
-        long Count{ get; }
+        long Count { get; }
         void SetSerialized();
     }
     #endregion

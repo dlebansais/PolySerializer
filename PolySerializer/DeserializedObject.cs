@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace PolySerializer
+﻿namespace PolySerializer
 {
+    using System;
+
     #region Interface
     internal interface IDeserializedObject
     {

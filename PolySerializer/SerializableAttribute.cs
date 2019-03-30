@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace PolySerializer
+﻿namespace PolySerializer
 {
+    using System;
+
     /// <summary>
     ///     Attribute to enable serialization, or specify how to serialize a member
     /// </summary>

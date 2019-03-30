@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PolySerializer
+﻿namespace PolySerializer
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Globalization;
+    using System.IO;
+    using System.Reflection;
+    using System.Text;
+    using System.Threading.Tasks;
+
     #region Interface
     /// <summary>
     ///     Public interface of the serializer.
@@ -1075,9 +1075,9 @@ namespace PolySerializer
 
             bool IsDeserializedAsText;
             if (Format == SerializationFormat.TextPreferred || Format == SerializationFormat.BinaryPreferred)
-                IsDeserializedAsText = (Data[0] == 'M' && Data[1] == 'o' && Data[2] == 'd' && Data[3] == 'e');
+                IsDeserializedAsText = Data[0] == 'M' && Data[1] == 'o' && Data[2] == 'd' && Data[3] == 'e';
             else
-                IsDeserializedAsText = (Format == SerializationFormat.TextOnly);
+                IsDeserializedAsText = Format == SerializationFormat.TextOnly;
 
             if (IsDeserializedAsText)
                 return INTERNAL_Deserialize_TEXT(ref Data, ref Offset);
@@ -1406,7 +1406,7 @@ namespace PolySerializer
 
             if (Reload)
             {
-                long Length = (Input.Length - Input.Position);
+                long Length = Input.Length - Input.Position;
                 if (Length > data.Length - offset)
                     Length = data.Length - offset;
 
@@ -1553,7 +1553,7 @@ namespace PolySerializer
 
             else if (valueType == typeof(string))
                 value = ReadFieldString_BINARY(ref data, ref offset);
-            
+
             else if (valueType == typeof(Guid))
                 value = ReadFieldGuid_BINARY(ref data, ref offset);
 
@@ -2289,7 +2289,7 @@ namespace PolySerializer
 
             ReadField(ref data, ref offset, 4);
 
-            Value = (data[offset + 0] == 'T' && data[offset + 1] == 'r' && data[offset + 2] == 'u' && data[offset + 3] == 'e');
+            Value = data[offset + 0] == 'T' && data[offset + 1] == 'r' && data[offset + 2] == 'u' && data[offset + 3] == 'e';
             offset += 4;
 
             if (!Value)
@@ -2494,7 +2494,7 @@ namespace PolySerializer
 
             int BaseOffset = offset++;
 
-            for (; ; )
+            for (;;)
             {
                 ReadField(ref data, ref offset, 1);
                 if (data[offset] == '\\')
@@ -2704,9 +2704,9 @@ namespace PolySerializer
 
             bool IsCheckedAsText;
             if (Format == SerializationFormat.TextPreferred || Format == SerializationFormat.BinaryPreferred)
-                IsCheckedAsText = (Data[0] == 'M' && Data[1] == 'o' && Data[2] == 'd' && Data[3] == 'e');
+                IsCheckedAsText = Data[0] == 'M' && Data[1] == 'o' && Data[2] == 'd' && Data[3] == 'e';
             else
-                IsCheckedAsText = (Format == SerializationFormat.TextOnly);
+                IsCheckedAsText = Format == SerializationFormat.TextOnly;
 
             if (IsCheckedAsText)
                 return INTERNAL_Check_TEXT(ref Data, ref Offset);
@@ -3554,8 +3554,8 @@ namespace PolySerializer
             for (int i = 0; i < StringChars.Length; i++)
             {
                 byte[] Content = BitConverter.GetBytes(StringChars[i]);
-                StringBytes[CountByteSize + i * 2 + 0] = Content[0];
-                StringBytes[CountByteSize + i * 2 + 1] = Content[1];
+                StringBytes[CountByteSize + (i * 2) + 0] = Content[0];
+                StringBytes[CountByteSize + (i * 2) + 1] = Content[1];
             }
 
             return StringBytes;
@@ -3567,7 +3567,7 @@ namespace PolySerializer
             char[] StringChars = new char[count];
 
             for (i = 0; i < count; i++)
-                StringChars[i] = BitConverter.ToChar(data, offset + i * 2);
+                StringChars[i] = BitConverter.ToChar(data, offset + (i * 2));
 
             return new string(StringChars);
         }

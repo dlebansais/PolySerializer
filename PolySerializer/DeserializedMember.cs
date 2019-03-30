@@ -1,7 +1,7 @@
-﻿using System.Reflection;
-
-namespace PolySerializer
+﻿namespace PolySerializer
 {
+    using System.Reflection;
+
     internal class DeserializedMember
     {
         #region Init

@@ -27,7 +27,7 @@
 
         #region Init
         /// <summary>
-        /// Creates and initializes a new instance of a <see cref="NamespaceDescriptor"/> object.
+        /// Initializes a new instance of the <see cref="NamespaceDescriptor"/> struct.
         /// </summary>
         /// <param name="path">The namespace path.</param>
         public NamespaceDescriptor(string path)
@@ -40,7 +40,7 @@
         }
 
         /// <summary>
-        /// Creates and initializes a new instance of a <see cref="NamespaceDescriptor"/> object.
+        /// Initializes a new instance of the <see cref="NamespaceDescriptor"/> struct.
         /// </summary>
         /// <param name="path">The namespace path.</param>
         /// <param name="assembly">The assembly name.</param>
@@ -54,7 +54,7 @@
         }
 
         /// <summary>
-        /// Creates and initializes a new instance of a <see cref="NamespaceDescriptor"/> object.
+        /// Initializes a new instance of the <see cref="NamespaceDescriptor"/> struct.
         /// </summary>
         /// <param name="path">The namespace path.</param>
         /// <param name="assembly">The assembly name.</param>
@@ -69,7 +69,7 @@
         }
 
         /// <summary>
-        /// Creates and initializes a new instance of a <see cref="NamespaceDescriptor"/> object.
+        /// Initializes a new instance of the <see cref="NamespaceDescriptor"/> struct.
         /// </summary>
         /// <param name="path">The namespace path.</param>
         /// <param name="assembly">The assembly name.</param>
@@ -157,7 +157,7 @@
 
             for (int i = NamePath.Length; i > 0 && !NamespaceMatch; i--)
             {
-                string PartialNamespace = "";
+                string PartialNamespace = string.Empty;
                 for (int j = 0; j + 1 < i; j++)
                 {
                     if (PartialNamespace.Length > 0)
@@ -307,7 +307,6 @@
         /// <summary>
         /// Returns a string representing the instance, for debug purpose.
         /// </summary>
-        /// <returns></returns>
         public override string ToString()
         {
             return $"'{Path}, {Assembly}, {Version}, {Culture}, {PublicKeyToken}'";
