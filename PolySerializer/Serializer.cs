@@ -1412,21 +1412,7 @@
 
         private void Deserialize_BINARY(ref object reference, Type referenceType, long count, ref byte[] data, ref int offset, IDeserializedObject nextDeserialized)
         {
-            if (count >= 0)
-            {
-                IInserter Inserter;
-                Type ItemType;
-                if (IsWriteableCollection(reference, referenceType, out Inserter, out ItemType))
-                {
-                    for (long i = 0; i < count; i++)
-                    {
-                        object Item;
-                        ProcessDeserializable_BINARY(ItemType, ref data, ref offset, out Item);
-
-                        Inserter.AddItem(Item);
-                    }
-                }
-            }
+            DeserializeCollection_BINARY(ref reference, referenceType, count, ref data, ref offset);
 
             Type DeserializedType = SerializableAncestor(referenceType);
             List<DeserializedMember> DeserializedMembers = ListDeserializedMembers_BINARY(DeserializedType, ref data, ref offset);
@@ -1470,6 +1456,25 @@
 
             if (nextDeserialized != null)
                 nextDeserialized.SetDeserialized();
+        }
+
+        private void DeserializeCollection_BINARY(ref object reference, Type referenceType, long count, ref byte[] data, ref int offset)
+        {
+            if (count >= 0)
+            {
+                IInserter Inserter;
+                Type ItemType;
+                if (IsWriteableCollection(reference, referenceType, out Inserter, out ItemType))
+                {
+                    for (long i = 0; i < count; i++)
+                    {
+                        object Item;
+                        ProcessDeserializable_BINARY(ItemType, ref data, ref offset, out Item);
+
+                        Inserter.AddItem(Item);
+                    }
+                }
+            }
         }
 
         private bool DeserializeBasicType_BINARY(Type valueType, ref byte[] data, ref int offset, out object value)
@@ -1927,24 +1932,7 @@
 
         private void Deserialize_TEXT(ref object reference, Type referenceType, long count, ref byte[] data, ref int offset, IDeserializedObject nextDeserialized)
         {
-            if (count >= 0)
-            {
-                IInserter Inserter;
-                Type ItemType;
-                if (IsWriteableCollection(reference, referenceType, out Inserter, out ItemType))
-                {
-                    for (long i = 0; i < count; i++)
-                    {
-                        if (i > 0)
-                            ReadSeparator_TEXT(ref data, ref offset);
-
-                        object Item;
-                        ProcessDeserializable_TEXT(ItemType, ref data, ref offset, out Item);
-
-                        Inserter.AddItem(Item);
-                    }
-                }
-            }
+            DeserializeCollection_TEXT(ref reference, referenceType, count, ref data, ref offset);
 
             Type DeserializedType = SerializableAncestor(referenceType);
             List<DeserializedMember> DeserializedMembers = ListDeserializedMembers_TEXT(DeserializedType, ref data, ref offset);
@@ -1995,6 +1983,28 @@
 
             if (nextDeserialized != null)
                 nextDeserialized.SetDeserialized();
+        }
+
+        private void DeserializeCollection_TEXT(ref object reference, Type referenceType, long count, ref byte[] data, ref int offset)
+        {
+            if (count >= 0)
+            {
+                IInserter Inserter;
+                Type ItemType;
+                if (IsWriteableCollection(reference, referenceType, out Inserter, out ItemType))
+                {
+                    for (long i = 0; i < count; i++)
+                    {
+                        if (i > 0)
+                            ReadSeparator_TEXT(ref data, ref offset);
+
+                        object Item;
+                        ProcessDeserializable_TEXT(ItemType, ref data, ref offset, out Item);
+
+                        Inserter.AddItem(Item);
+                    }
+                }
+            }
         }
 
         private bool DeserializeBasicType_TEXT(Type valueType, ref byte[] data, ref int offset, out object value)
@@ -2678,19 +2688,8 @@
 
         private bool Check_BINARY(Type referenceType, long count, ref byte[] data, ref int offset, ICheckedObject nextChecked)
         {
-            if (count >= 0)
-            {
-                IInserter Inserter;
-                Type ItemType;
-                if (IsWriteableCollection(referenceType, out Inserter, out ItemType))
-                {
-                    for (long i = 0; i < count; i++)
-                    {
-                        if (!ProcessCheckable_BINARY(ItemType, ref data, ref offset))
-                            return false;
-                    }
-                }
-            }
+            if (!CheckCollection_BINARY(referenceType, count, ref data, ref offset))
+                return false;
 
             Type CheckedType = SerializableAncestor(referenceType);
             List<DeserializedMember> CheckedMembers = ListDeserializedMembers_BINARY(CheckedType, ref data, ref offset);
@@ -2723,6 +2722,25 @@
 
             if (nextChecked != null)
                 nextChecked.SetChecked();
+
+            return true;
+        }
+
+        private bool CheckCollection_BINARY(Type referenceType, long count, ref byte[] data, ref int offset)
+        {
+            if (count >= 0)
+            {
+                IInserter Inserter;
+                Type ItemType;
+                if (IsWriteableCollection(referenceType, out Inserter, out ItemType))
+                {
+                    for (long i = 0; i < count; i++)
+                    {
+                        if (!ProcessCheckable_BINARY(ItemType, ref data, ref offset))
+                            return false;
+                    }
+                }
+            }
 
             return true;
         }
@@ -2906,22 +2924,8 @@
 
         private bool Check_TEXT(Type referenceType, long count, ref byte[] data, ref int offset, ICheckedObject nextChecked)
         {
-            if (count >= 0)
-            {
-                IInserter Inserter;
-                Type ItemType;
-                if (IsWriteableCollection(referenceType, out Inserter, out ItemType))
-                {
-                    for (long i = 0; i < count; i++)
-                    {
-                        if (i > 0)
-                            ReadSeparator_TEXT(ref data, ref offset);
-
-                        if (!ProcessCheckable_TEXT(ItemType, ref data, ref offset))
-                            return false;
-                    }
-                }
-            }
+            if (!CheckCollection_TEXT(referenceType, count, ref data, ref offset))
+                return false;
 
             Type CheckedType = SerializableAncestor(referenceType);
             List<DeserializedMember> CheckedMembers = ListDeserializedMembers_TEXT(CheckedType, ref data, ref offset);
@@ -2961,6 +2965,28 @@
 
             if (nextChecked != null)
                 nextChecked.SetChecked();
+
+            return true;
+        }
+
+        private bool CheckCollection_TEXT(Type referenceType, long count, ref byte[] data, ref int offset)
+        {
+            if (count >= 0)
+            {
+                IInserter Inserter;
+                Type ItemType;
+                if (IsWriteableCollection(referenceType, out Inserter, out ItemType))
+                {
+                    for (long i = 0; i < count; i++)
+                    {
+                        if (i > 0)
+                            ReadSeparator_TEXT(ref data, ref offset);
+
+                        if (!ProcessCheckable_TEXT(ItemType, ref data, ref offset))
+                            return false;
+                    }
+                }
+            }
 
             return true;
         }
