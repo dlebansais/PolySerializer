@@ -1,0 +1,225 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+
+namespace PolySerializer
+{
+    /// <summary>
+    /// Represents a .NET type name.
+    /// </summary>
+    public class TypeIdentifier
+    {
+        #region Init
+        /// <summary>
+        /// Creates and initializes a new instance of a <see cref="TypeIdentifier"/> object.
+        /// </summary>
+        /// <param name="name">The assembly qualified type name.</param>
+        public TypeIdentifier(string name)
+        {
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            DeconstructTypeName(Name);
+
+            Debug.Assert(ReconstructedTypeName() == Name);
+        }
+
+        /// <summary>
+        /// Creates and initializes a new instance of a <see cref="TypeIdentifier"/> object.
+        /// </summary>
+        /// <param name="name">The assembly qualified type name.</param>
+        /// <param name="genericDefinition">The generic definition, for a generic type; The type name for a non-generic type.</param>
+        /// <param name="genericParameters">The generic parameters, for a generic type; The empty list a non-generic type.</param>
+        private TypeIdentifier(string name, string genericDefinition, List<TypeIdentifier> genericParameters)
+        {
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            GenericDefinition = genericDefinition ?? throw new ArgumentNullException(nameof(genericDefinition));
+            GenericParameters = genericParameters ?? throw new ArgumentNullException(nameof(genericParameters));
+
+            Debug.Assert((!IsGeneric && Name == GenericDefinition && GenericParameters.Count == 0) || (IsGeneric && Name != GenericDefinition && GenericParameters.Count > 0));
+        }
+        #endregion
+
+        #region Properties
+        /// <summary>
+        /// The assembly qualified type name.
+        /// </summary>
+        public string Name { get; private set; }
+
+        /// <summary>
+        /// The generic definition, for a generic type; The type name for a non-generic type.
+        /// </summary>
+        public string GenericDefinition { get; private set; }
+
+        /// <summary>
+        /// The generic parameters, for a generic type; The empty list a non-generic type.
+        /// </summary>
+        public List<TypeIdentifier> GenericParameters { get; private set; }
+
+        /// <summary>
+        /// Indicates if the type is generic.
+        /// </summary>
+        public bool IsGeneric { get { return GenericParameters.Count > 0; } }
+        #endregion
+
+        #region Client Interface
+        /// <summary>
+        /// Override the type name and nested generic parameters using a search/replace.
+        /// </summary>
+        /// <param name="table">The search/replace table.</param>
+        /// <param name="overrideGenericArguments">True to override generic parameters, otherwise the generic definition only.</param>
+        /// <returns>True if a replacement was made; Otherwise, false.</returns>
+        public bool Override(IReadOnlyDictionary<NamespaceDescriptor, NamespaceDescriptor> table, bool overrideGenericArguments)
+        {
+            bool IsOverriden = true;
+
+            GenericDefinition = Override(table, GenericDefinition, ref IsOverriden);
+
+            if (overrideGenericArguments)
+                foreach (TypeIdentifier GenericParameter in GenericParameters)
+                    IsOverriden = GenericParameter.Override(table, overrideGenericArguments);
+
+            if (IsOverriden)
+                Name = ReconstructedTypeName();
+
+            return IsOverriden;
+        }
+
+        private string Override(IReadOnlyDictionary<NamespaceDescriptor, NamespaceDescriptor> table, string typeName, ref bool isOverriden)
+        {
+            isOverriden = false;
+
+            foreach (KeyValuePair<NamespaceDescriptor, NamespaceDescriptor> Entry in table)
+                if (NamespaceDescriptor.Match(typeName, Entry.Key, Entry.Value, out string TypeNameOverride))
+                {
+                    isOverriden = true;
+                    return TypeNameOverride;
+                }
+
+            return typeName;
+        }
+        #endregion
+
+        #region Type name parsing
+        private void DeconstructTypeName(string typeName)
+        {
+            if (typeName.Contains("[["))
+            {
+                DeconstructGenericTypeName(typeName, out string GenericDefinition, out List<TypeIdentifier> GenericParameters, out int LastIndex);
+                this.GenericDefinition = GenericDefinition;
+                this.GenericParameters = GenericParameters;
+            }
+            else
+            {
+                GenericDefinition = typeName;
+                GenericParameters = new List<TypeIdentifier>();
+            }
+        }
+
+        private void DeconstructGenericTypeName(string typeName, out string genericDefinition, out List<TypeIdentifier> genericParameters, out int lastIndex)
+        {
+            int StartIndex = typeName.IndexOf("[[");
+
+            string Namespace = typeName.Substring(0, StartIndex);
+            genericParameters = new List<TypeIdentifier>();
+
+            StartIndex += 2;
+
+            bool Exit = false;
+            while (!Exit)
+            {
+                TypeIdentifier Parameter;
+                string dbg = typeName.Substring(StartIndex);
+
+                int ParseGeneric = IndexToEnd(typeName, "[[", StartIndex);
+                int ParseNormal = IndexToEnd(typeName, "],[", StartIndex);
+                int ParseLast = IndexToEnd(typeName, "]]", StartIndex);
+
+                if (ParseLast < ParseGeneric && ParseLast < ParseNormal)
+                {
+                    string Name = typeName.Substring(StartIndex, ParseLast - StartIndex);
+                    Parameter = new TypeIdentifier(Name);
+
+                    StartIndex = ParseLast + 2;
+                    Exit = true;
+                }
+                else if (ParseGeneric < ParseNormal)
+                {
+                    DeconstructGenericTypeName(typeName.Substring(StartIndex), out string GenericSubDefinition, out List<TypeIdentifier> GenericSubParameters, out int lastIndexSublist);
+                    string Name = typeName.Substring(StartIndex, lastIndexSublist);
+                    Parameter = new TypeIdentifier(Name, GenericSubDefinition, GenericSubParameters);
+
+                    StartIndex += lastIndexSublist;
+
+                    bool IsLast = typeName.Substring(StartIndex, 2) == "]]";
+                    bool IsNotLast = typeName.Substring(StartIndex, 3) == "],[";
+                    Debug.Assert(IsLast || IsNotLast);
+
+                    if (IsLast)
+                    {
+                        StartIndex += 2;
+                        Exit = true;
+                    }
+                    else
+                        StartIndex += 3;
+                }
+                else
+                {
+                    string Name = typeName.Substring(StartIndex, ParseNormal - StartIndex);
+                    Parameter = new TypeIdentifier(Name);
+
+                    StartIndex = ParseNormal + 3;
+                }
+
+                genericParameters.Add(Parameter);
+            }
+
+            lastIndex = IndexToEnd(typeName, "]", StartIndex);
+            string Remaining = typeName.Substring(StartIndex, lastIndex - StartIndex);
+
+            genericDefinition = Namespace + Remaining;
+        }
+
+        private int IndexToEnd(string text, string pattern, int startIndex)
+        {
+            int Index = text.IndexOf(pattern, startIndex);
+            if (Index < 0)
+                Index = text.Length;
+
+            return Index;
+        }
+
+        private string ReconstructedTypeName()
+        {
+            if (GenericParameters.Count == 0)
+                return GenericDefinition;
+            else
+            {
+                int AssemblyIndex = GenericDefinition.IndexOf(",");
+
+                string Parameters = string.Empty;
+
+                foreach(TypeIdentifier GenericParameter in GenericParameters)
+                {
+                    if (Parameters.Length > 0)
+                        Parameters += "],[";
+
+                    Parameters += GenericParameter.Name;
+                }
+
+                return GenericDefinition.Substring(0, AssemblyIndex) + "[[" + Parameters + "]]" + GenericDefinition.Substring(AssemblyIndex);
+            }
+        }
+        #endregion
+
+#if DEBUG
+        private static readonly TypeIdentifier Test0 = new TypeIdentifier(typeof(string).AssemblyQualifiedName);
+        private static readonly TypeIdentifier Test1 = new TypeIdentifier(typeof(List<string>).AssemblyQualifiedName);
+        private static readonly TypeIdentifier Test2 = new TypeIdentifier(typeof(Dictionary<string, string>).AssemblyQualifiedName);
+        private static readonly TypeIdentifier Test3 = new TypeIdentifier(typeof(List<List<string>>).AssemblyQualifiedName);
+        private static readonly TypeIdentifier Test4 = new TypeIdentifier(typeof(List<Dictionary<string, string>>).AssemblyQualifiedName);
+        private static readonly TypeIdentifier Test5 = new TypeIdentifier(typeof(Dictionary<string, List<string>>).AssemblyQualifiedName);
+        private static readonly TypeIdentifier Test6 = new TypeIdentifier(typeof(Dictionary<string, Dictionary<string, string>>).AssemblyQualifiedName);
+        private static readonly TypeIdentifier Test7 = new TypeIdentifier(typeof(Dictionary<List<string>, string>).AssemblyQualifiedName);
+        private static readonly TypeIdentifier Test8 = new TypeIdentifier(typeof(Dictionary<Dictionary<string, string>, string>).AssemblyQualifiedName);
+#endif
+    }
+}

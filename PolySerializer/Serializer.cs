@@ -125,7 +125,7 @@ namespace PolySerializer
         /// <summary>
         /// Sets or gets a list of namespaces that can override the original namespace of a type during deserialization.
         /// </summary>
-        IReadOnlyDictionary<string, string> NamespaceOverrideTable { get; set; }
+        IReadOnlyDictionary<NamespaceDescriptor, NamespaceDescriptor> NamespaceOverrideTable { get; set; }
 
         /// <summary>
         /// Gets or sets a list of types that can override the original type during deserialization.
@@ -199,7 +199,7 @@ namespace PolySerializer
         /// <summary>
         /// Sets or gets a list of namespaces that can override the original namespace of a type during deserialization.
         /// </summary>
-        public IReadOnlyDictionary<string, string> NamespaceOverrideTable { get; set; } = new Dictionary<string, string>();
+        public IReadOnlyDictionary<NamespaceDescriptor, NamespaceDescriptor> NamespaceOverrideTable { get; set; } = new Dictionary<NamespaceDescriptor, NamespaceDescriptor>();
 
         /// <summary>
         /// Gets or sets a list of types that can override the original type during deserialization.
@@ -1149,9 +1149,24 @@ namespace PolySerializer
             return Type.GetType(typeName);
         }
 
+        private bool OverrideTypeName(ref string referenceTypeName)
+        {
+            if (NamespaceOverrideTable.Count == 0)
+                return false;
+
+            TypeIdentifier Identifier = new TypeIdentifier(referenceTypeName);
+            if (Identifier.Override(NamespaceOverrideTable, OverrideGenericArguments))
+            {
+                referenceTypeName = Identifier.Name;
+                return true;
+            }
+
+            return false;
+        }
+
         private bool OverrideType(ref Type referenceType)
         {
-            if (TypeOverrideTable.Count == 0 && AssemblyOverrideTable.Count == 0 && NamespaceOverrideTable.Count == 0)
+            if (TypeOverrideTable.Count == 0 && AssemblyOverrideTable.Count == 0)
                 return false;
 
             if (TypeOverrideTable.Count > 0)
@@ -1163,24 +1178,11 @@ namespace PolySerializer
                     return true;
             }
 
-            if (AssemblyOverrideTable.Count > 0 || NamespaceOverrideTable.Count > 0)
+            if (AssemblyOverrideTable.Count > 0)
             {
-                Type[] TypeList;
-                if (referenceType.IsGenericType && !referenceType.IsGenericTypeDefinition)
-                {
-                    Type[] GenericArguments = referenceType.GetGenericArguments();
-                    TypeList = new Type[1 + GenericArguments.Length];
-                    TypeList[0] = referenceType.GetGenericTypeDefinition();
-                    for (int i = 0; i < GenericArguments.Length; i++)
-                        TypeList[i + 1] = GenericArguments[i];
-                }
-                else
-                {
-                    TypeList = new Type[1];
-                    TypeList[0] = referenceType;
-                }
-
                 bool GlobalOverride = false;
+
+                DeconstructType(referenceType, out Type[] TypeList);
 
                 for (int i = 0; i < TypeList.Length; i++)
                 {
@@ -1188,44 +1190,14 @@ namespace PolySerializer
                         break;
 
                     Type Type = TypeList[i];
-                    bool Override = false;
 
                     Assembly Assembly = Type.Assembly;
                     if (AssemblyOverrideTable.ContainsKey(Assembly))
                     {
                         Assembly = AssemblyOverrideTable[Assembly];
-                        Override = true;
-                    }
 
-                    string TypeName = null;
-                    string[] NamePath = Type.FullName.Split('.');
-
-                    for (int j = NamePath.Length; j > 0; j--)
-                    {
-                        string NameSpace = "";
-                        for (int k = 0; k + 1 < j; k++)
-                        {
-                            if (NameSpace.Length > 0)
-                                NameSpace += ".";
-                            NameSpace += NamePath[k];
-                        }
-
-                        if (NamespaceOverrideTable.ContainsKey(NameSpace))
-                        {
-                            NameSpace = NamespaceOverrideTable[NameSpace];
-                            TypeName = NameSpace + "." + NamePath[NamePath.Length - 1];
-                            Override = true;
-                            break;
-                        }
-                    }
-
-                    if (TypeName == null)
-                        TypeName = Type.FullName;
-
-                    if (Override)
-                    {
                         GlobalOverride = true;
-                        Type = Assembly.GetType(TypeName);
+                        Type = Assembly.GetType(Type.FullName);
                         if (Type != null)
                             TypeList[i] = Type;
                     }
@@ -1233,21 +1205,42 @@ namespace PolySerializer
 
                 if (GlobalOverride)
                 {
-                    if (TypeList.Length == 1)
-                        referenceType = TypeList[0];
-                    else
-                    {
-                        Type[] GenericArguments = new Type[TypeList.Length - 1];
-                        for (int i = 1; i < TypeList.Length; i++)
-                            GenericArguments[i - 1] = TypeList[i];
-                        referenceType = TypeList[0].MakeGenericType(GenericArguments);
-                    }
-
+                    ReconstructType(TypeList, out referenceType);
                     return true;
                 }
             }
 
             return false;
+        }
+
+        private void DeconstructType(Type type, out Type[] typeList)
+        {
+            if (type.IsGenericType && !type.IsGenericTypeDefinition)
+            {
+                Type[] GenericArguments = type.GetGenericArguments();
+                typeList = new Type[1 + GenericArguments.Length];
+                typeList[0] = type.GetGenericTypeDefinition();
+                for (int i = 0; i < GenericArguments.Length; i++)
+                    typeList[i + 1] = GenericArguments[i];
+            }
+            else
+            {
+                typeList = new Type[1];
+                typeList[0] = type;
+            }
+        }
+
+        private void ReconstructType(Type[] typeList, out Type type)
+        {
+            if (typeList.Length == 1)
+                type = typeList[0];
+            else
+            {
+                Type[] GenericArguments = new Type[typeList.Length - 1];
+                for (int i = 1; i < typeList.Length; i++)
+                    GenericArguments[i - 1] = typeList[i];
+                type = typeList[0].MakeGenericType(GenericArguments);
+            }
         }
 
         private bool OverrideDirectType(ref Type referenceType)
@@ -1608,6 +1601,7 @@ namespace PolySerializer
                 return;
             }
 
+            OverrideTypeName(ref ReferenceTypeName);
             referenceType = Type.GetType(ReferenceTypeName);
             Type OriginalType = referenceType;
             OverrideType(ref referenceType);
@@ -1876,7 +1870,6 @@ namespace PolySerializer
             for (int i = 0; i < 16; i++)
                 GuidBytes[i] = data[offset++];
             Value = new Guid(GuidBytes);
-
             return Value;
         }
 
@@ -1935,9 +1928,9 @@ namespace PolySerializer
 
             return Value;
         }
-        #endregion
+#endregion
 
-        #region Text
+#region Text
         private object INTERNAL_Deserialize_TEXT(ref byte[] data, ref int offset)
         {
             offset += 4;
@@ -2153,6 +2146,7 @@ namespace PolySerializer
                 return;
             }
 
+            OverrideTypeName(ref ReferenceTypeName);
             referenceType = Type.GetType(ReferenceTypeName);
             Type OriginalType = referenceType;
             OverrideType(ref referenceType);
@@ -2659,12 +2653,12 @@ namespace PolySerializer
             char c = (char)data[offset];
             offset++;
         }
-        #endregion
+#endregion
 
         private List<IDeserializedObject> DeserializedObjectList = new List<IDeserializedObject>();
-        #endregion
+#endregion
 
-        #region Check
+#region Check
         /// <summary>
         ///     Checks if serialized data in <paramref name="input"/> is compatible with <see cref="RootType"/>.
         /// </summary>
@@ -2725,7 +2719,7 @@ namespace PolySerializer
             CheckedObjectList.Add(new CheckedObject(checkedType, count));
         }
 
-        #region Binary
+#region Binary
         private bool INTERNAL_Check_BINARY(ref byte[] data, ref int offset)
         {
             Mode = (SerializationMode)BitConverter.ToInt32(data, offset);
@@ -2895,6 +2889,7 @@ namespace PolySerializer
             if (ReferenceTypeName == null)
                 return true;
 
+            OverrideTypeName(ref ReferenceTypeName);
             referenceType = Type.GetType(ReferenceTypeName);
             Type OriginalType = referenceType;
             OverrideType(ref referenceType);
@@ -2948,9 +2943,9 @@ namespace PolySerializer
 
             return true;
         }
-        #endregion
+#endregion
 
-        #region Text
+#region Text
         private bool INTERNAL_Check_TEXT(ref byte[] data, ref int offset)
         {
             offset += 4;
@@ -3150,6 +3145,7 @@ namespace PolySerializer
             if (ReferenceTypeName == null)
                 return true;
 
+            OverrideTypeName(ref ReferenceTypeName);
             referenceType = Type.GetType(ReferenceTypeName);
             Type OriginalType = referenceType;
             OverrideType(ref referenceType);
@@ -3208,12 +3204,12 @@ namespace PolySerializer
 
             return true;
         }
-        #endregion
+#endregion
 
         private List<ICheckedObject> CheckedObjectList = new List<ICheckedObject>();
-        #endregion
+#endregion
 
-        #region Tools
+#region Tools
         /// <summary>
         ///     Finds the first serializable ancestor of <paramref name="referenceType"/>.
         /// </summary>
@@ -3350,9 +3346,9 @@ namespace PolySerializer
             itemType = null;
             return false;
         }
-        #endregion
+#endregion
 
-        #region Misc
+#region Misc
         private int SortByName(SerializedMember p1, SerializedMember p2)
         {
             return p1.MemberInfo.Name.CompareTo(p2.MemberInfo.Name);
@@ -3532,9 +3528,9 @@ namespace PolySerializer
             constructorParameters = null;
             return false;
         }
-        #endregion
+#endregion
 
-        #region String conversions
+#region String conversions
         private byte[] String2Bytes(string s)
         {
             int CharCount;
@@ -3597,6 +3593,6 @@ namespace PolySerializer
             else
                 return 0;
         }
-        #endregion
+#endregion
     }
 }
