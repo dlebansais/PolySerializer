@@ -394,7 +394,6 @@
 
                 if ((AsFieldInfo = Member.MemberInfo as FieldInfo) != null)
                     MemberValue = AsFieldInfo.GetValue(reference);
-
                 else
                 {
                     AsPropertyInfo = Member.MemberInfo as PropertyInfo;
@@ -414,49 +413,34 @@
 
             if (ValueType == typeof(sbyte))
                 AddFieldSByte_BINARY(ref data, ref offset, (sbyte)value);
-
             else if (ValueType == typeof(byte))
                 AddFieldByte_BINARY(ref data, ref offset, (byte)value);
-
             else if (ValueType == typeof(bool))
                 AddFieldBool_BINARY(ref data, ref offset, (bool)value);
-
             else if (ValueType == typeof(char))
                 AddFieldChar_BINARY(ref data, ref offset, (char)value);
-
             else if (ValueType == typeof(decimal))
                 AddFieldDecimal_BINARY(ref data, ref offset, (decimal)value);
-
             else if (ValueType == typeof(double))
                 AddFieldDouble_BINARY(ref data, ref offset, (double)value);
-
             else if (ValueType == typeof(float))
                 AddFieldFloat_BINARY(ref data, ref offset, (float)value);
-
             else if (ValueType == typeof(int))
                 AddFieldInt_BINARY(ref data, ref offset, (int)value);
-
             else if (ValueType == typeof(long))
                 AddFieldLong_BINARY(ref data, ref offset, (long)value);
-
             else if (ValueType == typeof(short))
                 AddFieldShort_BINARY(ref data, ref offset, (short)value);
-
             else if (ValueType == typeof(uint))
                 AddFieldUInt_BINARY(ref data, ref offset, (uint)value);
-
             else if (ValueType == typeof(ulong))
                 AddFieldULong_BINARY(ref data, ref offset, (ulong)value);
-
             else if (ValueType == typeof(ushort))
                 AddFieldUShort_BINARY(ref data, ref offset, (ushort)value);
-
             else if (ValueType == typeof(string))
                 AddFieldString_BINARY(ref data, ref offset, (string)value);
-
             else if (ValueType == typeof(Guid))
                 AddFieldGuid_BINARY(ref data, ref offset, (Guid)value);
-
             else if (ValueType.IsEnum)
             {
                 Type UnderlyingSystemType = ValueType.GetEnumUnderlyingType();
@@ -479,7 +463,6 @@
                 else
                     AddFieldInt_BINARY(ref data, ref offset, (int)value);
             }
-
             else
                 return false;
 
@@ -657,7 +640,6 @@
 
             if (Mode == SerializationMode.Default)
                 SerializedMembers.Sort(SortByName);
-
             else if (Mode == SerializationMode.MemberName)
                 AddFieldMembers_BINARY(ref data, ref offset, SerializedMembers);
 
@@ -738,7 +720,6 @@
 
                 if ((AsFieldInfo = Member.MemberInfo as FieldInfo) != null)
                     MemberValue = AsFieldInfo.GetValue(reference);
-
                 else
                 {
                     AsPropertyInfo = Member.MemberInfo as PropertyInfo;
@@ -758,49 +739,34 @@
 
             if (ValueType == typeof(sbyte))
                 AddFieldSByte_TEXT(ref data, ref offset, (sbyte)value);
-
             else if (ValueType == typeof(byte))
                 AddFieldByte_TEXT(ref data, ref offset, (byte)value);
-
             else if (ValueType == typeof(bool))
                 AddFieldBool_TEXT(ref data, ref offset, (bool)value);
-
             else if (ValueType == typeof(char))
                 AddFieldChar_TEXT(ref data, ref offset, (char)value);
-
             else if (ValueType == typeof(decimal))
                 AddFieldDecimal_TEXT(ref data, ref offset, (decimal)value);
-
             else if (ValueType == typeof(double))
                 AddFieldDouble_TEXT(ref data, ref offset, (double)value);
-
             else if (ValueType == typeof(float))
                 AddFieldFloat_TEXT(ref data, ref offset, (float)value);
-
             else if (ValueType == typeof(int))
                 AddFieldInt_TEXT(ref data, ref offset, (int)value);
-
             else if (ValueType == typeof(long))
                 AddFieldLong_TEXT(ref data, ref offset, (long)value);
-
             else if (ValueType == typeof(short))
                 AddFieldShort_TEXT(ref data, ref offset, (short)value);
-
             else if (ValueType == typeof(uint))
                 AddFieldUInt_TEXT(ref data, ref offset, (uint)value);
-
             else if (ValueType == typeof(ulong))
                 AddFieldULong_TEXT(ref data, ref offset, (ulong)value);
-
             else if (ValueType == typeof(ushort))
                 AddFieldUShort_TEXT(ref data, ref offset, (ushort)value);
-
             else if (ValueType == typeof(string))
                 AddFieldString_TEXT(ref data, ref offset, (string)value);
-
             else if (ValueType == typeof(Guid))
                 AddFieldGuid_TEXT(ref data, ref offset, (Guid)value);
-
             else if (ValueType.IsEnum)
             {
                 Type UnderlyingSystemType = ValueType.GetEnumUnderlyingType();
@@ -823,7 +789,6 @@
                 else
                     AddFieldInt_TEXT(ref data, ref offset, (int)value);
             }
-
             else
                 return false;
 
@@ -1484,7 +1449,6 @@
 
                 if ((AsFieldInfo = Member.MemberInfo as FieldInfo) != null)
                     MemberType = AsFieldInfo.FieldType;
-
                 else
                 {
                     AsPropertyInfo = Member.MemberInfo as PropertyInfo;
@@ -1495,7 +1459,6 @@
 
                 if ((AsFieldInfo = Member.MemberInfo as FieldInfo) != null)
                     AsFieldInfo.SetValue(reference, MemberValue);
-
                 else
                 {
                     AsPropertyInfo = Member.MemberInfo as PropertyInfo;
@@ -1514,49 +1477,34 @@
         {
             if (valueType == typeof(sbyte))
                 value = ReadFieldSByte_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(byte))
                 value = ReadFieldByte_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(bool))
                 value = ReadFieldBool_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(char))
                 value = ReadFieldChar_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(decimal))
                 value = ReadFieldDecimal_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(double))
                 value = ReadFieldDouble_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(float))
                 value = ReadFieldFloat_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(int))
                 value = ReadFieldInt_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(long))
                 value = ReadFieldLong_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(short))
                 value = ReadFieldShort_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(uint))
                 value = ReadFieldUInt_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(ulong))
                 value = ReadFieldULong_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(ushort))
                 value = ReadFieldUShort_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(string))
                 value = ReadFieldString_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(Guid))
                 value = ReadFieldGuid_BINARY(ref data, ref offset);
-
             else if (valueType != null && valueType.IsEnum)
             {
                 Type UnderlyingSystemType = valueType.GetEnumUnderlyingType();
@@ -1579,7 +1527,6 @@
                 else
                     value = Enum.ToObject(valueType, ReadFieldInt_BINARY(ref data, ref offset));
             }
-
             else
             {
                 value = null;
@@ -1613,7 +1560,6 @@
                 CreateObject(NewType, ref reference);
                 Deserialize_BINARY(ref reference, referenceType, -1, ref data, ref offset, null);
             }
-
             else
             {
                 ObjectTag ReferenceTag = ReadFieldTag_BINARY(ref data, ref offset);
@@ -1623,13 +1569,11 @@
                     int ReferenceIndex = ReadFieldObjectIndex_BINARY(ref data, ref offset);
                     reference = DeserializedObjectList[ReferenceIndex].Reference;
                 }
-
                 else if (ReferenceTag == ObjectTag.ObjectReference)
                 {
                     CreateObject(NewType, ref reference);
                     AddDeserializedObject(reference, referenceType, -1);
                 }
-
                 else if (ReferenceTag == ObjectTag.ObjectList)
                 {
                     long Count = ReadFieldCount_BINARY(ref data, ref offset);
@@ -1637,7 +1581,6 @@
                     CreateObject(NewType, Count, ref reference);
                     AddDeserializedObject(reference, referenceType, Count);
                 }
-
                 else if (ReferenceTag == ObjectTag.ConstructedObject)
                 {
                     List<SerializedMember> ConstructorParameters;
@@ -1679,7 +1622,6 @@
                     DeserializedMembers.Add(NewMember);
                 }
             }
-
             else
             {
                 List<MemberInfo> Members = new List<MemberInfo>(deserializedType.GetMembers());
@@ -2029,7 +1971,6 @@
 
                 if ((AsFieldInfo = Member.MemberInfo as FieldInfo) != null)
                     MemberType = AsFieldInfo.FieldType;
-
                 else
                 {
                     AsPropertyInfo = Member.MemberInfo as PropertyInfo;
@@ -2040,7 +1981,6 @@
 
                 if ((AsFieldInfo = Member.MemberInfo as FieldInfo) != null)
                     AsFieldInfo.SetValue(reference, MemberValue);
-
                 else
                 {
                     AsPropertyInfo = Member.MemberInfo as PropertyInfo;
@@ -2059,49 +1999,34 @@
         {
             if (valueType == typeof(sbyte))
                 value = ReadFieldSByte_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(byte))
                 value = ReadFieldByte_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(bool))
                 value = ReadFieldBool_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(char))
                 value = ReadFieldChar_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(decimal))
                 value = ReadFieldDecimal_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(double))
                 value = ReadFieldDouble_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(float))
                 value = ReadFieldFloat_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(int))
                 value = ReadFieldInt_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(long))
                 value = ReadFieldLong_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(short))
                 value = ReadFieldShort_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(uint))
                 value = ReadFieldUInt_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(ulong))
                 value = ReadFieldULong_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(ushort))
                 value = ReadFieldUShort_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(string))
                 value = ReadFieldString_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(Guid))
                 value = ReadFieldGuid_TEXT(ref data, ref offset);
-
             else if (valueType != null && valueType.IsEnum)
             {
                 Type UnderlyingSystemType = valueType.GetEnumUnderlyingType();
@@ -2124,7 +2049,6 @@
                 else
                     value = Enum.ToObject(valueType, ReadFieldInt_TEXT(ref data, ref offset));
             }
-
             else
             {
                 value = null;
@@ -2158,7 +2082,6 @@
                 CreateObject(NewType, ref reference);
                 Deserialize_TEXT(ref reference, referenceType, -1, ref data, ref offset, null);
             }
-
             else
             {
                 ObjectTag ReferenceTag = ReadFieldTag_TEXT(ref data, ref offset);
@@ -2168,13 +2091,11 @@
                     int ReferenceIndex = ReadFieldObjectIndex_TEXT(ref data, ref offset);
                     reference = DeserializedObjectList[ReferenceIndex].Reference;
                 }
-
                 else if (ReferenceTag == ObjectTag.ObjectReference)
                 {
                     CreateObject(NewType, ref reference);
                     AddDeserializedObject(reference, referenceType, -1);
                 }
-
                 else if (ReferenceTag == ObjectTag.ObjectList)
                 {
                     long Count = ReadFieldCount_TEXT(ref data, ref offset);
@@ -2182,7 +2103,6 @@
                     CreateObject(NewType, Count, ref reference);
                     AddDeserializedObject(reference, referenceType, Count);
                 }
-
                 else if (ReferenceTag == ObjectTag.ConstructedObject)
                 {
                     List<SerializedMember> ConstructorParameters;
@@ -2229,7 +2149,6 @@
                     DeserializedMembers.Add(NewMember);
                 }
             }
-
             else
             {
                 List<MemberInfo> Members = new List<MemberInfo>(deserializedType.GetMembers());
@@ -2787,7 +2706,6 @@
 
                 if ((AsFieldInfo = Member.MemberInfo as FieldInfo) != null)
                     MemberType = AsFieldInfo.FieldType;
-
                 else
                 {
                     AsPropertyInfo = Member.MemberInfo as PropertyInfo;
@@ -2808,49 +2726,34 @@
         {
             if (valueType == typeof(sbyte))
                 ReadFieldSByte_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(byte))
                 ReadFieldByte_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(bool))
                 ReadFieldBool_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(char))
                 ReadFieldChar_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(decimal))
                 ReadFieldDecimal_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(double))
                 ReadFieldDouble_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(float))
                 ReadFieldFloat_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(int))
                 ReadFieldInt_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(long))
                 ReadFieldLong_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(short))
                 ReadFieldShort_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(uint))
                 ReadFieldUInt_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(ulong))
                 ReadFieldULong_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(ushort))
                 ReadFieldUShort_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(string))
                 ReadFieldString_BINARY(ref data, ref offset);
-
             else if (valueType == typeof(Guid))
                 ReadFieldGuid_BINARY(ref data, ref offset);
-
             else if (valueType != null && valueType.IsEnum)
             {
                 Type UnderlyingSystemType = valueType.GetEnumUnderlyingType();
@@ -2873,7 +2776,6 @@
                 else
                     Enum.ToObject(valueType, ReadFieldInt_BINARY(ref data, ref offset));
             }
-
             else
                 return false;
 
@@ -2901,7 +2803,6 @@
                 if (!Check_BINARY(referenceType, -1, ref data, ref offset, null))
                     return false;
             }
-
             else
             {
                 ObjectTag ReferenceTag = ReadFieldTag_BINARY(ref data, ref offset);
@@ -2910,18 +2811,15 @@
                 {
                     ReadFieldObjectIndex_BINARY(ref data, ref offset);
                 }
-
                 else if (ReferenceTag == ObjectTag.ObjectReference)
                 {
                     AddCheckedObject(referenceType, -1);
                 }
-
                 else if (ReferenceTag == ObjectTag.ObjectList)
                 {
                     long Count = ReadFieldCount_BINARY(ref data, ref offset);
                     AddCheckedObject(referenceType, Count);
                 }
-
                 else if (ReferenceTag == ObjectTag.ConstructedObject)
                 {
                     List<SerializedMember> ConstructorParameters;
@@ -3505,7 +3403,6 @@
                                 if (AsFieldInfo.FieldType == typeof(bool))
                                     newMember.SetCondition((bool)AsFieldInfo.GetValue(reference));
                             }
-
                             else if ((AsPropertyInfo = ConditionMember as PropertyInfo) != null)
                             {
                                 if (AsPropertyInfo.PropertyType == typeof(bool))
@@ -3538,7 +3435,6 @@
 
             if (s == null)
                 return new byte[CountByteSize] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-
             else
             {
                 CharCount = s.Length;
