@@ -1505,27 +1505,7 @@
             else if (valueType == typeof(Guid))
                 value = ReadFieldGuid_BINARY(ref data, ref offset);
             else if (valueType != null && valueType.IsEnum)
-            {
-                Type UnderlyingSystemType = valueType.GetEnumUnderlyingType();
-                if (UnderlyingSystemType == typeof(sbyte))
-                    value = Enum.ToObject(valueType, ReadFieldSByte_BINARY(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(byte))
-                    value = Enum.ToObject(valueType, ReadFieldByte_BINARY(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(short))
-                    value = Enum.ToObject(valueType, ReadFieldShort_BINARY(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(ushort))
-                    value = Enum.ToObject(valueType, ReadFieldUShort_BINARY(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(int))
-                    value = Enum.ToObject(valueType, ReadFieldInt_BINARY(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(uint))
-                    value = Enum.ToObject(valueType, ReadFieldUInt_BINARY(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(long))
-                    value = Enum.ToObject(valueType, ReadFieldLong_BINARY(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(ulong))
-                    value = Enum.ToObject(valueType, ReadFieldULong_BINARY(ref data, ref offset));
-                else
-                    value = Enum.ToObject(valueType, ReadFieldInt_BINARY(ref data, ref offset));
-            }
+                DeserializeEnumType_BINARY(valueType, ref data, ref offset, out value);
             else
             {
                 value = null;
@@ -1533,6 +1513,29 @@
             }
 
             return true;
+        }
+
+        private void DeserializeEnumType_BINARY(Type valueType, ref byte[] data, ref int offset, out object value)
+        {
+            Type UnderlyingSystemType = valueType.GetEnumUnderlyingType();
+            if (UnderlyingSystemType == typeof(sbyte))
+                value = Enum.ToObject(valueType, ReadFieldSByte_BINARY(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(byte))
+                value = Enum.ToObject(valueType, ReadFieldByte_BINARY(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(short))
+                value = Enum.ToObject(valueType, ReadFieldShort_BINARY(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(ushort))
+                value = Enum.ToObject(valueType, ReadFieldUShort_BINARY(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(int))
+                value = Enum.ToObject(valueType, ReadFieldInt_BINARY(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(uint))
+                value = Enum.ToObject(valueType, ReadFieldUInt_BINARY(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(long))
+                value = Enum.ToObject(valueType, ReadFieldLong_BINARY(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(ulong))
+                value = Enum.ToObject(valueType, ReadFieldULong_BINARY(ref data, ref offset));
+            else
+                value = Enum.ToObject(valueType, ReadFieldInt_BINARY(ref data, ref offset));
         }
 
         private void ProcessDeserializable_BINARY(Type referenceType, ref byte[] data, ref int offset, out object reference)
@@ -2027,27 +2030,7 @@
             else if (valueType == typeof(Guid))
                 value = ReadFieldGuid_TEXT(ref data, ref offset);
             else if (valueType != null && valueType.IsEnum)
-            {
-                Type UnderlyingSystemType = valueType.GetEnumUnderlyingType();
-                if (UnderlyingSystemType == typeof(sbyte))
-                    value = Enum.ToObject(valueType, ReadFieldSByte_TEXT(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(byte))
-                    value = Enum.ToObject(valueType, ReadFieldByte_TEXT(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(short))
-                    value = Enum.ToObject(valueType, ReadFieldShort_TEXT(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(ushort))
-                    value = Enum.ToObject(valueType, ReadFieldUShort_TEXT(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(int))
-                    value = Enum.ToObject(valueType, ReadFieldInt_TEXT(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(uint))
-                    value = Enum.ToObject(valueType, ReadFieldUInt_TEXT(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(long))
-                    value = Enum.ToObject(valueType, ReadFieldLong_TEXT(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(ulong))
-                    value = Enum.ToObject(valueType, ReadFieldULong_TEXT(ref data, ref offset));
-                else
-                    value = Enum.ToObject(valueType, ReadFieldInt_TEXT(ref data, ref offset));
-            }
+                DeserializeEnumType_TEXT(valueType, ref data, ref offset, out value);
             else
             {
                 value = null;
@@ -2055,6 +2038,29 @@
             }
 
             return true;
+        }
+
+        private void DeserializeEnumType_TEXT(Type valueType, ref byte[] data, ref int offset, out object value)
+        {
+            Type UnderlyingSystemType = valueType.GetEnumUnderlyingType();
+            if (UnderlyingSystemType == typeof(sbyte))
+                value = Enum.ToObject(valueType, ReadFieldSByte_TEXT(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(byte))
+                value = Enum.ToObject(valueType, ReadFieldByte_TEXT(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(short))
+                value = Enum.ToObject(valueType, ReadFieldShort_TEXT(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(ushort))
+                value = Enum.ToObject(valueType, ReadFieldUShort_TEXT(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(int))
+                value = Enum.ToObject(valueType, ReadFieldInt_TEXT(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(uint))
+                value = Enum.ToObject(valueType, ReadFieldUInt_TEXT(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(long))
+                value = Enum.ToObject(valueType, ReadFieldLong_TEXT(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(ulong))
+                value = Enum.ToObject(valueType, ReadFieldULong_TEXT(ref data, ref offset));
+            else
+                value = Enum.ToObject(valueType, ReadFieldInt_TEXT(ref data, ref offset));
         }
 
         private void ProcessDeserializable_TEXT(Type referenceType, ref byte[] data, ref int offset, out object reference)
@@ -2754,31 +2760,34 @@
             else if (valueType == typeof(Guid))
                 ReadFieldGuid_BINARY(ref data, ref offset);
             else if (valueType != null && valueType.IsEnum)
-            {
-                Type UnderlyingSystemType = valueType.GetEnumUnderlyingType();
-                if (UnderlyingSystemType == typeof(sbyte))
-                    Enum.ToObject(valueType, ReadFieldSByte_BINARY(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(byte))
-                    Enum.ToObject(valueType, ReadFieldByte_BINARY(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(short))
-                    Enum.ToObject(valueType, ReadFieldShort_BINARY(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(ushort))
-                    Enum.ToObject(valueType, ReadFieldUShort_BINARY(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(int))
-                    Enum.ToObject(valueType, ReadFieldInt_BINARY(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(uint))
-                    Enum.ToObject(valueType, ReadFieldUInt_BINARY(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(long))
-                    Enum.ToObject(valueType, ReadFieldLong_BINARY(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(ulong))
-                    Enum.ToObject(valueType, ReadFieldULong_BINARY(ref data, ref offset));
-                else
-                    Enum.ToObject(valueType, ReadFieldInt_BINARY(ref data, ref offset));
-            }
+                CheckEnumType_BINARY(valueType, ref data, ref offset);
             else
                 return false;
 
             return true;
+        }
+
+        private void CheckEnumType_BINARY(Type valueType, ref byte[] data, ref int offset)
+        {
+            Type UnderlyingSystemType = valueType.GetEnumUnderlyingType();
+            if (UnderlyingSystemType == typeof(sbyte))
+                Enum.ToObject(valueType, ReadFieldSByte_BINARY(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(byte))
+                Enum.ToObject(valueType, ReadFieldByte_BINARY(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(short))
+                Enum.ToObject(valueType, ReadFieldShort_BINARY(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(ushort))
+                Enum.ToObject(valueType, ReadFieldUShort_BINARY(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(int))
+                Enum.ToObject(valueType, ReadFieldInt_BINARY(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(uint))
+                Enum.ToObject(valueType, ReadFieldUInt_BINARY(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(long))
+                Enum.ToObject(valueType, ReadFieldLong_BINARY(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(ulong))
+                Enum.ToObject(valueType, ReadFieldULong_BINARY(ref data, ref offset));
+            else
+                Enum.ToObject(valueType, ReadFieldInt_BINARY(ref data, ref offset));
         }
 
         private bool ProcessCheckable_BINARY(Type referenceType, ref byte[] data, ref int offset)
@@ -2989,31 +2998,34 @@
             else if (valueType == typeof(Guid))
                 ReadFieldGuid_TEXT(ref data, ref offset);
             else if (valueType != null && valueType.IsEnum)
-            {
-                Type UnderlyingSystemType = valueType.GetEnumUnderlyingType();
-                if (UnderlyingSystemType == typeof(sbyte))
-                    Enum.ToObject(valueType, ReadFieldSByte_TEXT(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(byte))
-                    Enum.ToObject(valueType, ReadFieldByte_TEXT(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(short))
-                    Enum.ToObject(valueType, ReadFieldShort_TEXT(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(ushort))
-                    Enum.ToObject(valueType, ReadFieldUShort_TEXT(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(int))
-                    Enum.ToObject(valueType, ReadFieldInt_TEXT(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(uint))
-                    Enum.ToObject(valueType, ReadFieldUInt_TEXT(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(long))
-                    Enum.ToObject(valueType, ReadFieldLong_TEXT(ref data, ref offset));
-                else if (UnderlyingSystemType == typeof(ulong))
-                    Enum.ToObject(valueType, ReadFieldULong_TEXT(ref data, ref offset));
-                else
-                    Enum.ToObject(valueType, ReadFieldInt_TEXT(ref data, ref offset));
-            }
+                CheckEnumType_TEXT(valueType, ref data, ref offset);
             else
                 return false;
 
             return true;
+        }
+
+        private void CheckEnumType_TEXT(Type valueType, ref byte[] data, ref int offset)
+        {
+            Type UnderlyingSystemType = valueType.GetEnumUnderlyingType();
+            if (UnderlyingSystemType == typeof(sbyte))
+                Enum.ToObject(valueType, ReadFieldSByte_TEXT(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(byte))
+                Enum.ToObject(valueType, ReadFieldByte_TEXT(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(short))
+                Enum.ToObject(valueType, ReadFieldShort_TEXT(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(ushort))
+                Enum.ToObject(valueType, ReadFieldUShort_TEXT(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(int))
+                Enum.ToObject(valueType, ReadFieldInt_TEXT(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(uint))
+                Enum.ToObject(valueType, ReadFieldUInt_TEXT(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(long))
+                Enum.ToObject(valueType, ReadFieldLong_TEXT(ref data, ref offset));
+            else if (UnderlyingSystemType == typeof(ulong))
+                Enum.ToObject(valueType, ReadFieldULong_TEXT(ref data, ref offset));
+            else
+                Enum.ToObject(valueType, ReadFieldInt_TEXT(ref data, ref offset));
         }
 
         private bool ProcessCheckable_TEXT(Type referenceType, ref byte[] data, ref int offset)
@@ -3037,7 +3049,6 @@
                 if (!Check_TEXT(referenceType, -1, ref data, ref offset, null))
                     return false;
             }
-
             else
             {
                 ObjectTag ReferenceTag = ReadFieldTag_TEXT(ref data, ref offset);
@@ -3046,18 +3057,15 @@
                 {
                     ReadFieldObjectIndex_TEXT(ref data, ref offset);
                 }
-
                 else if (ReferenceTag == ObjectTag.ObjectReference)
                 {
                     AddCheckedObject(referenceType, -1);
                 }
-
                 else if (ReferenceTag == ObjectTag.ObjectList)
                 {
                     long Count = ReadFieldCount_TEXT(ref data, ref offset);
                     AddCheckedObject(referenceType, Count);
                 }
-
                 else if (ReferenceTag == ObjectTag.ConstructedObject)
                 {
                     List<SerializedMember> ConstructorParameters;
