@@ -982,7 +982,6 @@
 
             if (Mode == SerializationMode.Default)
                 SerializedMembers.Sort(SortByName);
-
             else if (Mode == SerializationMode.MemberName)
                 AddFieldMembers_TEXT(ref data, ref offset, SerializedMembers);
 
@@ -2941,7 +2940,6 @@
 
                 if ((AsFieldInfo = Member.MemberInfo as FieldInfo) != null)
                     MemberType = AsFieldInfo.FieldType;
-
                 else
                 {
                     AsPropertyInfo = Member.MemberInfo as PropertyInfo;
@@ -2962,49 +2960,34 @@
         {
             if (valueType == typeof(sbyte))
                 ReadFieldSByte_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(byte))
                 ReadFieldByte_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(bool))
                 ReadFieldBool_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(char))
                 ReadFieldChar_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(decimal))
                 ReadFieldDecimal_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(double))
                 ReadFieldDouble_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(float))
                 ReadFieldFloat_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(int))
                 ReadFieldInt_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(long))
                 ReadFieldLong_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(short))
                 ReadFieldShort_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(uint))
                 ReadFieldUInt_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(ulong))
                 ReadFieldULong_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(ushort))
                 ReadFieldUShort_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(string))
                 ReadFieldString_TEXT(ref data, ref offset);
-
             else if (valueType == typeof(Guid))
                 ReadFieldGuid_TEXT(ref data, ref offset);
-
             else if (valueType != null && valueType.IsEnum)
             {
                 Type UnderlyingSystemType = valueType.GetEnumUnderlyingType();
@@ -3027,7 +3010,6 @@
                 else
                     Enum.ToObject(valueType, ReadFieldInt_TEXT(ref data, ref offset));
             }
-
             else
                 return false;
 
