@@ -442,31 +442,35 @@
             else if (ValueType == typeof(Guid))
                 AddFieldGuid_BINARY(ref data, ref offset, (Guid)value);
             else if (ValueType.IsEnum)
-            {
-                Type UnderlyingSystemType = ValueType.GetEnumUnderlyingType();
-                if (UnderlyingSystemType == typeof(sbyte))
-                    AddFieldSByte_BINARY(ref data, ref offset, (sbyte)value);
-                else if (UnderlyingSystemType == typeof(byte))
-                    AddFieldByte_BINARY(ref data, ref offset, (byte)value);
-                else if (UnderlyingSystemType == typeof(short))
-                    AddFieldShort_BINARY(ref data, ref offset, (short)value);
-                else if (UnderlyingSystemType == typeof(ushort))
-                    AddFieldUShort_BINARY(ref data, ref offset, (ushort)value);
-                else if (UnderlyingSystemType == typeof(int))
-                    AddFieldInt_BINARY(ref data, ref offset, (int)value);
-                else if (UnderlyingSystemType == typeof(uint))
-                    AddFieldUInt_BINARY(ref data, ref offset, (uint)value);
-                else if (UnderlyingSystemType == typeof(long))
-                    AddFieldLong_BINARY(ref data, ref offset, (long)value);
-                else if (UnderlyingSystemType == typeof(ulong))
-                    AddFieldULong_BINARY(ref data, ref offset, (ulong)value);
-                else
-                    AddFieldInt_BINARY(ref data, ref offset, (int)value);
-            }
+                SerializeEnumType_BINARY(value, ValueType, ref data, ref offset);
             else
                 return false;
 
             return true;
+        }
+
+        private void SerializeEnumType_BINARY(object value, Type valueType, ref byte[] data, ref int offset)
+        {
+            Type UnderlyingSystemType = valueType.GetEnumUnderlyingType();
+
+            if (UnderlyingSystemType == typeof(sbyte))
+                AddFieldSByte_BINARY(ref data, ref offset, (sbyte)value);
+            else if (UnderlyingSystemType == typeof(byte))
+                AddFieldByte_BINARY(ref data, ref offset, (byte)value);
+            else if (UnderlyingSystemType == typeof(short))
+                AddFieldShort_BINARY(ref data, ref offset, (short)value);
+            else if (UnderlyingSystemType == typeof(ushort))
+                AddFieldUShort_BINARY(ref data, ref offset, (ushort)value);
+            else if (UnderlyingSystemType == typeof(int))
+                AddFieldInt_BINARY(ref data, ref offset, (int)value);
+            else if (UnderlyingSystemType == typeof(uint))
+                AddFieldUInt_BINARY(ref data, ref offset, (uint)value);
+            else if (UnderlyingSystemType == typeof(long))
+                AddFieldLong_BINARY(ref data, ref offset, (long)value);
+            else if (UnderlyingSystemType == typeof(ulong))
+                AddFieldULong_BINARY(ref data, ref offset, (ulong)value);
+            else
+                AddFieldInt_BINARY(ref data, ref offset, (int)value);
         }
 
         private void ProcessSerializable_BINARY(object reference, ref byte[] data, ref int offset)
@@ -768,31 +772,35 @@
             else if (ValueType == typeof(Guid))
                 AddFieldGuid_TEXT(ref data, ref offset, (Guid)value);
             else if (ValueType.IsEnum)
-            {
-                Type UnderlyingSystemType = ValueType.GetEnumUnderlyingType();
-                if (UnderlyingSystemType == typeof(sbyte))
-                    AddFieldSByte_TEXT(ref data, ref offset, (sbyte)value);
-                else if (UnderlyingSystemType == typeof(byte))
-                    AddFieldByte_TEXT(ref data, ref offset, (byte)value);
-                else if (UnderlyingSystemType == typeof(short))
-                    AddFieldShort_TEXT(ref data, ref offset, (short)value);
-                else if (UnderlyingSystemType == typeof(ushort))
-                    AddFieldUShort_TEXT(ref data, ref offset, (ushort)value);
-                else if (UnderlyingSystemType == typeof(int))
-                    AddFieldInt_TEXT(ref data, ref offset, (int)value);
-                else if (UnderlyingSystemType == typeof(uint))
-                    AddFieldUInt_TEXT(ref data, ref offset, (uint)value);
-                else if (UnderlyingSystemType == typeof(long))
-                    AddFieldLong_TEXT(ref data, ref offset, (long)value);
-                else if (UnderlyingSystemType == typeof(ulong))
-                    AddFieldULong_TEXT(ref data, ref offset, (ulong)value);
-                else
-                    AddFieldInt_TEXT(ref data, ref offset, (int)value);
-            }
+                SerializeEnumType_TEXT(value, ValueType, ref data, ref offset);
             else
                 return false;
 
             return true;
+        }
+
+        private void SerializeEnumType_TEXT(object value, Type valueType, ref byte[] data, ref int offset)
+        {
+            Type UnderlyingSystemType = valueType.GetEnumUnderlyingType();
+
+            if (UnderlyingSystemType == typeof(sbyte))
+                AddFieldSByte_TEXT(ref data, ref offset, (sbyte)value);
+            else if (UnderlyingSystemType == typeof(byte))
+                AddFieldByte_TEXT(ref data, ref offset, (byte)value);
+            else if (UnderlyingSystemType == typeof(short))
+                AddFieldShort_TEXT(ref data, ref offset, (short)value);
+            else if (UnderlyingSystemType == typeof(ushort))
+                AddFieldUShort_TEXT(ref data, ref offset, (ushort)value);
+            else if (UnderlyingSystemType == typeof(int))
+                AddFieldInt_TEXT(ref data, ref offset, (int)value);
+            else if (UnderlyingSystemType == typeof(uint))
+                AddFieldUInt_TEXT(ref data, ref offset, (uint)value);
+            else if (UnderlyingSystemType == typeof(long))
+                AddFieldLong_TEXT(ref data, ref offset, (long)value);
+            else if (UnderlyingSystemType == typeof(ulong))
+                AddFieldULong_TEXT(ref data, ref offset, (ulong)value);
+            else
+                AddFieldInt_TEXT(ref data, ref offset, (int)value);
         }
 
         private void ProcessSerializable_TEXT(object reference, ref byte[] data, ref int offset)
