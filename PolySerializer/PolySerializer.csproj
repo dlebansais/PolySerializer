@@ -50,6 +50,7 @@
     <Compile Include="DeserializedMember.cs" />
     <Compile Include="CheckedObject.cs" />
     <Compile Include="DeserializedObject.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Inserter.cs" />
     <Compile Include="NamespaceDescriptor.cs" />
     <Compile Include="ObjectTag.cs" />
@@ -61,6 +62,13 @@
     <Compile Include="SerializedMember.cs" />
     <Compile Include="Serializer.cs" />
     <Compile Include="TypeIdentifier.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
