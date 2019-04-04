@@ -409,42 +409,63 @@
 
         private bool SerializeBasicType_BINARY(object value, ref byte[] data, ref int offset)
         {
-            Type ValueType = value.GetType();
+            switch (value)
+            {
+                case sbyte As_sbyte:
+                    AddFieldSByte_BINARY(ref data, ref offset, (sbyte)value);
+                    break;
+                case byte As_byte:
+                    AddFieldByte_BINARY(ref data, ref offset, (byte)value);
+                    break;
+                case bool As_bool:
+                    AddFieldBool_BINARY(ref data, ref offset, (bool)value);
+                    break;
+                case char As_char:
+                    AddFieldChar_BINARY(ref data, ref offset, (char)value);
+                    break;
+                case decimal As_decimal:
+                    AddFieldDecimal_BINARY(ref data, ref offset, (decimal)value);
+                    break;
+                case double As_double:
+                    AddFieldDouble_BINARY(ref data, ref offset, (double)value);
+                    break;
+                case float As_float:
+                    AddFieldFloat_BINARY(ref data, ref offset, (float)value);
+                    break;
+                case int As_int:
+                    AddFieldInt_BINARY(ref data, ref offset, (int)value);
+                    break;
+                case long As_long:
+                    AddFieldLong_BINARY(ref data, ref offset, (long)value);
+                    break;
+                case short As_short:
+                    AddFieldShort_BINARY(ref data, ref offset, (short)value);
+                    break;
+                case uint As_uint:
+                    AddFieldUInt_BINARY(ref data, ref offset, (uint)value);
+                    break;
+                case ulong As_ulong:
+                    AddFieldULong_BINARY(ref data, ref offset, (ulong)value);
+                    break;
+                case ushort As_ushort:
+                    AddFieldUShort_BINARY(ref data, ref offset, (ushort)value);
+                    break;
+                case string As_string:
+                    AddFieldString_BINARY(ref data, ref offset, (string)value);
+                    break;
+                case Guid As_Guid:
+                    AddFieldGuid_BINARY(ref data, ref offset, (Guid)value);
+                    break;
 
-            if (ValueType == typeof(sbyte))
-                AddFieldSByte_BINARY(ref data, ref offset, (sbyte)value);
-            else if (ValueType == typeof(byte))
-                AddFieldByte_BINARY(ref data, ref offset, (byte)value);
-            else if (ValueType == typeof(bool))
-                AddFieldBool_BINARY(ref data, ref offset, (bool)value);
-            else if (ValueType == typeof(char))
-                AddFieldChar_BINARY(ref data, ref offset, (char)value);
-            else if (ValueType == typeof(decimal))
-                AddFieldDecimal_BINARY(ref data, ref offset, (decimal)value);
-            else if (ValueType == typeof(double))
-                AddFieldDouble_BINARY(ref data, ref offset, (double)value);
-            else if (ValueType == typeof(float))
-                AddFieldFloat_BINARY(ref data, ref offset, (float)value);
-            else if (ValueType == typeof(int))
-                AddFieldInt_BINARY(ref data, ref offset, (int)value);
-            else if (ValueType == typeof(long))
-                AddFieldLong_BINARY(ref data, ref offset, (long)value);
-            else if (ValueType == typeof(short))
-                AddFieldShort_BINARY(ref data, ref offset, (short)value);
-            else if (ValueType == typeof(uint))
-                AddFieldUInt_BINARY(ref data, ref offset, (uint)value);
-            else if (ValueType == typeof(ulong))
-                AddFieldULong_BINARY(ref data, ref offset, (ulong)value);
-            else if (ValueType == typeof(ushort))
-                AddFieldUShort_BINARY(ref data, ref offset, (ushort)value);
-            else if (ValueType == typeof(string))
-                AddFieldString_BINARY(ref data, ref offset, (string)value);
-            else if (ValueType == typeof(Guid))
-                AddFieldGuid_BINARY(ref data, ref offset, (Guid)value);
-            else if (ValueType.IsEnum)
-                SerializeEnumType_BINARY(value, ValueType, ref data, ref offset);
-            else
-                return false;
+                default:
+                    Type ValueType = value.GetType();
+
+                    if (ValueType.IsEnum)
+                        SerializeEnumType_BINARY(value, ValueType, ref data, ref offset);
+                    else
+                        return false;
+                    break;
+            }
 
             return true;
         }
@@ -453,24 +474,36 @@
         {
             Type UnderlyingSystemType = valueType.GetEnumUnderlyingType();
 
-            if (UnderlyingSystemType == typeof(sbyte))
-                AddFieldSByte_BINARY(ref data, ref offset, (sbyte)value);
-            else if (UnderlyingSystemType == typeof(byte))
-                AddFieldByte_BINARY(ref data, ref offset, (byte)value);
-            else if (UnderlyingSystemType == typeof(short))
-                AddFieldShort_BINARY(ref data, ref offset, (short)value);
-            else if (UnderlyingSystemType == typeof(ushort))
-                AddFieldUShort_BINARY(ref data, ref offset, (ushort)value);
-            else if (UnderlyingSystemType == typeof(int))
-                AddFieldInt_BINARY(ref data, ref offset, (int)value);
-            else if (UnderlyingSystemType == typeof(uint))
-                AddFieldUInt_BINARY(ref data, ref offset, (uint)value);
-            else if (UnderlyingSystemType == typeof(long))
-                AddFieldLong_BINARY(ref data, ref offset, (long)value);
-            else if (UnderlyingSystemType == typeof(ulong))
-                AddFieldULong_BINARY(ref data, ref offset, (ulong)value);
-            else
-                AddFieldInt_BINARY(ref data, ref offset, (int)value);
+            switch (UnderlyingSystemType.Name)
+            {
+                case nameof(SByte):
+                    AddFieldSByte_BINARY(ref data, ref offset, (sbyte)value);
+                    break;
+                case nameof(Byte):
+                    AddFieldByte_BINARY(ref data, ref offset, (byte)value);
+                    break;
+                case nameof(Int16):
+                    AddFieldShort_BINARY(ref data, ref offset, (short)value);
+                    break;
+                case nameof(UInt16):
+                    AddFieldUShort_BINARY(ref data, ref offset, (ushort)value);
+                    break;
+                case nameof(Int32):
+                    AddFieldInt_BINARY(ref data, ref offset, (int)value);
+                    break;
+                case nameof(UInt32):
+                    AddFieldUInt_BINARY(ref data, ref offset, (uint)value);
+                    break;
+                case nameof(Int64):
+                    AddFieldLong_BINARY(ref data, ref offset, (long)value);
+                    break;
+                case nameof(UInt64):
+                    AddFieldULong_BINARY(ref data, ref offset, (ulong)value);
+                    break;
+                default:
+                    AddFieldInt_BINARY(ref data, ref offset, (int)value);
+                    break;
+            }
         }
 
         private void ProcessSerializable_BINARY(object reference, ref byte[] data, ref int offset)
@@ -739,42 +772,63 @@
 
         private bool SerializeBasicType_TEXT(object value, ref byte[] data, ref int offset)
         {
-            Type ValueType = value.GetType();
+            switch (value)
+            {
+                case sbyte As_sbyte:
+                    AddFieldSByte_TEXT(ref data, ref offset, (sbyte)value);
+                    break;
+                case byte As_byte:
+                    AddFieldByte_TEXT(ref data, ref offset, (byte)value);
+                    break;
+                case bool As_bool:
+                    AddFieldBool_TEXT(ref data, ref offset, (bool)value);
+                    break;
+                case char As_char:
+                    AddFieldChar_TEXT(ref data, ref offset, (char)value);
+                    break;
+                case decimal As_decimal:
+                    AddFieldDecimal_TEXT(ref data, ref offset, (decimal)value);
+                    break;
+                case double As_double:
+                    AddFieldDouble_TEXT(ref data, ref offset, (double)value);
+                    break;
+                case float As_float:
+                    AddFieldFloat_TEXT(ref data, ref offset, (float)value);
+                    break;
+                case int As_int:
+                    AddFieldInt_TEXT(ref data, ref offset, (int)value);
+                    break;
+                case long As_long:
+                    AddFieldLong_TEXT(ref data, ref offset, (long)value);
+                    break;
+                case short As_short:
+                    AddFieldShort_TEXT(ref data, ref offset, (short)value);
+                    break;
+                case uint As_uint:
+                    AddFieldUInt_TEXT(ref data, ref offset, (uint)value);
+                    break;
+                case ulong As_ulong:
+                    AddFieldULong_TEXT(ref data, ref offset, (ulong)value);
+                    break;
+                case ushort As_ushort:
+                    AddFieldUShort_TEXT(ref data, ref offset, (ushort)value);
+                    break;
+                case string As_string:
+                    AddFieldString_TEXT(ref data, ref offset, (string)value);
+                    break;
+                case Guid As_Guid:
+                    AddFieldGuid_TEXT(ref data, ref offset, (Guid)value);
+                    break;
 
-            if (ValueType == typeof(sbyte))
-                AddFieldSByte_TEXT(ref data, ref offset, (sbyte)value);
-            else if (ValueType == typeof(byte))
-                AddFieldByte_TEXT(ref data, ref offset, (byte)value);
-            else if (ValueType == typeof(bool))
-                AddFieldBool_TEXT(ref data, ref offset, (bool)value);
-            else if (ValueType == typeof(char))
-                AddFieldChar_TEXT(ref data, ref offset, (char)value);
-            else if (ValueType == typeof(decimal))
-                AddFieldDecimal_TEXT(ref data, ref offset, (decimal)value);
-            else if (ValueType == typeof(double))
-                AddFieldDouble_TEXT(ref data, ref offset, (double)value);
-            else if (ValueType == typeof(float))
-                AddFieldFloat_TEXT(ref data, ref offset, (float)value);
-            else if (ValueType == typeof(int))
-                AddFieldInt_TEXT(ref data, ref offset, (int)value);
-            else if (ValueType == typeof(long))
-                AddFieldLong_TEXT(ref data, ref offset, (long)value);
-            else if (ValueType == typeof(short))
-                AddFieldShort_TEXT(ref data, ref offset, (short)value);
-            else if (ValueType == typeof(uint))
-                AddFieldUInt_TEXT(ref data, ref offset, (uint)value);
-            else if (ValueType == typeof(ulong))
-                AddFieldULong_TEXT(ref data, ref offset, (ulong)value);
-            else if (ValueType == typeof(ushort))
-                AddFieldUShort_TEXT(ref data, ref offset, (ushort)value);
-            else if (ValueType == typeof(string))
-                AddFieldString_TEXT(ref data, ref offset, (string)value);
-            else if (ValueType == typeof(Guid))
-                AddFieldGuid_TEXT(ref data, ref offset, (Guid)value);
-            else if (ValueType.IsEnum)
-                SerializeEnumType_TEXT(value, ValueType, ref data, ref offset);
-            else
-                return false;
+                default:
+                    Type ValueType = value.GetType();
+
+                    if (ValueType.IsEnum)
+                        SerializeEnumType_TEXT(value, ValueType, ref data, ref offset);
+                    else
+                        return false;
+                    break;
+            }
 
             return true;
         }
@@ -783,24 +837,36 @@
         {
             Type UnderlyingSystemType = valueType.GetEnumUnderlyingType();
 
-            if (UnderlyingSystemType == typeof(sbyte))
-                AddFieldSByte_TEXT(ref data, ref offset, (sbyte)value);
-            else if (UnderlyingSystemType == typeof(byte))
-                AddFieldByte_TEXT(ref data, ref offset, (byte)value);
-            else if (UnderlyingSystemType == typeof(short))
-                AddFieldShort_TEXT(ref data, ref offset, (short)value);
-            else if (UnderlyingSystemType == typeof(ushort))
-                AddFieldUShort_TEXT(ref data, ref offset, (ushort)value);
-            else if (UnderlyingSystemType == typeof(int))
-                AddFieldInt_TEXT(ref data, ref offset, (int)value);
-            else if (UnderlyingSystemType == typeof(uint))
-                AddFieldUInt_TEXT(ref data, ref offset, (uint)value);
-            else if (UnderlyingSystemType == typeof(long))
-                AddFieldLong_TEXT(ref data, ref offset, (long)value);
-            else if (UnderlyingSystemType == typeof(ulong))
-                AddFieldULong_TEXT(ref data, ref offset, (ulong)value);
-            else
-                AddFieldInt_TEXT(ref data, ref offset, (int)value);
+            switch (UnderlyingSystemType.Name)
+            {
+                case nameof(SByte):
+                    AddFieldSByte_TEXT(ref data, ref offset, (sbyte)value);
+                    break;
+                case nameof(Byte):
+                    AddFieldByte_TEXT(ref data, ref offset, (byte)value);
+                    break;
+                case nameof(Int16):
+                    AddFieldShort_TEXT(ref data, ref offset, (short)value);
+                    break;
+                case nameof(UInt16):
+                    AddFieldUShort_TEXT(ref data, ref offset, (ushort)value);
+                    break;
+                case nameof(Int32):
+                    AddFieldInt_TEXT(ref data, ref offset, (int)value);
+                    break;
+                case nameof(UInt32):
+                    AddFieldUInt_TEXT(ref data, ref offset, (uint)value);
+                    break;
+                case nameof(Int64):
+                    AddFieldLong_TEXT(ref data, ref offset, (long)value);
+                    break;
+                case nameof(UInt64):
+                    AddFieldULong_TEXT(ref data, ref offset, (ulong)value);
+                    break;
+                default:
+                    AddFieldInt_TEXT(ref data, ref offset, (int)value);
+                    break;
+            }
         }
 
         private void ProcessSerializable_TEXT(object reference, ref byte[] data, ref int offset)
@@ -1487,42 +1553,62 @@
 
         private bool DeserializeBasicType_BINARY(Type valueType, ref byte[] data, ref int offset, out object value)
         {
-            if (valueType == typeof(sbyte))
-                value = ReadFieldSByte_BINARY(ref data, ref offset);
-            else if (valueType == typeof(byte))
-                value = ReadFieldByte_BINARY(ref data, ref offset);
-            else if (valueType == typeof(bool))
-                value = ReadFieldBool_BINARY(ref data, ref offset);
-            else if (valueType == typeof(char))
-                value = ReadFieldChar_BINARY(ref data, ref offset);
-            else if (valueType == typeof(decimal))
-                value = ReadFieldDecimal_BINARY(ref data, ref offset);
-            else if (valueType == typeof(double))
-                value = ReadFieldDouble_BINARY(ref data, ref offset);
-            else if (valueType == typeof(float))
-                value = ReadFieldFloat_BINARY(ref data, ref offset);
-            else if (valueType == typeof(int))
-                value = ReadFieldInt_BINARY(ref data, ref offset);
-            else if (valueType == typeof(long))
-                value = ReadFieldLong_BINARY(ref data, ref offset);
-            else if (valueType == typeof(short))
-                value = ReadFieldShort_BINARY(ref data, ref offset);
-            else if (valueType == typeof(uint))
-                value = ReadFieldUInt_BINARY(ref data, ref offset);
-            else if (valueType == typeof(ulong))
-                value = ReadFieldULong_BINARY(ref data, ref offset);
-            else if (valueType == typeof(ushort))
-                value = ReadFieldUShort_BINARY(ref data, ref offset);
-            else if (valueType == typeof(string))
-                value = ReadFieldString_BINARY(ref data, ref offset);
-            else if (valueType == typeof(Guid))
-                value = ReadFieldGuid_BINARY(ref data, ref offset);
-            else if (valueType != null && valueType.IsEnum)
-                DeserializeEnumType_BINARY(valueType, ref data, ref offset, out value);
-            else
+            switch (valueType.Name)
             {
-                value = null;
-                return false;
+                case nameof(SByte):
+                    value = ReadFieldSByte_BINARY(ref data, ref offset);
+                    break;
+                case nameof(Byte):
+                    value = ReadFieldByte_BINARY(ref data, ref offset);
+                    break;
+                case nameof(Boolean):
+                    value = ReadFieldBool_BINARY(ref data, ref offset);
+                    break;
+                case nameof(Char):
+                    value = ReadFieldChar_BINARY(ref data, ref offset);
+                    break;
+                case nameof(Decimal):
+                    value = ReadFieldDecimal_BINARY(ref data, ref offset);
+                    break;
+                case nameof(Double):
+                    value = ReadFieldDouble_BINARY(ref data, ref offset);
+                    break;
+                case nameof(Single):
+                    value = ReadFieldFloat_BINARY(ref data, ref offset);
+                    break;
+                case nameof(Int32):
+                    value = ReadFieldInt_BINARY(ref data, ref offset);
+                    break;
+                case nameof(Int64):
+                    value = ReadFieldLong_BINARY(ref data, ref offset);
+                    break;
+                case nameof(Int16):
+                    value = ReadFieldShort_BINARY(ref data, ref offset);
+                    break;
+                case nameof(UInt32):
+                    value = ReadFieldUInt_BINARY(ref data, ref offset);
+                    break;
+                case nameof(UInt64):
+                    value = ReadFieldULong_BINARY(ref data, ref offset);
+                    break;
+                case nameof(UInt16):
+                    value = ReadFieldUShort_BINARY(ref data, ref offset);
+                    break;
+                case nameof(String):
+                    value = ReadFieldString_BINARY(ref data, ref offset);
+                    break;
+                case nameof(Guid):
+                    value = ReadFieldGuid_BINARY(ref data, ref offset);
+                    break;
+                default:
+                    if (valueType != null && valueType.IsEnum)
+                        DeserializeEnumType_BINARY(valueType, ref data, ref offset, out value);
+                    else
+                    {
+                        value = null;
+                        return false;
+                    }
+                    break;
             }
 
             return true;
@@ -1531,24 +1617,37 @@
         private void DeserializeEnumType_BINARY(Type valueType, ref byte[] data, ref int offset, out object value)
         {
             Type UnderlyingSystemType = valueType.GetEnumUnderlyingType();
-            if (UnderlyingSystemType == typeof(sbyte))
-                value = Enum.ToObject(valueType, ReadFieldSByte_BINARY(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(byte))
-                value = Enum.ToObject(valueType, ReadFieldByte_BINARY(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(short))
-                value = Enum.ToObject(valueType, ReadFieldShort_BINARY(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(ushort))
-                value = Enum.ToObject(valueType, ReadFieldUShort_BINARY(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(int))
-                value = Enum.ToObject(valueType, ReadFieldInt_BINARY(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(uint))
-                value = Enum.ToObject(valueType, ReadFieldUInt_BINARY(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(long))
-                value = Enum.ToObject(valueType, ReadFieldLong_BINARY(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(ulong))
-                value = Enum.ToObject(valueType, ReadFieldULong_BINARY(ref data, ref offset));
-            else
-                value = Enum.ToObject(valueType, ReadFieldInt_BINARY(ref data, ref offset));
+
+            switch (UnderlyingSystemType.Name)
+            {
+                case nameof(SByte):
+                    value = Enum.ToObject(valueType, ReadFieldSByte_BINARY(ref data, ref offset));
+                    break;
+                case nameof(Byte):
+                    value = Enum.ToObject(valueType, ReadFieldByte_BINARY(ref data, ref offset));
+                    break;
+                case nameof(Int16):
+                    value = Enum.ToObject(valueType, ReadFieldShort_BINARY(ref data, ref offset));
+                    break;
+                case nameof(UInt16):
+                    value = Enum.ToObject(valueType, ReadFieldUShort_BINARY(ref data, ref offset));
+                    break;
+                case nameof(Int32):
+                    value = Enum.ToObject(valueType, ReadFieldInt_BINARY(ref data, ref offset));
+                    break;
+                case nameof(UInt32):
+                    value = Enum.ToObject(valueType, ReadFieldUInt_BINARY(ref data, ref offset));
+                    break;
+                case nameof(Int64):
+                    value = Enum.ToObject(valueType, ReadFieldLong_BINARY(ref data, ref offset));
+                    break;
+                case nameof(UInt64):
+                    value = Enum.ToObject(valueType, ReadFieldULong_BINARY(ref data, ref offset));
+                    break;
+                default:
+                    value = Enum.ToObject(valueType, ReadFieldInt_BINARY(ref data, ref offset));
+                    break;
+            }
         }
 
         private void ProcessDeserializable_BINARY(Type referenceType, ref byte[] data, ref int offset, out object reference)
@@ -2017,42 +2116,62 @@
 
         private bool DeserializeBasicType_TEXT(Type valueType, ref byte[] data, ref int offset, out object value)
         {
-            if (valueType == typeof(sbyte))
-                value = ReadFieldSByte_TEXT(ref data, ref offset);
-            else if (valueType == typeof(byte))
-                value = ReadFieldByte_TEXT(ref data, ref offset);
-            else if (valueType == typeof(bool))
-                value = ReadFieldBool_TEXT(ref data, ref offset);
-            else if (valueType == typeof(char))
-                value = ReadFieldChar_TEXT(ref data, ref offset);
-            else if (valueType == typeof(decimal))
-                value = ReadFieldDecimal_TEXT(ref data, ref offset);
-            else if (valueType == typeof(double))
-                value = ReadFieldDouble_TEXT(ref data, ref offset);
-            else if (valueType == typeof(float))
-                value = ReadFieldFloat_TEXT(ref data, ref offset);
-            else if (valueType == typeof(int))
-                value = ReadFieldInt_TEXT(ref data, ref offset);
-            else if (valueType == typeof(long))
-                value = ReadFieldLong_TEXT(ref data, ref offset);
-            else if (valueType == typeof(short))
-                value = ReadFieldShort_TEXT(ref data, ref offset);
-            else if (valueType == typeof(uint))
-                value = ReadFieldUInt_TEXT(ref data, ref offset);
-            else if (valueType == typeof(ulong))
-                value = ReadFieldULong_TEXT(ref data, ref offset);
-            else if (valueType == typeof(ushort))
-                value = ReadFieldUShort_TEXT(ref data, ref offset);
-            else if (valueType == typeof(string))
-                value = ReadFieldString_TEXT(ref data, ref offset);
-            else if (valueType == typeof(Guid))
-                value = ReadFieldGuid_TEXT(ref data, ref offset);
-            else if (valueType != null && valueType.IsEnum)
-                DeserializeEnumType_TEXT(valueType, ref data, ref offset, out value);
-            else
+            switch (valueType.Name)
             {
-                value = null;
-                return false;
+                case nameof(SByte):
+                    value = ReadFieldSByte_TEXT(ref data, ref offset);
+                    break;
+                case nameof(Byte):
+                    value = ReadFieldByte_TEXT(ref data, ref offset);
+                    break;
+                case nameof(Boolean):
+                    value = ReadFieldBool_TEXT(ref data, ref offset);
+                    break;
+                case nameof(Char):
+                    value = ReadFieldChar_TEXT(ref data, ref offset);
+                    break;
+                case nameof(Decimal):
+                    value = ReadFieldDecimal_TEXT(ref data, ref offset);
+                    break;
+                case nameof(Double):
+                    value = ReadFieldDouble_TEXT(ref data, ref offset);
+                    break;
+                case nameof(Single):
+                    value = ReadFieldFloat_TEXT(ref data, ref offset);
+                    break;
+                case nameof(Int32):
+                    value = ReadFieldInt_TEXT(ref data, ref offset);
+                    break;
+                case nameof(Int64):
+                    value = ReadFieldLong_TEXT(ref data, ref offset);
+                    break;
+                case nameof(Int16):
+                    value = ReadFieldShort_TEXT(ref data, ref offset);
+                    break;
+                case nameof(UInt32):
+                    value = ReadFieldUInt_TEXT(ref data, ref offset);
+                    break;
+                case nameof(UInt64):
+                    value = ReadFieldULong_TEXT(ref data, ref offset);
+                    break;
+                case nameof(UInt16):
+                    value = ReadFieldUShort_TEXT(ref data, ref offset);
+                    break;
+                case nameof(String):
+                    value = ReadFieldString_TEXT(ref data, ref offset);
+                    break;
+                case nameof(Guid):
+                    value = ReadFieldGuid_TEXT(ref data, ref offset);
+                    break;
+                default:
+                    if (valueType != null && valueType.IsEnum)
+                        DeserializeEnumType_TEXT(valueType, ref data, ref offset, out value);
+                    else
+                    {
+                        value = null;
+                        return false;
+                    }
+                    break;
             }
 
             return true;
@@ -2061,24 +2180,37 @@
         private void DeserializeEnumType_TEXT(Type valueType, ref byte[] data, ref int offset, out object value)
         {
             Type UnderlyingSystemType = valueType.GetEnumUnderlyingType();
-            if (UnderlyingSystemType == typeof(sbyte))
-                value = Enum.ToObject(valueType, ReadFieldSByte_TEXT(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(byte))
-                value = Enum.ToObject(valueType, ReadFieldByte_TEXT(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(short))
-                value = Enum.ToObject(valueType, ReadFieldShort_TEXT(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(ushort))
-                value = Enum.ToObject(valueType, ReadFieldUShort_TEXT(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(int))
-                value = Enum.ToObject(valueType, ReadFieldInt_TEXT(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(uint))
-                value = Enum.ToObject(valueType, ReadFieldUInt_TEXT(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(long))
-                value = Enum.ToObject(valueType, ReadFieldLong_TEXT(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(ulong))
-                value = Enum.ToObject(valueType, ReadFieldULong_TEXT(ref data, ref offset));
-            else
-                value = Enum.ToObject(valueType, ReadFieldInt_TEXT(ref data, ref offset));
+
+            switch (UnderlyingSystemType.Name)
+            {
+                case nameof(SByte):
+                    value = Enum.ToObject(valueType, ReadFieldSByte_TEXT(ref data, ref offset));
+                    break;
+                case nameof(Byte):
+                    value = Enum.ToObject(valueType, ReadFieldByte_TEXT(ref data, ref offset));
+                    break;
+                case nameof(Int16):
+                    value = Enum.ToObject(valueType, ReadFieldShort_TEXT(ref data, ref offset));
+                    break;
+                case nameof(UInt16):
+                    value = Enum.ToObject(valueType, ReadFieldUShort_TEXT(ref data, ref offset));
+                    break;
+                case nameof(Int32):
+                    value = Enum.ToObject(valueType, ReadFieldInt_TEXT(ref data, ref offset));
+                    break;
+                case nameof(UInt32):
+                    value = Enum.ToObject(valueType, ReadFieldUInt_TEXT(ref data, ref offset));
+                    break;
+                case nameof(Int64):
+                    value = Enum.ToObject(valueType, ReadFieldLong_TEXT(ref data, ref offset));
+                    break;
+                case nameof(UInt64):
+                    value = Enum.ToObject(valueType, ReadFieldULong_TEXT(ref data, ref offset));
+                    break;
+                default:
+                    value = Enum.ToObject(valueType, ReadFieldInt_TEXT(ref data, ref offset));
+                    break;
+            }
         }
 
         private void ProcessDeserializable_TEXT(Type referenceType, ref byte[] data, ref int offset, out object reference)
@@ -2755,40 +2887,60 @@
 
         private bool CheckBasicType_BINARY(Type valueType, ref byte[] data, ref int offset)
         {
-            if (valueType == typeof(sbyte))
-                ReadFieldSByte_BINARY(ref data, ref offset);
-            else if (valueType == typeof(byte))
-                ReadFieldByte_BINARY(ref data, ref offset);
-            else if (valueType == typeof(bool))
-                ReadFieldBool_BINARY(ref data, ref offset);
-            else if (valueType == typeof(char))
-                ReadFieldChar_BINARY(ref data, ref offset);
-            else if (valueType == typeof(decimal))
-                ReadFieldDecimal_BINARY(ref data, ref offset);
-            else if (valueType == typeof(double))
-                ReadFieldDouble_BINARY(ref data, ref offset);
-            else if (valueType == typeof(float))
-                ReadFieldFloat_BINARY(ref data, ref offset);
-            else if (valueType == typeof(int))
-                ReadFieldInt_BINARY(ref data, ref offset);
-            else if (valueType == typeof(long))
-                ReadFieldLong_BINARY(ref data, ref offset);
-            else if (valueType == typeof(short))
-                ReadFieldShort_BINARY(ref data, ref offset);
-            else if (valueType == typeof(uint))
-                ReadFieldUInt_BINARY(ref data, ref offset);
-            else if (valueType == typeof(ulong))
-                ReadFieldULong_BINARY(ref data, ref offset);
-            else if (valueType == typeof(ushort))
-                ReadFieldUShort_BINARY(ref data, ref offset);
-            else if (valueType == typeof(string))
-                ReadFieldString_BINARY(ref data, ref offset);
-            else if (valueType == typeof(Guid))
-                ReadFieldGuid_BINARY(ref data, ref offset);
-            else if (valueType != null && valueType.IsEnum)
-                CheckEnumType_BINARY(valueType, ref data, ref offset);
-            else
-                return false;
+            switch (valueType.Name)
+            {
+                case nameof(SByte):
+                    ReadFieldSByte_BINARY(ref data, ref offset);
+                    break;
+                case nameof(Byte):
+                    ReadFieldByte_BINARY(ref data, ref offset);
+                    break;
+                case nameof(Boolean):
+                    ReadFieldBool_BINARY(ref data, ref offset);
+                    break;
+                case nameof(Char):
+                    ReadFieldChar_BINARY(ref data, ref offset);
+                    break;
+                case nameof(Decimal):
+                    ReadFieldDecimal_BINARY(ref data, ref offset);
+                    break;
+                case nameof(Double):
+                    ReadFieldDouble_BINARY(ref data, ref offset);
+                    break;
+                case nameof(Single):
+                    ReadFieldFloat_BINARY(ref data, ref offset);
+                    break;
+                case nameof(Int32):
+                    ReadFieldInt_BINARY(ref data, ref offset);
+                    break;
+                case nameof(Int64):
+                    ReadFieldLong_BINARY(ref data, ref offset);
+                    break;
+                case nameof(Int16):
+                    ReadFieldShort_BINARY(ref data, ref offset);
+                    break;
+                case nameof(UInt32):
+                    ReadFieldUInt_BINARY(ref data, ref offset);
+                    break;
+                case nameof(UInt64):
+                    ReadFieldULong_BINARY(ref data, ref offset);
+                    break;
+                case nameof(UInt16):
+                    ReadFieldUShort_BINARY(ref data, ref offset);
+                    break;
+                case nameof(String):
+                    ReadFieldString_BINARY(ref data, ref offset);
+                    break;
+                case nameof(Guid):
+                    ReadFieldGuid_BINARY(ref data, ref offset);
+                    break;
+                default:
+                    if (valueType != null && valueType.IsEnum)
+                        CheckEnumType_BINARY(valueType, ref data, ref offset);
+                    else
+                        return false;
+                    break;
+            }
 
             return true;
         }
@@ -2796,24 +2948,37 @@
         private void CheckEnumType_BINARY(Type valueType, ref byte[] data, ref int offset)
         {
             Type UnderlyingSystemType = valueType.GetEnumUnderlyingType();
-            if (UnderlyingSystemType == typeof(sbyte))
-                Enum.ToObject(valueType, ReadFieldSByte_BINARY(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(byte))
-                Enum.ToObject(valueType, ReadFieldByte_BINARY(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(short))
-                Enum.ToObject(valueType, ReadFieldShort_BINARY(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(ushort))
-                Enum.ToObject(valueType, ReadFieldUShort_BINARY(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(int))
-                Enum.ToObject(valueType, ReadFieldInt_BINARY(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(uint))
-                Enum.ToObject(valueType, ReadFieldUInt_BINARY(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(long))
-                Enum.ToObject(valueType, ReadFieldLong_BINARY(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(ulong))
-                Enum.ToObject(valueType, ReadFieldULong_BINARY(ref data, ref offset));
-            else
-                Enum.ToObject(valueType, ReadFieldInt_BINARY(ref data, ref offset));
+
+            switch (UnderlyingSystemType.Name)
+            {
+                case nameof(SByte):
+                    Enum.ToObject(valueType, ReadFieldSByte_BINARY(ref data, ref offset));
+                    break;
+                case nameof(Byte):
+                    Enum.ToObject(valueType, ReadFieldByte_BINARY(ref data, ref offset));
+                    break;
+                case nameof(Int16):
+                    Enum.ToObject(valueType, ReadFieldShort_BINARY(ref data, ref offset));
+                    break;
+                case nameof(UInt16):
+                    Enum.ToObject(valueType, ReadFieldUShort_BINARY(ref data, ref offset));
+                    break;
+                case nameof(Int32):
+                    Enum.ToObject(valueType, ReadFieldInt_BINARY(ref data, ref offset));
+                    break;
+                case nameof(UInt32):
+                    Enum.ToObject(valueType, ReadFieldUInt_BINARY(ref data, ref offset));
+                    break;
+                case nameof(Int64):
+                    Enum.ToObject(valueType, ReadFieldLong_BINARY(ref data, ref offset));
+                    break;
+                case nameof(UInt64):
+                    Enum.ToObject(valueType, ReadFieldULong_BINARY(ref data, ref offset));
+                    break;
+                default:
+                    Enum.ToObject(valueType, ReadFieldInt_BINARY(ref data, ref offset));
+                    break;
+            }
         }
 
         private bool ProcessCheckable_BINARY(Type referenceType, ref byte[] data, ref int offset)
@@ -3001,40 +3166,60 @@
 
         private bool CheckBasicType_TEXT(Type valueType, ref byte[] data, ref int offset)
         {
-            if (valueType == typeof(sbyte))
-                ReadFieldSByte_TEXT(ref data, ref offset);
-            else if (valueType == typeof(byte))
-                ReadFieldByte_TEXT(ref data, ref offset);
-            else if (valueType == typeof(bool))
-                ReadFieldBool_TEXT(ref data, ref offset);
-            else if (valueType == typeof(char))
-                ReadFieldChar_TEXT(ref data, ref offset);
-            else if (valueType == typeof(decimal))
-                ReadFieldDecimal_TEXT(ref data, ref offset);
-            else if (valueType == typeof(double))
-                ReadFieldDouble_TEXT(ref data, ref offset);
-            else if (valueType == typeof(float))
-                ReadFieldFloat_TEXT(ref data, ref offset);
-            else if (valueType == typeof(int))
-                ReadFieldInt_TEXT(ref data, ref offset);
-            else if (valueType == typeof(long))
-                ReadFieldLong_TEXT(ref data, ref offset);
-            else if (valueType == typeof(short))
-                ReadFieldShort_TEXT(ref data, ref offset);
-            else if (valueType == typeof(uint))
-                ReadFieldUInt_TEXT(ref data, ref offset);
-            else if (valueType == typeof(ulong))
-                ReadFieldULong_TEXT(ref data, ref offset);
-            else if (valueType == typeof(ushort))
-                ReadFieldUShort_TEXT(ref data, ref offset);
-            else if (valueType == typeof(string))
-                ReadFieldString_TEXT(ref data, ref offset);
-            else if (valueType == typeof(Guid))
-                ReadFieldGuid_TEXT(ref data, ref offset);
-            else if (valueType != null && valueType.IsEnum)
-                CheckEnumType_TEXT(valueType, ref data, ref offset);
-            else
-                return false;
+            switch (valueType.Name)
+            {
+                case nameof(SByte):
+                    ReadFieldSByte_TEXT(ref data, ref offset);
+                    break;
+                case nameof(Byte):
+                    ReadFieldByte_TEXT(ref data, ref offset);
+                    break;
+                case nameof(Boolean):
+                    ReadFieldBool_TEXT(ref data, ref offset);
+                    break;
+                case nameof(Char):
+                    ReadFieldChar_TEXT(ref data, ref offset);
+                    break;
+                case nameof(Decimal):
+                    ReadFieldDecimal_TEXT(ref data, ref offset);
+                    break;
+                case nameof(Double):
+                    ReadFieldDouble_TEXT(ref data, ref offset);
+                    break;
+                case nameof(Single):
+                    ReadFieldFloat_TEXT(ref data, ref offset);
+                    break;
+                case nameof(Int32):
+                    ReadFieldInt_TEXT(ref data, ref offset);
+                    break;
+                case nameof(Int64):
+                    ReadFieldLong_TEXT(ref data, ref offset);
+                    break;
+                case nameof(Int16):
+                    ReadFieldShort_TEXT(ref data, ref offset);
+                    break;
+                case nameof(UInt32):
+                    ReadFieldUInt_TEXT(ref data, ref offset);
+                    break;
+                case nameof(UInt64):
+                    ReadFieldULong_TEXT(ref data, ref offset);
+                    break;
+                case nameof(UInt16):
+                    ReadFieldUShort_TEXT(ref data, ref offset);
+                    break;
+                case nameof(String):
+                    ReadFieldString_TEXT(ref data, ref offset);
+                    break;
+                case nameof(Guid):
+                    ReadFieldGuid_TEXT(ref data, ref offset);
+                    break;
+                default:
+                    if (valueType != null && valueType.IsEnum)
+                        CheckEnumType_TEXT(valueType, ref data, ref offset);
+                    else
+                        return false;
+                    break;
+            }
 
             return true;
         }
@@ -3042,24 +3227,37 @@
         private void CheckEnumType_TEXT(Type valueType, ref byte[] data, ref int offset)
         {
             Type UnderlyingSystemType = valueType.GetEnumUnderlyingType();
-            if (UnderlyingSystemType == typeof(sbyte))
-                Enum.ToObject(valueType, ReadFieldSByte_TEXT(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(byte))
-                Enum.ToObject(valueType, ReadFieldByte_TEXT(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(short))
-                Enum.ToObject(valueType, ReadFieldShort_TEXT(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(ushort))
-                Enum.ToObject(valueType, ReadFieldUShort_TEXT(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(int))
-                Enum.ToObject(valueType, ReadFieldInt_TEXT(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(uint))
-                Enum.ToObject(valueType, ReadFieldUInt_TEXT(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(long))
-                Enum.ToObject(valueType, ReadFieldLong_TEXT(ref data, ref offset));
-            else if (UnderlyingSystemType == typeof(ulong))
-                Enum.ToObject(valueType, ReadFieldULong_TEXT(ref data, ref offset));
-            else
-                Enum.ToObject(valueType, ReadFieldInt_TEXT(ref data, ref offset));
+
+            switch (UnderlyingSystemType.Name)
+            {
+                case nameof(SByte):
+                    Enum.ToObject(valueType, ReadFieldSByte_TEXT(ref data, ref offset));
+                    break;
+                case nameof(Byte):
+                    Enum.ToObject(valueType, ReadFieldByte_TEXT(ref data, ref offset));
+                    break;
+                case nameof(Int16):
+                    Enum.ToObject(valueType, ReadFieldShort_TEXT(ref data, ref offset));
+                    break;
+                case nameof(UInt16):
+                    Enum.ToObject(valueType, ReadFieldUShort_TEXT(ref data, ref offset));
+                    break;
+                case nameof(Int32):
+                    Enum.ToObject(valueType, ReadFieldInt_TEXT(ref data, ref offset));
+                    break;
+                case nameof(UInt32):
+                    Enum.ToObject(valueType, ReadFieldUInt_TEXT(ref data, ref offset));
+                    break;
+                case nameof(Int64):
+                    Enum.ToObject(valueType, ReadFieldLong_TEXT(ref data, ref offset));
+                    break;
+                case nameof(UInt64):
+                    Enum.ToObject(valueType, ReadFieldULong_TEXT(ref data, ref offset));
+                    break;
+                default:
+                    Enum.ToObject(valueType, ReadFieldInt_TEXT(ref data, ref offset));
+                    break;
+            }
         }
 
         private bool ProcessCheckable_TEXT(Type referenceType, ref byte[] data, ref int offset)
