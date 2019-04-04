@@ -2732,7 +2732,7 @@
         private List<IDeserializedObject> DeserializedObjectList = new List<IDeserializedObject>();
 #endregion
 
-#region Check
+        #region Check
         /// <summary>
         ///     Checks if serialized data in <paramref name="input"/> is compatible with <see cref="RootType"/>.
         /// </summary>
@@ -2793,7 +2793,7 @@
             CheckedObjectList.Add(new CheckedObject(checkedType, count));
         }
 
-#region Binary
+        #region Binary
         private bool INTERNAL_Check_BINARY(ref byte[] data, ref int offset)
         {
             Mode = (SerializationMode)BitConverter.ToInt32(data, offset);
@@ -3040,9 +3040,9 @@
 
             return true;
         }
-#endregion
+        #endregion
 
-#region Text
+        #region Text
         private bool INTERNAL_Check_TEXT(ref byte[] data, ref int offset)
         {
             offset += 4;
@@ -3324,12 +3324,12 @@
 
             return true;
         }
-#endregion
+        #endregion
 
         private List<ICheckedObject> CheckedObjectList = new List<ICheckedObject>();
-#endregion
+        #endregion
 
-#region Tools
+        #region Tools
         /// <summary>
         ///     Finds the first serializable ancestor of <paramref name="referenceType"/>.
         /// </summary>
@@ -3466,9 +3466,9 @@
             itemType = null;
             return false;
         }
-#endregion
+        #endregion
 
-#region Misc
+        #region Misc
         private int SortByName(SerializedMember p1, SerializedMember p2)
         {
             return p1.MemberInfo.Name.CompareTo(p2.MemberInfo.Name);
@@ -3647,9 +3647,9 @@
             constructorParameters = null;
             return false;
         }
-#endregion
+        #endregion
 
-#region String conversions
+        #region String conversions
         private byte[] String2Bytes(string s)
         {
             int CharCount;
@@ -3711,6 +3711,6 @@
             else
                 return 0;
         }
-#endregion
+        #endregion
     }
 }
