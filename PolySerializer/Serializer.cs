@@ -1553,7 +1553,7 @@
 
         private bool DeserializeBasicType_BINARY(Type valueType, ref byte[] data, ref int offset, out object value)
         {
-            switch (valueType.Name)
+            switch (valueType?.Name)
             {
                 case nameof(SByte):
                     value = ReadFieldSByte_BINARY(ref data, ref offset);
@@ -2116,7 +2116,7 @@
 
         private bool DeserializeBasicType_TEXT(Type valueType, ref byte[] data, ref int offset, out object value)
         {
-            switch (valueType.Name)
+            switch (valueType?.Name)
             {
                 case nameof(SByte):
                     value = ReadFieldSByte_TEXT(ref data, ref offset);
@@ -2887,7 +2887,7 @@
 
         private bool CheckBasicType_BINARY(Type valueType, ref byte[] data, ref int offset)
         {
-            switch (valueType.Name)
+            switch (valueType?.Name)
             {
                 case nameof(SByte):
                     ReadFieldSByte_BINARY(ref data, ref offset);
@@ -3166,7 +3166,7 @@
 
         private bool CheckBasicType_TEXT(Type valueType, ref byte[] data, ref int offset)
         {
-            switch (valueType.Name)
+            switch (valueType?.Name)
             {
                 case nameof(SByte):
                     ReadFieldSByte_TEXT(ref data, ref offset);
