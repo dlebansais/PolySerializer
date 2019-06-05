@@ -21,6 +21,7 @@ Global
 		{92DE0EF0-A92B-402F-8328-E59CFDA026E0}.Release|x64.ActiveCfg = Release|x64
 		{92DE0EF0-A92B-402F-8328-E59CFDA026E0}.Release|x64.Build.0 = Release|x64
 		{92DE0EF0-A92B-402F-8328-E59CFDA026E0}.Travis|x64.ActiveCfg = Travis|x64
+		{92DE0EF0-A92B-402F-8328-E59CFDA026E0}.Travis|x64.Build.0 = Travis|x64
 		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Debug|x64.ActiveCfg = Debug|x64
 		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Debug|x64.Build.0 = Debug|x64
 		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Release|x64.ActiveCfg = Release|x64
@@ -30,6 +31,7 @@ Global
 		{E4FD9B36-4D28-424F-855B-EA6E6BBC7D8B}.Release|x64.ActiveCfg = Release|x64
 		{E4FD9B36-4D28-424F-855B-EA6E6BBC7D8B}.Release|x64.Build.0 = Release|x64
 		{E4FD9B36-4D28-424F-855B-EA6E6BBC7D8B}.Travis|x64.ActiveCfg = Travis|x64
+		{E4FD9B36-4D28-424F-855B-EA6E6BBC7D8B}.Travis|x64.Build.0 = Travis|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
