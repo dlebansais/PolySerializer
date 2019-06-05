@@ -1,16 +1,16 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
+using System.Resources;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("TestDebug")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("PolySerializer-Attributes")]
+[assembly: AssemblyDescription("Attributes for the PolySerializer assembly")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("TestDebug")]
-[assembly: AssemblyCopyright("Copyright ©  2018")]
+[assembly: AssemblyProduct("PolySerializer")]
+[assembly: AssemblyCopyright("Copyright © 2019 David Le Bansais")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("64480bb1-8a48-4157-ae88-d06baf7c50fc")]
+[assembly: Guid("e4fd9b36-4d28-424f-855b-ea6e6bbc7d8b")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -33,4 +33,5 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.1.0.100")]
-[assembly: AssemblyFileVersion("1.0.0.22")]
+[assembly: AssemblyFileVersion("1.0.0.6")]
+[assembly: NeutralResourcesLanguage("en")]

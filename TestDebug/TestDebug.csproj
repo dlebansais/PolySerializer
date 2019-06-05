@@ -71,6 +71,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\PolySerializer-Attributes\PolySerializer-Attributes.csproj">
+      <Project>{e4fd9b36-4d28-424f-855b-ea6e6bbc7d8b}</Project>
+      <Name>PolySerializer-Attributes</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PolySerializer\PolySerializer.csproj">
       <Project>{92de0ef0-a92b-402f-8328-e59cfda026e0}</Project>
       <Name>PolySerializer</Name>
