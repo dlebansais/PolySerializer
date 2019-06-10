@@ -53,7 +53,10 @@
     <Compile Include="CheckedObject.cs" />
     <Compile Include="DeserializedObject.cs" />
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="Inserter.cs" />
+    <Compile Include="Inserter\ArrayInserter.cs" />
+    <Compile Include="Inserter\GenericAddInserter.cs" />
+    <Compile Include="Inserter\ListInserter.cs" />
+    <Compile Include="Inserter\Inserter.cs" />
     <Compile Include="NamespaceDescriptor.cs" />
     <Compile Include="ObjectTag.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
