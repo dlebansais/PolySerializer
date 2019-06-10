@@ -36,6 +36,9 @@
             else
                 throw new InvalidDataException("Mode");
 
+            if (data[offset - 1] == '\r')
+                offset++;
+
             CheckedObjectList.Clear();
 
             if (!ProcessCheckable_TEXT(RootType, ref data, ref offset))

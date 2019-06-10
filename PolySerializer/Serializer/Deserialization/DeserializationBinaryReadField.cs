@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Reflection;
 
     /// <summary>
     ///     Serialize objects to a stream, or deserialize objects from a stream.

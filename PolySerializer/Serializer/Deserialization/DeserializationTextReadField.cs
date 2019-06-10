@@ -3,8 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Globalization;
-    using System.IO;
-    using System.Reflection;
     using System.Text;
 
     /// <summary>
@@ -327,10 +325,16 @@
             List<string> MemberNames;
 
             int BaseOffset = offset;
+            byte c;
 
             do
+            {
                 ReadField(ref data, ref offset, 1);
-            while (data[offset++] != '\n');
+                offset++;
+
+                c = data[offset - 1];
+            }
+            while (c != '\r' && c != '\n');
 
             string AllNames = Encoding.UTF8.GetString(data, BaseOffset, offset - BaseOffset - 1);
             if (AllNames.Length > 0)
@@ -341,6 +345,9 @@
             else
                 MemberNames = new List<string>();
 
+            if (c == '\r')
+                offset++;
+
             return MemberNames;
         }
 
@@ -350,6 +357,13 @@
 
             ReadField(ref data, ref offset, 1);
             char c = (char)data[offset++];
+
+            if (c == '\r')
+            {
+                ReadField(ref data, ref offset, 1);
+                c = (char)data[offset++];
+            }
+
             if (c == '\n')
                 Value = ObjectTag.ObjectReference;
             else if (c == ' ')
@@ -375,11 +389,17 @@
         private int ReadFieldObjectIndex_TEXT(ref byte[] data, ref int offset)
         {
             int Value;
-
             int BaseOffset = offset;
+            byte c;
+
             do
+            {
                 ReadField(ref data, ref offset, 1);
-            while (data[offset++] != '\n');
+                offset++;
+
+                c = data[offset - 1];
+            }
+            while (c != '\r' && c != '\n');
 
             int n = 0;
             for (int i = BaseOffset; i + 1 < offset; i++)
@@ -387,23 +407,35 @@
 
             Value = n;
 
+            if (c == '\r')
+                offset++;
+
             return Value;
         }
 
         private long ReadFieldCount_TEXT(ref byte[] data, ref int offset)
         {
             long Value;
-
             int BaseOffset = offset;
+            byte c;
+
             do
+            {
                 ReadField(ref data, ref offset, 1);
-            while (data[offset++] != '\n');
+                offset++;
+
+                c = data[offset - 1];
+            }
+            while (c != '\r' && c != '\n');
 
             long n = 0;
             for (int i = BaseOffset; i + 1 < offset; i++)
                 n = (n * 10) + FromDecimalDigit(data, i);
 
             Value = n;
+
+            if (c == '\r')
+                offset++;
 
             return Value;
         }

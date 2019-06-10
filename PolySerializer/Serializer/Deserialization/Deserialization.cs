@@ -57,7 +57,13 @@
 
             bool IsDeserializedAsText;
             if (Format == SerializationFormat.TextPreferred || Format == SerializationFormat.BinaryPreferred)
-                IsDeserializedAsText = Data[0] == 'M' && Data[1] == 'o' && Data[2] == 'd' && Data[3] == 'e';
+            {
+                // Takes into account the UTF-8 indicator.
+                if (Data[0] == 0xEF && Data[1] == 0xBB && Data[2] == 0xBF)
+                    Offset += 3;
+
+                IsDeserializedAsText = Data[Offset] == 'M' && Data[Offset + 1] == 'o' && Data[Offset + 2] == 'd' && Data[Offset + 3] == 'e';
+            }
             else
                 IsDeserializedAsText = Format == SerializationFormat.TextOnly;
 

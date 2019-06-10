@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.IO;
     using System.Reflection;
     using System.Text;
@@ -36,6 +35,9 @@
             }
             else
                 throw new InvalidDataException("Mode");
+
+            if (data[offset - 1] == '\r')
+                offset++;
 
             DeserializedObjectList.Clear();
 
