@@ -61,9 +61,15 @@
     <Compile Include="SerializationFormat.cs" />
     <Compile Include="SerializationMode.cs" />
     <Compile Include="SerializedMember.cs" />
-    <Compile Include="Serializer\Serialization.cs" />
-    <Compile Include="Serializer\Deserialization.cs" />
-    <Compile Include="Serializer\Check.cs" />
+    <Compile Include="Serializer\Check\CheckText.cs" />
+    <Compile Include="Serializer\Check\CheckBinary.cs" />
+    <Compile Include="Serializer\Deserialization\Deserialization.cs" />
+    <Compile Include="Serializer\Deserialization\DeserializationBinary.cs" />
+    <Compile Include="Serializer\Serialization\SerializationText.cs" />
+    <Compile Include="Serializer\Serialization\SerializationBinary.cs" />
+    <Compile Include="Serializer\Serialization\Serialization.cs" />
+    <Compile Include="Serializer\Deserialization\DeserializationText.cs" />
+    <Compile Include="Serializer\Check\Check.cs" />
     <Compile Include="Serializer\Serializer.cs" />
     <Compile Include="TypeIdentifier.cs" />
   </ItemGroup>
