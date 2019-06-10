@@ -61,7 +61,10 @@
     <Compile Include="SerializationFormat.cs" />
     <Compile Include="SerializationMode.cs" />
     <Compile Include="SerializedMember.cs" />
-    <Compile Include="Serializer.cs" />
+    <Compile Include="Serializer\Serialization.cs" />
+    <Compile Include="Serializer\Deserialization.cs" />
+    <Compile Include="Serializer\Check.cs" />
+    <Compile Include="Serializer\Serializer.cs" />
     <Compile Include="TypeIdentifier.cs" />
   </ItemGroup>
   <ItemGroup>
