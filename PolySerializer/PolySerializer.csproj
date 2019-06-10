@@ -67,7 +67,9 @@
     <Compile Include="Serializer\Check\CheckText.cs" />
     <Compile Include="Serializer\Check\CheckBinary.cs" />
     <Compile Include="Serializer\Deserialization\Deserialization.cs" />
+    <Compile Include="Serializer\Deserialization\DeserializationBinaryReadField.cs" />
     <Compile Include="Serializer\Deserialization\DeserializationBinary.cs" />
+    <Compile Include="Serializer\Deserialization\DeserializationTextReadField.cs" />
     <Compile Include="Serializer\Serialization\SerializationText.cs" />
     <Compile Include="Serializer\Serialization\SerializationBinary.cs" />
     <Compile Include="Serializer\Serialization\Serialization.cs" />
