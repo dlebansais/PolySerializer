@@ -82,7 +82,7 @@
 
                 if (Member.HasCondition)
                 {
-                    bool ConditionValue = ReadFieldBool_TEXT(ref data, ref offset);
+                    bool ConditionValue = (bool)ReadFieldBool_TEXT(ref data, ref offset);
                     if (!ConditionValue)
                         continue;
 
@@ -137,62 +137,22 @@
 
         private bool CheckBasicType_TEXT(Type valueType, ref byte[] data, ref int offset)
         {
-            switch (valueType?.Name)
-            {
-                case nameof(SByte):
-                    ReadFieldSByte_TEXT(ref data, ref offset);
-                    break;
-                case nameof(Byte):
-                    ReadFieldByte_TEXT(ref data, ref offset);
-                    break;
-                case nameof(Boolean):
-                    ReadFieldBool_TEXT(ref data, ref offset);
-                    break;
-                case nameof(Char):
-                    ReadFieldChar_TEXT(ref data, ref offset);
-                    break;
-                case nameof(Decimal):
-                    ReadFieldDecimal_TEXT(ref data, ref offset);
-                    break;
-                case nameof(Double):
-                    ReadFieldDouble_TEXT(ref data, ref offset);
-                    break;
-                case nameof(Single):
-                    ReadFieldFloat_TEXT(ref data, ref offset);
-                    break;
-                case nameof(Int32):
-                    ReadFieldInt_TEXT(ref data, ref offset);
-                    break;
-                case nameof(Int64):
-                    ReadFieldLong_TEXT(ref data, ref offset);
-                    break;
-                case nameof(Int16):
-                    ReadFieldShort_TEXT(ref data, ref offset);
-                    break;
-                case nameof(UInt32):
-                    ReadFieldUInt_TEXT(ref data, ref offset);
-                    break;
-                case nameof(UInt64):
-                    ReadFieldULong_TEXT(ref data, ref offset);
-                    break;
-                case nameof(UInt16):
-                    ReadFieldUShort_TEXT(ref data, ref offset);
-                    break;
-                case nameof(String):
-                    ReadFieldString_TEXT(ref data, ref offset);
-                    break;
-                case nameof(Guid):
-                    ReadFieldGuid_TEXT(ref data, ref offset);
-                    break;
-                default:
-                    if (valueType != null && valueType.IsEnum)
-                        CheckEnumType_TEXT(valueType, ref data, ref offset);
-                    else
-                        return false;
-                    break;
-            }
+            IniReadFieldHandlerTable_TEXT();
 
-            return true;
+            string ValueName = valueType?.Name;
+
+            if (ValueName != null && ReadFieldHandlerTable_TEXT.ContainsKey(ValueName))
+            {
+                ReadFieldHandlerTable_TEXT[ValueName](ref data, ref offset);
+                return true;
+            }
+            else if (valueType != null && valueType.IsEnum)
+            {
+                CheckEnumType_TEXT(valueType, ref data, ref offset);
+                return true;
+            }
+            else
+                return false;
         }
 
         private void CheckEnumType_TEXT(Type valueType, ref byte[] data, ref int offset)

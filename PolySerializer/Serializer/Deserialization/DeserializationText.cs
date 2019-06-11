@@ -79,7 +79,7 @@
 
                 if (Member.HasCondition)
                 {
-                    bool ConditionValue = ReadFieldBool_TEXT(ref data, ref offset);
+                    bool ConditionValue = (bool)ReadFieldBool_TEXT(ref data, ref offset);
                     if (!ConditionValue)
                         continue;
 
@@ -141,67 +141,53 @@
             }
         }
 
+        private delegate object ReadFieldHandler_TEXT(ref byte[] data, ref int offset);
+        private IDictionary<string, ReadFieldHandler_TEXT> ReadFieldHandlerTable_TEXT { get; set; }
+
+        private void IniReadFieldHandlerTable_TEXT()
+        {
+            if (ReadFieldHandlerTable_TEXT == null)
+                ReadFieldHandlerTable_TEXT = new Dictionary<string, ReadFieldHandler_TEXT>()
+                {
+                    { nameof(SByte), ReadFieldSByte_TEXT },
+                    { nameof(Byte), ReadFieldByte_TEXT },
+                    { nameof(Boolean), ReadFieldBool_TEXT },
+                    { nameof(Char), ReadFieldChar_TEXT },
+                    { nameof(Decimal), ReadFieldDecimal_TEXT },
+                    { nameof(Double), ReadFieldDouble_TEXT },
+                    { nameof(Single), ReadFieldFloat_TEXT },
+                    { nameof(Int32), ReadFieldInt_TEXT },
+                    { nameof(Int64), ReadFieldLong_TEXT },
+                    { nameof(Int16), ReadFieldShort_TEXT },
+                    { nameof(UInt32), ReadFieldUInt_TEXT },
+                    { nameof(UInt64), ReadFieldULong_TEXT },
+                    { nameof(UInt16), ReadFieldUShort_TEXT },
+                    { nameof(String), ReadFieldString_TEXT },
+                    { nameof(Guid), ReadFieldGuid_TEXT },
+                };
+        }
+
         private bool DeserializeBasicType_TEXT(Type valueType, ref byte[] data, ref int offset, out object value)
         {
-            switch (valueType?.Name)
-            {
-                case nameof(SByte):
-                    value = ReadFieldSByte_TEXT(ref data, ref offset);
-                    break;
-                case nameof(Byte):
-                    value = ReadFieldByte_TEXT(ref data, ref offset);
-                    break;
-                case nameof(Boolean):
-                    value = ReadFieldBool_TEXT(ref data, ref offset);
-                    break;
-                case nameof(Char):
-                    value = ReadFieldChar_TEXT(ref data, ref offset);
-                    break;
-                case nameof(Decimal):
-                    value = ReadFieldDecimal_TEXT(ref data, ref offset);
-                    break;
-                case nameof(Double):
-                    value = ReadFieldDouble_TEXT(ref data, ref offset);
-                    break;
-                case nameof(Single):
-                    value = ReadFieldFloat_TEXT(ref data, ref offset);
-                    break;
-                case nameof(Int32):
-                    value = ReadFieldInt_TEXT(ref data, ref offset);
-                    break;
-                case nameof(Int64):
-                    value = ReadFieldLong_TEXT(ref data, ref offset);
-                    break;
-                case nameof(Int16):
-                    value = ReadFieldShort_TEXT(ref data, ref offset);
-                    break;
-                case nameof(UInt32):
-                    value = ReadFieldUInt_TEXT(ref data, ref offset);
-                    break;
-                case nameof(UInt64):
-                    value = ReadFieldULong_TEXT(ref data, ref offset);
-                    break;
-                case nameof(UInt16):
-                    value = ReadFieldUShort_TEXT(ref data, ref offset);
-                    break;
-                case nameof(String):
-                    value = ReadFieldString_TEXT(ref data, ref offset);
-                    break;
-                case nameof(Guid):
-                    value = ReadFieldGuid_TEXT(ref data, ref offset);
-                    break;
-                default:
-                    if (valueType != null && valueType.IsEnum)
-                        DeserializeEnumType_TEXT(valueType, ref data, ref offset, out value);
-                    else
-                    {
-                        value = null;
-                        return false;
-                    }
-                    break;
-            }
+            IniReadFieldHandlerTable_TEXT();
 
-            return true;
+            string ValueName = valueType?.Name;
+
+            if (ValueName != null && ReadFieldHandlerTable_TEXT.ContainsKey(ValueName))
+            {
+                value = ReadFieldHandlerTable_TEXT[ValueName](ref data, ref offset);
+                return true;
+            }
+            else if (valueType != null && valueType.IsEnum)
+            {
+                DeserializeEnumType_TEXT(valueType, ref data, ref offset, out value);
+                return true;
+            }
+            else
+            {
+                value = null;
+                return false;
+            }
         }
 
         private void DeserializeEnumType_TEXT(Type valueType, ref byte[] data, ref int offset, out object value)

@@ -50,7 +50,7 @@
             {
                 if (Member.HasCondition)
                 {
-                    bool ConditionValue = ReadFieldBool_BINARY(ref data, ref offset);
+                    bool ConditionValue = (bool)ReadFieldBool_BINARY(ref data, ref offset);
                     if (!ConditionValue)
                         continue;
                 }
@@ -106,67 +106,53 @@
             }
         }
 
+        private delegate object ReadFieldHandler_BINARY(ref byte[] data, ref int offset);
+        private IDictionary<string, ReadFieldHandler_BINARY> ReadFieldHandlerTable_BINARY { get; set; }
+
+        private void IniReadFieldHandlerTable_BINARY()
+        {
+            if (ReadFieldHandlerTable_BINARY == null)
+                ReadFieldHandlerTable_BINARY = new Dictionary<string, ReadFieldHandler_BINARY>()
+                {
+                    { nameof(SByte), ReadFieldSByte_BINARY },
+                    { nameof(Byte), ReadFieldByte_BINARY },
+                    { nameof(Boolean), ReadFieldBool_BINARY },
+                    { nameof(Char), ReadFieldChar_BINARY },
+                    { nameof(Decimal), ReadFieldDecimal_BINARY },
+                    { nameof(Double), ReadFieldDouble_BINARY },
+                    { nameof(Single), ReadFieldFloat_BINARY },
+                    { nameof(Int32), ReadFieldInt_BINARY },
+                    { nameof(Int64), ReadFieldLong_BINARY },
+                    { nameof(Int16), ReadFieldShort_BINARY },
+                    { nameof(UInt32), ReadFieldUInt_BINARY },
+                    { nameof(UInt64), ReadFieldULong_BINARY },
+                    { nameof(UInt16), ReadFieldUShort_BINARY },
+                    { nameof(String), ReadFieldString_BINARY },
+                    { nameof(Guid), ReadFieldGuid_BINARY },
+                };
+        }
+
         private bool DeserializeBasicType_BINARY(Type valueType, ref byte[] data, ref int offset, out object value)
         {
-            switch (valueType?.Name)
-            {
-                case nameof(SByte):
-                    value = ReadFieldSByte_BINARY(ref data, ref offset);
-                    break;
-                case nameof(Byte):
-                    value = ReadFieldByte_BINARY(ref data, ref offset);
-                    break;
-                case nameof(Boolean):
-                    value = ReadFieldBool_BINARY(ref data, ref offset);
-                    break;
-                case nameof(Char):
-                    value = ReadFieldChar_BINARY(ref data, ref offset);
-                    break;
-                case nameof(Decimal):
-                    value = ReadFieldDecimal_BINARY(ref data, ref offset);
-                    break;
-                case nameof(Double):
-                    value = ReadFieldDouble_BINARY(ref data, ref offset);
-                    break;
-                case nameof(Single):
-                    value = ReadFieldFloat_BINARY(ref data, ref offset);
-                    break;
-                case nameof(Int32):
-                    value = ReadFieldInt_BINARY(ref data, ref offset);
-                    break;
-                case nameof(Int64):
-                    value = ReadFieldLong_BINARY(ref data, ref offset);
-                    break;
-                case nameof(Int16):
-                    value = ReadFieldShort_BINARY(ref data, ref offset);
-                    break;
-                case nameof(UInt32):
-                    value = ReadFieldUInt_BINARY(ref data, ref offset);
-                    break;
-                case nameof(UInt64):
-                    value = ReadFieldULong_BINARY(ref data, ref offset);
-                    break;
-                case nameof(UInt16):
-                    value = ReadFieldUShort_BINARY(ref data, ref offset);
-                    break;
-                case nameof(String):
-                    value = ReadFieldString_BINARY(ref data, ref offset);
-                    break;
-                case nameof(Guid):
-                    value = ReadFieldGuid_BINARY(ref data, ref offset);
-                    break;
-                default:
-                    if (valueType != null && valueType.IsEnum)
-                        DeserializeEnumType_BINARY(valueType, ref data, ref offset, out value);
-                    else
-                    {
-                        value = null;
-                        return false;
-                    }
-                    break;
-            }
+            IniReadFieldHandlerTable_BINARY();
 
-            return true;
+            string ValueName = valueType?.Name;
+
+            if (ValueName != null && ReadFieldHandlerTable_BINARY.ContainsKey(ValueName))
+            {
+                value = ReadFieldHandlerTable_BINARY[ValueName](ref data, ref offset);
+                return true;
+            }
+            else if (valueType != null && valueType.IsEnum)
+            {
+                DeserializeEnumType_BINARY(valueType, ref data, ref offset, out value);
+                return true;
+            }
+            else
+            {
+                value = null;
+                return false;
+            }
         }
 
         private void DeserializeEnumType_BINARY(Type valueType, ref byte[] data, ref int offset, out object value)

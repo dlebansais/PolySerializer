@@ -10,7 +10,7 @@
     /// </summary>
     public partial class Serializer : ISerializer
     {
-        private sbyte ReadFieldSByte_TEXT(ref byte[] data, ref int offset)
+        private object ReadFieldSByte_TEXT(ref byte[] data, ref int offset)
         {
             sbyte Value;
 
@@ -26,7 +26,7 @@
             return Value;
         }
 
-        private byte ReadFieldByte_TEXT(ref byte[] data, ref int offset)
+        private object ReadFieldByte_TEXT(ref byte[] data, ref int offset)
         {
             byte Value;
 
@@ -42,7 +42,7 @@
             return Value;
         }
 
-        private bool ReadFieldBool_TEXT(ref byte[] data, ref int offset)
+        private object ReadFieldBool_TEXT(ref byte[] data, ref int offset)
         {
             bool Value;
 
@@ -60,7 +60,7 @@
             return Value;
         }
 
-        private char ReadFieldChar_TEXT(ref byte[] data, ref int offset)
+        private object ReadFieldChar_TEXT(ref byte[] data, ref int offset)
         {
             char Value;
 
@@ -80,7 +80,7 @@
             return Value;
         }
 
-        private decimal ReadFieldDecimal_TEXT(ref byte[] data, ref int offset)
+        private object ReadFieldDecimal_TEXT(ref byte[] data, ref int offset)
         {
             decimal Value;
 
@@ -98,7 +98,7 @@
             return Value;
         }
 
-        private double ReadFieldDouble_TEXT(ref byte[] data, ref int offset)
+        private object ReadFieldDouble_TEXT(ref byte[] data, ref int offset)
         {
             double Value;
 
@@ -116,7 +116,7 @@
             return Value;
         }
 
-        private float ReadFieldFloat_TEXT(ref byte[] data, ref int offset)
+        private object ReadFieldFloat_TEXT(ref byte[] data, ref int offset)
         {
             float Value;
 
@@ -134,7 +134,7 @@
             return Value;
         }
 
-        private int ReadFieldInt_TEXT(ref byte[] data, ref int offset)
+        private object ReadFieldInt_TEXT(ref byte[] data, ref int offset)
         {
             int Value;
 
@@ -150,7 +150,7 @@
             return Value;
         }
 
-        private long ReadFieldLong_TEXT(ref byte[] data, ref int offset)
+        private object ReadFieldLong_TEXT(ref byte[] data, ref int offset)
         {
             long Value;
 
@@ -166,7 +166,7 @@
             return Value;
         }
 
-        private short ReadFieldShort_TEXT(ref byte[] data, ref int offset)
+        private object ReadFieldShort_TEXT(ref byte[] data, ref int offset)
         {
             short Value;
 
@@ -182,7 +182,7 @@
             return Value;
         }
 
-        private uint ReadFieldUInt_TEXT(ref byte[] data, ref int offset)
+        private object ReadFieldUInt_TEXT(ref byte[] data, ref int offset)
         {
             uint Value;
 
@@ -198,7 +198,7 @@
             return Value;
         }
 
-        private ulong ReadFieldULong_TEXT(ref byte[] data, ref int offset)
+        private object ReadFieldULong_TEXT(ref byte[] data, ref int offset)
         {
             ulong Value;
 
@@ -214,7 +214,7 @@
             return Value;
         }
 
-        private ushort ReadFieldUShort_TEXT(ref byte[] data, ref int offset)
+        private object ReadFieldUShort_TEXT(ref byte[] data, ref int offset)
         {
             ushort Value;
 
@@ -230,7 +230,7 @@
             return Value;
         }
 
-        private string ReadFieldString_TEXT(ref byte[] data, ref int offset)
+        private object ReadFieldString_TEXT(ref byte[] data, ref int offset)
         {
             string Value;
 
@@ -276,7 +276,7 @@
             return Value;
         }
 
-        private Guid ReadFieldGuid_TEXT(ref byte[] data, ref int offset)
+        private object ReadFieldGuid_TEXT(ref byte[] data, ref int offset)
         {
             Guid Value;
 

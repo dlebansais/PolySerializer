@@ -8,7 +8,7 @@
     /// </summary>
     public partial class Serializer : ISerializer
     {
-        private sbyte ReadFieldSByte_BINARY(ref byte[] data, ref int offset)
+        private object ReadFieldSByte_BINARY(ref byte[] data, ref int offset)
         {
             sbyte Value;
 
@@ -19,7 +19,7 @@
             return Value;
         }
 
-        private byte ReadFieldByte_BINARY(ref byte[] data, ref int offset)
+        private object ReadFieldByte_BINARY(ref byte[] data, ref int offset)
         {
             byte Value;
 
@@ -30,7 +30,7 @@
             return Value;
         }
 
-        private bool ReadFieldBool_BINARY(ref byte[] data, ref int offset)
+        private object ReadFieldBool_BINARY(ref byte[] data, ref int offset)
         {
             bool Value;
 
@@ -41,7 +41,7 @@
             return Value;
         }
 
-        private char ReadFieldChar_BINARY(ref byte[] data, ref int offset)
+        private object ReadFieldChar_BINARY(ref byte[] data, ref int offset)
         {
             char Value;
 
@@ -52,7 +52,7 @@
             return Value;
         }
 
-        private decimal ReadFieldDecimal_BINARY(ref byte[] data, ref int offset)
+        private object ReadFieldDecimal_BINARY(ref byte[] data, ref int offset)
         {
             decimal Value;
 
@@ -69,7 +69,7 @@
             return Value;
         }
 
-        private double ReadFieldDouble_BINARY(ref byte[] data, ref int offset)
+        private object ReadFieldDouble_BINARY(ref byte[] data, ref int offset)
         {
             double Value;
 
@@ -80,7 +80,7 @@
             return Value;
         }
 
-        private float ReadFieldFloat_BINARY(ref byte[] data, ref int offset)
+        private object ReadFieldFloat_BINARY(ref byte[] data, ref int offset)
         {
             float Value;
 
@@ -91,7 +91,7 @@
             return Value;
         }
 
-        private int ReadFieldInt_BINARY(ref byte[] data, ref int offset)
+        private object ReadFieldInt_BINARY(ref byte[] data, ref int offset)
         {
             int Value;
 
@@ -102,7 +102,7 @@
             return Value;
         }
 
-        private long ReadFieldLong_BINARY(ref byte[] data, ref int offset)
+        private object ReadFieldLong_BINARY(ref byte[] data, ref int offset)
         {
             long Value;
 
@@ -113,7 +113,7 @@
             return Value;
         }
 
-        private short ReadFieldShort_BINARY(ref byte[] data, ref int offset)
+        private object ReadFieldShort_BINARY(ref byte[] data, ref int offset)
         {
             short Value;
 
@@ -124,7 +124,7 @@
             return Value;
         }
 
-        private uint ReadFieldUInt_BINARY(ref byte[] data, ref int offset)
+        private object ReadFieldUInt_BINARY(ref byte[] data, ref int offset)
         {
             uint Value;
 
@@ -135,7 +135,7 @@
             return Value;
         }
 
-        private ulong ReadFieldULong_BINARY(ref byte[] data, ref int offset)
+        private object ReadFieldULong_BINARY(ref byte[] data, ref int offset)
         {
             ulong Value;
 
@@ -146,7 +146,7 @@
             return Value;
         }
 
-        private ushort ReadFieldUShort_BINARY(ref byte[] data, ref int offset)
+        private object ReadFieldUShort_BINARY(ref byte[] data, ref int offset)
         {
             ushort Value;
 
@@ -157,7 +157,7 @@
             return Value;
         }
 
-        private string ReadFieldString_BINARY(ref byte[] data, ref int offset)
+        private object ReadFieldString_BINARY(ref byte[] data, ref int offset)
         {
             string Value;
 
@@ -168,7 +168,7 @@
             return Value;
         }
 
-        private Guid ReadFieldGuid_BINARY(ref byte[] data, ref int offset)
+        private object ReadFieldGuid_BINARY(ref byte[] data, ref int offset)
         {
             Guid Value;
 
@@ -231,7 +231,7 @@
         {
             long Value;
 
-            Value = ReadFieldLong_BINARY(ref data, ref offset);
+            Value = (long)ReadFieldLong_BINARY(ref data, ref offset);
 
             return Value;
         }
