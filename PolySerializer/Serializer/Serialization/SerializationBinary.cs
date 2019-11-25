@@ -90,12 +90,43 @@
         {
             switch (value)
             {
+                case bool As_bool:
+                case char As_char:
+                case decimal As_decimal:
+                case double As_double:
+                case float As_float:
+                case string As_string:
+                case Guid As_Guid:
+                    return SerializeBasicType1_BINARY(value, ref data, ref offset);
+
                 case sbyte As_sbyte:
-                    AddFieldSByte_BINARY(ref data, ref offset, (sbyte)value);
-                    break;
                 case byte As_byte:
-                    AddFieldByte_BINARY(ref data, ref offset, (byte)value);
+                case int As_int:
+                case long As_long:
+                case short As_short:
+                case uint As_uint:
+                case ulong As_ulong:
+                case ushort As_ushort:
+                    return SerializeBasicType2_BINARY(value, ref data, ref offset);
+
+                default:
+                    Type ValueType = value.GetType();
+
+                    if (ValueType.IsEnum)
+                        SerializeEnumType_BINARY(value, ValueType, ref data, ref offset);
+                    else
+                        return false;
                     break;
+            }
+
+            return true;
+        }
+
+        private bool SerializeBasicType1_BINARY(object value, ref byte[] data, ref int offset)
+        {
+            switch (value)
+            {
+                default:
                 case bool As_bool:
                     AddFieldBool_BINARY(ref data, ref offset, (bool)value);
                     break;
@@ -110,6 +141,28 @@
                     break;
                 case float As_float:
                     AddFieldFloat_BINARY(ref data, ref offset, (float)value);
+                    break;
+                case string As_string:
+                    AddFieldString_BINARY(ref data, ref offset, (string)value);
+                    break;
+                case Guid As_Guid:
+                    AddFieldGuid_BINARY(ref data, ref offset, (Guid)value);
+                    break;
+            }
+
+            return true;
+        }
+
+        private bool SerializeBasicType2_BINARY(object value, ref byte[] data, ref int offset)
+        {
+            switch (value)
+            {
+                default:
+                case sbyte As_sbyte:
+                    AddFieldSByte_BINARY(ref data, ref offset, (sbyte)value);
+                    break;
+                case byte As_byte:
+                    AddFieldByte_BINARY(ref data, ref offset, (byte)value);
                     break;
                 case int As_int:
                     AddFieldInt_BINARY(ref data, ref offset, (int)value);
@@ -128,21 +181,6 @@
                     break;
                 case ushort As_ushort:
                     AddFieldUShort_BINARY(ref data, ref offset, (ushort)value);
-                    break;
-                case string As_string:
-                    AddFieldString_BINARY(ref data, ref offset, (string)value);
-                    break;
-                case Guid As_Guid:
-                    AddFieldGuid_BINARY(ref data, ref offset, (Guid)value);
-                    break;
-
-                default:
-                    Type ValueType = value.GetType();
-
-                    if (ValueType.IsEnum)
-                        SerializeEnumType_BINARY(value, ValueType, ref data, ref offset);
-                    else
-                        return false;
                     break;
             }
 
