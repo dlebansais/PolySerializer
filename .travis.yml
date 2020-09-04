@@ -1,5 +1,7 @@
 language: csharp
 solution: PolySerializer.sln
+mono: none
+dotnet: 3.1.401
 
 install:
 - nuget restore PolySerializer.sln
@@ -8,6 +10,7 @@ install:
 - nuget install DeepEqual -Version 2.0.0 -OutputDirectory testrunner
 
 script:
+- dotnet restore
 - msbuild /p:Configuration=Travis PolySerializer.sln
 #- cp ./testrunner/NUnit.3.8.1/lib/net45/nunit.framework.dll ./PolySerializer/bin/x64/Travis/
 #- cp ./testrunner/DeepEqual.1.6.0.0/lib/net40/DeepEqual.dll ./PolySerializer/bin/x64/Travis/
