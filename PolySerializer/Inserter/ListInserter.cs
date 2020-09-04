@@ -35,6 +35,9 @@
         {
             if (reference is IList AsIList)
             {
+                if (referenceType == null)
+                    throw new ArgumentNullException(nameof(referenceType));
+
                 foreach (Type Interface in referenceType.GetInterfaces())
                 {
                     if (Interface.IsGenericType)
@@ -70,6 +73,9 @@
         /// </returns>
         public bool TryMatchType(Type referenceType, out Type itemType)
         {
+            if (referenceType == null)
+                throw new ArgumentNullException(nameof(referenceType));
+
             foreach (Type Interface in referenceType.GetInterfaces())
             {
                 if (Interface.IsGenericType)

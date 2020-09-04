@@ -227,6 +227,9 @@
         /// <param name="type">The type to read.</param>
         public static string PathFromType(Type type)
         {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
             string FullName = type.AssemblyQualifiedName;
 
             string[] FullNamePath = FullName.Split(',');
@@ -252,6 +255,9 @@
         /// <param name="type">The type to read.</param>
         public static string AssemblyFromType(Type type)
         {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
             string FullName = type.AssemblyQualifiedName;
 
             string[] FullNamePath = FullName.Split(',');
@@ -266,6 +272,9 @@
         /// <param name="type">The type to read.</param>
         public static string VersionFromType(Type type)
         {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
             return TextWithPatternFromType(type, VersionPattern);
         }
 
@@ -275,6 +284,9 @@
         /// <param name="type">The type to read.</param>
         public static string CultureFromType(Type type)
         {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
             return TextWithPatternFromType(type, CulturePattern);
         }
 
@@ -284,21 +296,27 @@
         /// <param name="type">The type to read.</param>
         public static string PublicKeyTokenFromType(Type type)
         {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
             return TextWithPatternFromType(type, PublicKeyTokenPattern);
         }
 
         private static string TextWithPatternFromType(Type type, string pattern)
         {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
             string Result = null;
 
             string FullName = type.AssemblyQualifiedName;
-            int StartIndex = FullName.LastIndexOf(pattern);
+            int StartIndex = FullName.LastIndexOf(pattern, StringComparison.InvariantCulture);
             Debug.Assert(StartIndex >= 0);
 
             if (StartIndex >= 0)
             {
                 string EndName = FullName.Substring(StartIndex + pattern.Length);
-                int EndIndex = EndName.IndexOf(",");
+                int EndIndex = EndName.IndexOf(",", StringComparison.InvariantCulture);
                 if (EndIndex < 0)
                     EndIndex = EndName.Length;
 

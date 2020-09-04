@@ -295,12 +295,12 @@
 
         private void AddFieldSByte_TEXT(ref byte[] data, ref int offset, sbyte value)
         {
-            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{((byte)value).ToString("X02")}");
+            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{((byte)value).ToString("X02", CultureInfo.InvariantCulture)}");
         }
 
         private void AddFieldByte_TEXT(ref byte[] data, ref int offset, byte value)
         {
-            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{value.ToString("X02")}");
+            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{value.ToString("X02", CultureInfo.InvariantCulture)}");
         }
 
         private void AddFieldBool_TEXT(ref byte[] data, ref int offset, bool value)
@@ -333,32 +333,32 @@
 
         private void AddFieldInt_TEXT(ref byte[] data, ref int offset, int value)
         {
-            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{value.ToString("X08")}");
+            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{value.ToString("X08", CultureInfo.InvariantCulture)}");
         }
 
         private void AddFieldLong_TEXT(ref byte[] data, ref int offset, long value)
         {
-            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{value.ToString("X16")}");
+            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{value.ToString("X16", CultureInfo.InvariantCulture)}");
         }
 
         private void AddFieldShort_TEXT(ref byte[] data, ref int offset, short value)
         {
-            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{value.ToString("X04")}");
+            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{value.ToString("X04", CultureInfo.InvariantCulture)}");
         }
 
         private void AddFieldUInt_TEXT(ref byte[] data, ref int offset, uint value)
         {
-            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{value.ToString("X08")}");
+            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{value.ToString("X08", CultureInfo.InvariantCulture)}");
         }
 
         private void AddFieldULong_TEXT(ref byte[] data, ref int offset, ulong value)
         {
-            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{value.ToString("X16")}");
+            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{value.ToString("X16", CultureInfo.InvariantCulture)}");
         }
 
         private void AddFieldUShort_TEXT(ref byte[] data, ref int offset, ushort value)
         {
-            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{value.ToString("X04")}");
+            AddFieldStringDirect_TEXT(ref data, ref offset, $"0x{value.ToString("X04", CultureInfo.InvariantCulture)}");
         }
 
         private void AddFieldString_TEXT(ref byte[] data, ref int offset, string value)

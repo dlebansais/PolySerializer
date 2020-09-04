@@ -69,6 +69,9 @@
         /// <returns>True if a replacement was made; Otherwise, false.</returns>
         public bool Override(IReadOnlyDictionary<NamespaceDescriptor, NamespaceDescriptor> table, bool overrideGenericArguments)
         {
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
+
             bool IsOverriden = true;
 
             GenericDefinition = Override(table, GenericDefinition, ref IsOverriden);

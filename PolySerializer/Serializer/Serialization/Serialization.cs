@@ -56,7 +56,7 @@
             CycleDetectionTable.Add(reference, NewSerialized);
         }
 
-        private long GetCollectionCount(object reference)
+        private static long GetCollectionCount(object reference)
         {
             IEnumerable AsEnumerable;
 

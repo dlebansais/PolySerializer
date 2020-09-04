@@ -89,7 +89,7 @@
             }
         }
 
-        private void CreateObject(Type referenceType, ref object reference)
+        private static void CreateObject(Type referenceType, ref object reference)
         {
             try
             {
@@ -100,7 +100,7 @@
             }
         }
 
-        private void CreateObject(Type referenceType, object[] parameters, ref object reference)
+        private static void CreateObject(Type referenceType, object[] parameters, ref object reference)
         {
             try
             {
@@ -111,7 +111,7 @@
             }
         }
 
-        private void CreateObject(Type valueType, long count, ref object reference)
+        private static void CreateObject(Type valueType, long count, ref object reference)
         {
             try
             {
@@ -132,7 +132,7 @@
             }
         }
 
-        private Type DeserializedTrueType(string typeName)
+        private static Type DeserializedTrueType(string typeName)
         {
             return Type.GetType(typeName);
         }
@@ -201,7 +201,7 @@
             return false;
         }
 
-        private void DeconstructType(Type type, out Type[] typeList)
+        private static void DeconstructType(Type type, out Type[] typeList)
         {
             if (type.IsGenericType && !type.IsGenericTypeDefinition)
             {
@@ -218,7 +218,7 @@
             }
         }
 
-        private void ReconstructType(Type[] typeList, out Type type)
+        private static void ReconstructType(Type[] typeList, out Type type)
         {
             if (typeList.Length == 1)
                 type = typeList[0];
@@ -291,7 +291,7 @@
             return true;
         }
 
-        private bool IsExcludedFromDeserialization(DeserializedMember newMember)
+        private static bool IsExcludedFromDeserialization(DeserializedMember newMember)
         {
             SerializableAttribute CustomSerializable = newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
             if (CustomSerializable != null)
@@ -303,7 +303,7 @@
             return false;
         }
 
-        private bool IsReadOnlyPropertyWithNoValidSetter(Type deserializedType, DeserializedMember newMember)
+        private static bool IsReadOnlyPropertyWithNoValidSetter(Type deserializedType, DeserializedMember newMember)
         {
             PropertyInfo AsPropertyInfo;
             if ((AsPropertyInfo = newMember.MemberInfo as PropertyInfo) != null)
@@ -354,7 +354,7 @@
             return true;
         }
 
-        private bool IsExcludedIndexer(DeserializedMember newMember)
+        private static bool IsExcludedIndexer(DeserializedMember newMember)
         {
             SerializableAttribute CustomSerializable = newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
             if (CustomSerializable != null)
@@ -366,7 +366,7 @@
             return false;
         }
 
-        private void CheckForSerializedCondition(DeserializedMember newMember)
+        private static void CheckForSerializedCondition(DeserializedMember newMember)
         {
             SerializableAttribute CustomSerializable = newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
             if (CustomSerializable != null)

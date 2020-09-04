@@ -4,6 +4,7 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.IO;
     using System.Reflection;
     using System.Threading.Tasks;
@@ -273,6 +274,9 @@
         /// </returns>
         public static bool IsReadableCollection(Type referenceType, object reference, out IEnumerator enumerator)
         {
+            if (referenceType == null)
+                throw new ArgumentNullException(nameof(referenceType));
+
             Type CurrentType;
 
             if (referenceType.IsGenericType)
@@ -286,7 +290,7 @@
                 foreach (Type Interface in Interfaces)
                     if (Interface == typeof(IEnumerable))
                     {
-                        enumerator = Interface.InvokeMember("GetEnumerator", BindingFlags.Public, null, reference, null) as IEnumerator;
+                        enumerator = Interface.InvokeMember("GetEnumerator", BindingFlags.Public, null, reference, null, CultureInfo.InvariantCulture) as IEnumerator;
                         return true;
                     }
 
@@ -382,15 +386,15 @@
         #region Misc
         private int SortByName(SerializedMember p1, SerializedMember p2)
         {
-            return p1.MemberInfo.Name.CompareTo(p2.MemberInfo.Name);
+            return string.Compare(p1.MemberInfo.Name, p2.MemberInfo.Name, StringComparison.InvariantCulture);
         }
 
         private int SortByName(DeserializedMember p1, DeserializedMember p2)
         {
-            return p1.MemberInfo.Name.CompareTo(p2.MemberInfo.Name);
+            return string.Compare(p1.MemberInfo.Name, p2.MemberInfo.Name, StringComparison.InvariantCulture);
         }
 
-        private bool IsSerializableConstructor(ConstructorInfo constructor, Type serializedType, out List<SerializedMember> constructorParameters)
+        private static bool IsSerializableConstructor(ConstructorInfo constructor, Type serializedType, out List<SerializedMember> constructorParameters)
         {
             SerializableAttribute CustomAttribute = constructor.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
             if (CustomAttribute == null)
@@ -432,7 +436,7 @@
             return true;
         }
 
-        private bool IsSerializableMember(object reference, Type serializedType, SerializedMember newMember)
+        private static bool IsSerializableMember(object reference, Type serializedType, SerializedMember newMember)
         {
             if (newMember.MemberInfo.MemberType != MemberTypes.Field && newMember.MemberInfo.MemberType != MemberTypes.Property)
                 return false;
@@ -454,7 +458,7 @@
             return true;
         }
 
-        private bool IsStaticOrReadOnly(MemberInfo memberInfo)
+        private static bool IsStaticOrReadOnly(MemberInfo memberInfo)
         {
             FieldInfo AsFieldInfo;
             if ((AsFieldInfo = memberInfo as FieldInfo) != null)
@@ -466,7 +470,7 @@
             return false;
         }
 
-        private bool IsExcludedFromSerialization(SerializedMember newMember)
+        private static bool IsExcludedFromSerialization(SerializedMember newMember)
         {
             SerializableAttribute CustomSerializable = newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
             if (CustomSerializable != null)
@@ -478,7 +482,7 @@
             return false;
         }
 
-        private bool IsReadOnlyPropertyWithNoSetter(SerializedMember newMember)
+        private static bool IsReadOnlyPropertyWithNoSetter(SerializedMember newMember)
         {
             PropertyInfo AsPropertyInfo;
             if ((AsPropertyInfo = newMember.MemberInfo as PropertyInfo) != null)
@@ -504,7 +508,7 @@
             return true;
         }
 
-        private bool IsExcludedIndexer(SerializedMember newMember)
+        private static bool IsExcludedIndexer(SerializedMember newMember)
         {
             SerializableAttribute CustomSerializable = newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
             if (CustomSerializable != null)
@@ -516,7 +520,7 @@
             return false;
         }
 
-        private void CheckSerializationCondition(object reference, Type serializedType, SerializedMember newMember)
+        private static void CheckSerializationCondition(object reference, Type serializedType, SerializedMember newMember)
         {
             SerializableAttribute CustomSerializable = newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
             if (CustomSerializable != null)
@@ -547,7 +551,7 @@
             }
         }
 
-        private bool ListConstructorParameters(Type serializedType, out List<SerializedMember> constructorParameters)
+        private static bool ListConstructorParameters(Type serializedType, out List<SerializedMember> constructorParameters)
         {
             List<ConstructorInfo> Constructors = new List<ConstructorInfo>(serializedType.GetConstructors());
 
@@ -561,7 +565,7 @@
         #endregion
 
         #region String conversions
-        private byte[] String2Bytes(string s)
+        private static byte[] String2Bytes(string s)
         {
             int CharCount;
             char[] StringChars;
@@ -590,7 +594,7 @@
             return StringBytes;
         }
 
-        private string Bytes2String(int count, byte[] data, int offset)
+        private static string Bytes2String(int count, byte[] data, int offset)
         {
             int i = offset;
             char[] StringChars = new char[count];
@@ -601,7 +605,7 @@
             return new string(StringChars);
         }
 
-        private int FromHexDigit(byte[] data, int offset)
+        private static int FromHexDigit(byte[] data, int offset)
         {
             int Digit = data[offset];
             if (Digit >= '0' && Digit <= '9')
@@ -614,7 +618,7 @@
                 return 0;
         }
 
-        private int FromDecimalDigit(byte[] data, int offset)
+        private static int FromDecimalDigit(byte[] data, int offset)
         {
             int Digit = data[offset];
             if (Digit >= '0' && Digit <= '9')
