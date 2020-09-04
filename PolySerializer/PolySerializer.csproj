@@ -52,19 +52,19 @@
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Exec Command="call &quot;$(SolutionDir)updateversion.bat&quot; &quot;$(SolutionDir)&quot; &quot;$(SolutionPath)&quot;" />
+    <Exec Command="if exist $(SolutionDir) call &quot;$(SolutionDir)updateversion.bat&quot; &quot;$(SolutionDir)&quot; &quot;$(SolutionPath)&quot;" />
   </Target>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Exec Command="call &quot;$(SolutionDir)updatecommit.bat&quot; &quot;$(SolutionDir)&quot; &quot;$(TargetPath)&quot;" />
+    <Exec Command="if exist $(SolutionDir) call &quot;$(SolutionDir)updatecommit.bat&quot; &quot;$(SolutionDir)&quot; &quot;$(TargetPath)&quot;" />
   </Target>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Exec Command="call &quot;$(SolutionDir)updateversion.bat&quot; &quot;$(SolutionDir)&quot; &quot;$(SolutionPath)&quot;" />
+    <Exec Command="if exist $(SolutionDir) call &quot;$(SolutionDir)updateversion.bat&quot; &quot;$(SolutionDir)&quot; &quot;$(SolutionPath)&quot;" />
   </Target>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Exec Command="call &quot;$(SolutionDir)updatecommit.bat&quot; &quot;$(SolutionDir)&quot; &quot;$(TargetPath)&quot;" />
+    <Exec Command="if exist $(SolutionDir) call &quot;$(SolutionDir)updatecommit.bat&quot; &quot;$(SolutionDir)&quot; &quot;$(TargetPath)&quot;" />
   </Target>
 
 </Project>
