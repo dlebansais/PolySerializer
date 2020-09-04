@@ -1,19 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2041
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PolySerializer", "PolySerializer\PolySerializer.csproj", "{92DE0EF0-A92B-402F-8328-E59CFDA026E0}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestDebug", "TestDebug\TestDebug.csproj", "{64480BB1-8A48-4157-AE88-D06BAF7C50FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PolySerializer-Attributes", "PolySerializer-Attributes\PolySerializer-Attributes.csproj", "{E4FD9B36-4D28-424F-855B-EA6E6BBC7D8B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PolySerializer", "PolySerializer\PolySerializer.csproj", "{0BE60CCF-E733-4E0F-B028-C95ABAF7E958}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test-PolySerializer", "Test-PolySerializer\Test-PolySerializer.csproj", "{936CFBFD-1F5F-49C8-A238-182AD6246E70}"
-	ProjectSection(ProjectDependencies) = postProject
-		{E4FD9B36-4D28-424F-855B-EA6E6BBC7D8B} = {E4FD9B36-4D28-424F-855B-EA6E6BBC7D8B}
-		{92DE0EF0-A92B-402F-8328-E59CFDA026E0} = {92DE0EF0-A92B-402F-8328-E59CFDA026E0}
-	EndProjectSection
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PolySerializer-Attributes", "PolySerializer-Attributes\PolySerializer-Attributes.csproj", "{0EE126EC-FBE7-47F5-8706-1FE6950956E2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test-PolySerializer", "Test-PolySerializer\Test-PolySerializer.csproj", "{19A4D62D-7B14-452F-AB06-6E233D7BE17E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,28 +18,28 @@ Global
 		Travis|x64 = Travis|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{92DE0EF0-A92B-402F-8328-E59CFDA026E0}.Debug|x64.ActiveCfg = Debug|x64
-		{92DE0EF0-A92B-402F-8328-E59CFDA026E0}.Debug|x64.Build.0 = Debug|x64
-		{92DE0EF0-A92B-402F-8328-E59CFDA026E0}.Release|x64.ActiveCfg = Release|x64
-		{92DE0EF0-A92B-402F-8328-E59CFDA026E0}.Release|x64.Build.0 = Release|x64
-		{92DE0EF0-A92B-402F-8328-E59CFDA026E0}.Travis|x64.ActiveCfg = Travis|x64
-		{92DE0EF0-A92B-402F-8328-E59CFDA026E0}.Travis|x64.Build.0 = Travis|x64
 		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Debug|x64.ActiveCfg = Debug|x64
 		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Debug|x64.Build.0 = Debug|x64
 		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Release|x64.ActiveCfg = Release|x64
 		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Travis|x64.ActiveCfg = Release|x64
-		{E4FD9B36-4D28-424F-855B-EA6E6BBC7D8B}.Debug|x64.ActiveCfg = Debug|x64
-		{E4FD9B36-4D28-424F-855B-EA6E6BBC7D8B}.Debug|x64.Build.0 = Debug|x64
-		{E4FD9B36-4D28-424F-855B-EA6E6BBC7D8B}.Release|x64.ActiveCfg = Release|x64
-		{E4FD9B36-4D28-424F-855B-EA6E6BBC7D8B}.Release|x64.Build.0 = Release|x64
-		{E4FD9B36-4D28-424F-855B-EA6E6BBC7D8B}.Travis|x64.ActiveCfg = Travis|x64
-		{E4FD9B36-4D28-424F-855B-EA6E6BBC7D8B}.Travis|x64.Build.0 = Travis|x64
-		{936CFBFD-1F5F-49C8-A238-182AD6246E70}.Debug|x64.ActiveCfg = Debug|x64
-		{936CFBFD-1F5F-49C8-A238-182AD6246E70}.Debug|x64.Build.0 = Debug|x64
-		{936CFBFD-1F5F-49C8-A238-182AD6246E70}.Release|x64.ActiveCfg = Release|x64
-		{936CFBFD-1F5F-49C8-A238-182AD6246E70}.Release|x64.Build.0 = Release|x64
-		{936CFBFD-1F5F-49C8-A238-182AD6246E70}.Travis|x64.ActiveCfg = Travis|x64
-		{936CFBFD-1F5F-49C8-A238-182AD6246E70}.Travis|x64.Build.0 = Travis|x64
+		{0BE60CCF-E733-4E0F-B028-C95ABAF7E958}.Debug|x64.ActiveCfg = Debug|x64
+		{0BE60CCF-E733-4E0F-B028-C95ABAF7E958}.Debug|x64.Build.0 = Debug|x64
+		{0BE60CCF-E733-4E0F-B028-C95ABAF7E958}.Release|x64.ActiveCfg = Release|x64
+		{0BE60CCF-E733-4E0F-B028-C95ABAF7E958}.Release|x64.Build.0 = Release|x64
+		{0BE60CCF-E733-4E0F-B028-C95ABAF7E958}.Travis|x64.ActiveCfg = Travis|x64
+		{0BE60CCF-E733-4E0F-B028-C95ABAF7E958}.Travis|x64.Build.0 = Travis|x64
+		{0EE126EC-FBE7-47F5-8706-1FE6950956E2}.Debug|x64.ActiveCfg = Debug|x64
+		{0EE126EC-FBE7-47F5-8706-1FE6950956E2}.Debug|x64.Build.0 = Debug|x64
+		{0EE126EC-FBE7-47F5-8706-1FE6950956E2}.Release|x64.ActiveCfg = Release|x64
+		{0EE126EC-FBE7-47F5-8706-1FE6950956E2}.Release|x64.Build.0 = Release|x64
+		{0EE126EC-FBE7-47F5-8706-1FE6950956E2}.Travis|x64.ActiveCfg = Travis|x64
+		{0EE126EC-FBE7-47F5-8706-1FE6950956E2}.Travis|x64.Build.0 = Travis|x64
+		{19A4D62D-7B14-452F-AB06-6E233D7BE17E}.Debug|x64.ActiveCfg = Debug|x64
+		{19A4D62D-7B14-452F-AB06-6E233D7BE17E}.Debug|x64.Build.0 = Debug|x64
+		{19A4D62D-7B14-452F-AB06-6E233D7BE17E}.Release|x64.ActiveCfg = Release|x64
+		{19A4D62D-7B14-452F-AB06-6E233D7BE17E}.Release|x64.Build.0 = Release|x64
+		{19A4D62D-7B14-452F-AB06-6E233D7BE17E}.Travis|x64.ActiveCfg = Travis|x64
+		{19A4D62D-7B14-452F-AB06-6E233D7BE17E}.Travis|x64.Build.0 = Travis|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
