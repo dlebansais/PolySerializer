@@ -19,10 +19,10 @@
         /// </summary>
         public static readonly NamespaceDescriptor MatchAll = new NamespaceDescriptor(MatchAny, MatchAny, MatchAny, MatchAny, MatchAny);
 
-        private static readonly string AssemblyPattern = " ";
-        private static readonly string VersionPattern = " Version=";
-        private static readonly string CulturePattern = " Culture=";
-        private static readonly string PublicKeyTokenPattern = " PublicKeyToken=";
+        private const string AssemblyPattern = " ";
+        private const string VersionPattern = " Version=";
+        private const string CulturePattern = " Culture=";
+        private const string PublicKeyTokenPattern = " PublicKeyToken=";
         #endregion
 
         #region Init
@@ -124,9 +124,16 @@
         /// <returns>True if at least one searched part in <paramref name="name"/> was replaced.</returns>
         public static bool Match(string name, NamespaceDescriptor descriptorSearch, NamespaceDescriptor descriptorReplace, out string nameOverride)
         {
+            if (name == null)
+                throw new ArgumentNullException(nameof(name));
+
             string[] FullNamePath = name.Split(',');
 
-            bool IsValidName = FullNamePath.Length == 5 && FullNamePath[1].StartsWith(AssemblyPattern) && FullNamePath[2].StartsWith(VersionPattern) && FullNamePath[3].StartsWith(CulturePattern) && FullNamePath[4].StartsWith(PublicKeyTokenPattern);
+            bool IsValidName = FullNamePath.Length == 5 &&
+                               FullNamePath[1].StartsWith(AssemblyPattern, StringComparison.InvariantCulture) &&
+                               FullNamePath[2].StartsWith(VersionPattern, StringComparison.InvariantCulture) &&
+                               FullNamePath[3].StartsWith(CulturePattern, StringComparison.InvariantCulture) &&
+                               FullNamePath[4].StartsWith(PublicKeyTokenPattern, StringComparison.InvariantCulture);
 
             // Name should be always valid for a type name unless .NET changes drastically.
             if (!IsValidName)

@@ -171,23 +171,23 @@
         /// <summary>
         ///     The output stream on which serialized data has been written to in <see cref="Serialize"/>.
         /// </summary>
-        public Stream Output { get; private set; } = null;
+        public Stream Output { get; private set; }
 
         /// <summary>
         ///     The object serialized (after a call to <see cref="Serialize"/>) or created (after a call to <see cref="Deserialize"/>).
         /// </summary>
-        public object Root { get; private set; } = null;
+        public object Root { get; private set; }
 
         /// <summary>
         ///     The input stream from which deserialized data has been read from in <see cref="Deserialize"/>.
         /// </summary>
-        public Stream Input { get; private set; } = null;
+        public Stream Input { get; private set; }
 
         /// <summary>
         ///     Type of the <see cref="Root"/> object after a call to <see cref="Serialize"/>, or type of the object to create in <see cref="Deserialize"/>.
         ///     If null, <see cref="Deserialize"/> finds the type to use from the serialized data. If not null, the serialized data must be compatible with this type or <see cref="Deserialize"/> will throw an exception.
         /// </summary>
-        public Type RootType { get; set; } = null;
+        public Type RootType { get; set; }
 
         /// <summary>
         /// Sets or gets a list of assemblies that can override the original assembly of a type during deserialization.
@@ -237,7 +237,7 @@
         /// <summary>
         ///     Last value used to allocate or reallocate data. Use this information to optimize memory management.
         /// </summary>
-        public uint LastAllocatedSize { get; private set; } = 0;
+        public uint LastAllocatedSize { get; private set; }
         #endregion
 
         #region Tools

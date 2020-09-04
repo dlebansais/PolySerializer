@@ -38,6 +38,9 @@
         {
             if (reference is Array AsArray)
             {
+                if (referenceType == null)
+                    throw new ArgumentNullException(nameof(referenceType));
+
                 Reference = AsArray;
                 itemType = referenceType.GetElementType();
                 return true;
@@ -60,6 +63,9 @@
         /// </returns>
         public bool TryMatchType(Type referenceType, out Type itemType)
         {
+            if (referenceType == null)
+                throw new ArgumentNullException(nameof(referenceType));
+
             if (referenceType.IsArray)
             {
                 itemType = referenceType.GetElementType();

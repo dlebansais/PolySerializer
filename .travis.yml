@@ -4,14 +4,14 @@ solution: PolySerializer.sln
 install:
 - nuget restore PolySerializer.sln
 - nuget install NUnit -Version 3.12.0 -OutputDirectory testrunner
-- nuget install NUnit.ConsoleRunner -Version 3.10.0 -OutputDirectory testrunner
-- nuget install DeepEqual -Version 1.6.0 -OutputDirectory testrunner
+- nuget install NUnit.ConsoleRunner -Version 3.11.1 -OutputDirectory testrunner
+- nuget install DeepEqual -Version 2.0.0 -OutputDirectory testrunner
 
 script:
 - msbuild /p:Configuration=Travis PolySerializer.sln
 #- cp ./testrunner/NUnit.3.8.1/lib/net45/nunit.framework.dll ./PolySerializer/bin/x64/Travis/
 #- cp ./testrunner/DeepEqual.1.6.0.0/lib/net40/DeepEqual.dll ./PolySerializer/bin/x64/Travis/
-- mono ./testrunner/NUnit.ConsoleRunner.3.10.0/tools/nunit3-console.exe --trace=Debug --labels=All ./Test-PolySerializer/bin/x64/Travis/Test-PolySerializer.dll
+- mono ./testrunner/NUnit.ConsoleRunner.3.11.1/tools/nunit3-console.exe --trace=Debug --labels=All ./Test-PolySerializer/bin/x64/Travis/netstandard2.0/Test-PolySerializer.dll
 
 deploy:
   provider: pages

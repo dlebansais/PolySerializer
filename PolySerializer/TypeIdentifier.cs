@@ -7,7 +7,7 @@
     /// <summary>
     /// Represents a .NET type name.
     /// </summary>
-    public class TypeIdentifier
+    internal class TypeIdentifier
     {
         #region Init
         /// <summary>
@@ -83,7 +83,7 @@
             return IsOverriden;
         }
 
-        private string Override(IReadOnlyDictionary<NamespaceDescriptor, NamespaceDescriptor> table, string typeName, ref bool isOverriden)
+        private static string Override(IReadOnlyDictionary<NamespaceDescriptor, NamespaceDescriptor> table, string typeName, ref bool isOverriden)
         {
             isOverriden = false;
 
@@ -116,7 +116,7 @@
 
         private void DeconstructGenericTypeName(string typeName, out string genericDefinition, out List<TypeIdentifier> genericParameters, out int lastIndex)
         {
-            int StartIndex = typeName.IndexOf("[[");
+            int StartIndex = typeName.IndexOf("[[", StringComparison.InvariantCulture);
 
             string Namespace = typeName.Substring(0, StartIndex);
             genericParameters = new List<TypeIdentifier>();
@@ -178,9 +178,9 @@
             genericDefinition = Namespace + Remaining;
         }
 
-        private int IndexToEnd(string text, string pattern, int startIndex)
+        private static int IndexToEnd(string text, string pattern, int startIndex)
         {
-            int Index = text.IndexOf(pattern, startIndex);
+            int Index = text.IndexOf(pattern, startIndex, StringComparison.InvariantCulture);
             if (Index < 0)
                 Index = text.Length;
 
@@ -193,7 +193,7 @@
                 return GenericDefinition;
             else
             {
-                int AssemblyIndex = GenericDefinition.IndexOf(",");
+                int AssemblyIndex = GenericDefinition.IndexOf(",", StringComparison.InvariantCulture);
 
                 string Parameters = string.Empty;
 
@@ -211,6 +211,7 @@
         #endregion
 
 #if DEBUG
+#pragma warning disable CA1823 // Avoid unused private fields
         private static readonly TypeIdentifier Test0 = new TypeIdentifier(typeof(string).AssemblyQualifiedName);
         private static readonly TypeIdentifier Test1 = new TypeIdentifier(typeof(List<string>).AssemblyQualifiedName);
         private static readonly TypeIdentifier Test2 = new TypeIdentifier(typeof(Dictionary<string, string>).AssemblyQualifiedName);
@@ -220,6 +221,7 @@
         private static readonly TypeIdentifier Test6 = new TypeIdentifier(typeof(Dictionary<string, Dictionary<string, string>>).AssemblyQualifiedName);
         private static readonly TypeIdentifier Test7 = new TypeIdentifier(typeof(Dictionary<List<string>, string>).AssemblyQualifiedName);
         private static readonly TypeIdentifier Test8 = new TypeIdentifier(typeof(Dictionary<Dictionary<string, string>, string>).AssemblyQualifiedName);
+#pragma warning restore CA1823 // Avoid unused private fields
 #endif
     }
 }

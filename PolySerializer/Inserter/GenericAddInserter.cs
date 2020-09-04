@@ -37,6 +37,9 @@
         /// </returns>
         public bool TrySetReference(object reference, Type referenceType, out Type itemType)
         {
+            if (referenceType == null)
+                throw new ArgumentNullException(nameof(referenceType));
+
             Type[] GenericArguments = referenceType.GetGenericArguments();
             if (GenericArguments.Length > 0)
             {
@@ -85,6 +88,9 @@
         /// </returns>
         public bool TryMatchType(Type referenceType, out Type itemType)
         {
+            if (referenceType == null)
+                throw new ArgumentNullException(nameof(referenceType));
+
             Type[] GenericArguments = referenceType.GetGenericArguments();
             if (GenericArguments.Length > 0)
             {
