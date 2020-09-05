@@ -35,7 +35,7 @@ artifacts:
 
 deploy:
   release: '%APPVEYOR_REPO_TAG_NAME%'
-  description: 'APPVEYOR_REPO_COMMIT_MESSAGE'
+  description: '%APPVEYOR_REPO_COMMIT_MESSAGE%'
   provider: GitHub
   auth_token:
     secure: dUpQSnUT5/m88z1BqHNnRjaxxZzz09CmyqFJr/cAyWjqKeLgnKunlIZlEKAXlNIm
