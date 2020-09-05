@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
+    <TargetFrameworks>netstandard2.0;netcoreapp3.1;net48</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
     <RootNamespace>PolySerializer</RootNamespace>
     <Platforms>x64</Platforms>
