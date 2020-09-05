@@ -6,13 +6,13 @@
     /// <summary>
     /// Perform partial search/replace in assembly qualified type names.
     /// </summary>
-    public struct NamespaceDescriptor
+    public struct NamespaceDescriptor : IEquatable<NamespaceDescriptor>
     {
         #region Constants
         /// <summary>
         /// The text to search to always replace.
         /// </summary>
-        public static readonly string MatchAny = "*";
+        public const string MatchAny = "*";
 
         /// <summary>
         /// A descriptor that will match all names.
@@ -325,6 +325,59 @@
             }
 
             return Result;
+        }
+        #endregion
+
+        #region Overrides
+        /// <summary>
+        /// Indicates whether this instance and a specified object are equal.
+        /// </summary>
+        /// <param name="obj">The object to compare with the current instance.</param>
+        /// <returns>True if <paramref name="obj"/> and this instance are the same type and represent the same value; otherwise, false.</returns>
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+
+        /// <summary>
+        /// Indicates whether this instance and a specified object are equal.
+        /// </summary>
+        /// <param name="obj">The object to compare with the current instance.</param>
+        /// <returns>True if <paramref name="obj"/> and this instance represent the same value; otherwise, false.</returns>
+        public bool Equals(NamespaceDescriptor obj)
+        {
+            return base.Equals(obj);
+        }
+
+        /// <summary>
+        /// Returns the hash code for this instance.
+        /// </summary>
+        /// <returns>A 32-bit signed integer that is the hash code for this instance.</returns>
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        /// <summary>
+        /// Indicates whether two objects are equal.
+        /// </summary>
+        /// <param name="obj1">The first object to compare.</param>
+        /// <param name="obj2">The second object to compare.</param>
+        /// <returns>True if <paramref name="obj1"/> and <paramref name="obj2"/> represent the same value; otherwise, false.</returns>
+        public static bool operator ==(NamespaceDescriptor obj1, NamespaceDescriptor obj2)
+        {
+            return obj1.Equals(obj2);
+        }
+
+        /// <summary>
+        /// Indicates whether two objects are different.
+        /// </summary>
+        /// <param name="obj1">The first object to compare.</param>
+        /// <param name="obj2">The second object to compare.</param>
+        /// <returns>True if <paramref name="obj1"/> and <paramref name="obj2"/> represent different values; otherwise, false.</returns>
+        public static bool operator !=(NamespaceDescriptor obj1, NamespaceDescriptor obj2)
+        {
+            return !obj1.Equals(obj2);
         }
         #endregion
 

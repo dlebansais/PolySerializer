@@ -10,10 +10,6 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetFrameworks>netstandard2.0;net48</TargetFrameworks>
   </PropertyGroup>
 
@@ -22,12 +18,15 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Travis|x64'">
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;netcore3.1</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Codecov" Version="1.12.2" />
-    <PackageReference Include="DeepEqual" Version="2.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -61,6 +60,12 @@
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="DeepEqual">
+      <HintPath>..\dependencies\DeepEqual\$(Platform)\$(Configuration)\netstandard2.0\DeepEqual.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>

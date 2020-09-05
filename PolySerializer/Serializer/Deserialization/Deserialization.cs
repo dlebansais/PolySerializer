@@ -91,48 +91,27 @@
 
         private static void CreateObject(Type referenceType, out object reference)
         {
-            try
-            {
-                reference = Activator.CreateInstance(referenceType);
-            }
-            catch
-            {
-                reference = null;
-            }
+            reference = Activator.CreateInstance(referenceType);
         }
 
         private static void CreateObject(Type referenceType, object[] parameters, out object reference)
         {
-            try
-            {
-                reference = Activator.CreateInstance(referenceType, parameters);
-            }
-            catch
-            {
-                reference = null;
-            }
+            reference = Activator.CreateInstance(referenceType, parameters);
         }
 
         private static void CreateObject(Type valueType, long count, out object reference)
         {
-            try
+            if (valueType.IsArray)
             {
-                if (valueType.IsArray)
-                {
-                    Type ArrayType = valueType.GetElementType();
-                    reference = Array.CreateInstance(ArrayType, count);
-                }
-                else if (count < int.MaxValue)
-                {
-                    reference = Activator.CreateInstance(valueType, (int)count);
-                }
-                else
-                    reference = Activator.CreateInstance(valueType, count);
+                Type ArrayType = valueType.GetElementType();
+                reference = Array.CreateInstance(ArrayType, count);
             }
-            catch
+            else if (count < int.MaxValue)
             {
-                reference = null;
+                reference = Activator.CreateInstance(valueType, (int)count);
             }
+            else
+                reference = Activator.CreateInstance(valueType, count);
         }
 
         private static Type DeserializedTrueType(string typeName)
@@ -272,7 +251,7 @@
             DeserializedObjectList.Add(new DeserializedObject(reference, deserializedType, count));
         }
 
-        private bool IsDeserializableMember(Type deserializedType, DeserializedMember newMember)
+        private static bool IsDeserializableMember(Type deserializedType, DeserializedMember newMember)
         {
             if (newMember.MemberInfo.MemberType != MemberTypes.Field && newMember.MemberInfo.MemberType != MemberTypes.Property)
                 return false;
