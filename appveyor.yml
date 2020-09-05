@@ -1,0 +1,51 @@
+# version format
+version: v{build}
+
+branches:
+  only:
+    - master
+
+# Skipping commits with particular message or from specific user
+skip_commits:
+  message: "*[skip ci]*"
+
+image: Visual Studio 2019
+
+# scripts that are called at very beginning, before repo cloning
+init:
+  - git config --global core.autocrlf input
+
+matrix:
+  fast_finish: true     # set this flag to immediately finish build once one of the jobs fails.
+
+before_build:
+  - nuget restore ./PolySerializer.sln
+
+build:
+  project: ./PolySerializer.sln
+
+platform: x64
+configuration:
+  - Debug
+  - Release
+
+artifacts:
+  - path: PolySerializer/bin
+    name: PolySerializer
+
+# disable tests
+test: off
+
+deploy:
+  release: PolySerializer-%APPVEYOR_BUILD_VERSION%-%APPVEYOR_JOB_NUMBER%
+  description: 'Automatic Deployment'
+  provider: GitHub
+  auth_token:
+    secure: dUpQSnUT5/m88z1BqHNnRjaxxZzz09CmyqFJr/cAyWjqKeLgnKunlIZlEKAXlNIm
+  artifact: PolySerializer
+  draft: true
+  prerelease: false
+  on:
+    branch: master
+    APPVEYOR_REPO_TAG: true        # deploy on tag push only
+
