@@ -33,9 +33,6 @@ artifacts:
   - path: PolySerializer/bin
     name: PolySerializer
 
-# disable tests
-test: off
-
 deploy:
   release: PolySerializer-%APPVEYOR_BUILD_VERSION%-%APPVEYOR_JOB_NUMBER%
   description: 'Automatic Deployment'
