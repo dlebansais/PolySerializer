@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
     <LangVersion>8.0</LangVersion>
     <AssemblyName>PolySerializer</AssemblyName>
     <RootNamespace>PolySerializer</RootNamespace>
@@ -11,12 +10,12 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
     <DocumentationFile>bin\$(Platform)\$(Configuration)\netstandard2.0\PolySerializer.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
     <DocumentationFile>bin\$(Platform)\$(Configuration)\netstandard2.0\PolySerializer.xml</DocumentationFile>
   </PropertyGroup>
 
