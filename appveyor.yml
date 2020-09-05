@@ -29,8 +29,8 @@ configuration:
   - Debug
   - Release
 
-after_build:
-  - 7z a PolySerializer.zip PolySerializer/bin/
+#after_build:
+#  - 7z a PolySerializer.zip PolySerializer/bin/
 
 artifacts:
   - path: PolySerializer.zip
