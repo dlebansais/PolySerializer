@@ -37,7 +37,7 @@ artifacts:
     name: PolySerializer
 
 deploy:
-  release: %APPVEYOR_BUILD_VERSION%.%APPVEYOR_JOB_NUMBER%
+  release: Placeholder
   description: 'Automatic Deployment'
   provider: GitHub
   auth_token:
