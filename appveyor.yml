@@ -22,10 +22,7 @@ before_build:
   - nuget restore ./PolySerializer.sln
 
 build:
-  project: ./PolySerializer.sln
-
-platform: x64
-configuration: Debug;Release
+  project: ./build_all.xml
 
 #test: off
 
