@@ -19,10 +19,15 @@ matrix:
   fast_finish: true     # set this flag to immediately finish build once one of the jobs fails.
 
 before_build:
-  - nuget restore ./PolySerializer.sln
+  - nuget restore PolySerializer.sln
 
 build:
-  project: ./build_all.xml
+  project: build_all.xml
+
+test:
+  assemblies:
+    only:
+      - Test-PolySerializer/bin/x64/Release/net48/Test-PolySerializer.dll
 
 artifacts:
   - path: PolySerializer/bin/x64/
