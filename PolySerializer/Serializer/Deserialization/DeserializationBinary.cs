@@ -31,7 +31,7 @@
 
                 IDeserializedObject NextDeserialized = DeserializedObjectList[i++];
                 Reference = NextDeserialized.Reference;
-                Deserialize_BINARY(ref Reference, NextDeserialized.DeserializedType, NextDeserialized.Count, ref data, ref offset, NextDeserialized);
+                Deserialize_BINARY(Reference, NextDeserialized.DeserializedType, NextDeserialized.Count, ref data, ref offset, NextDeserialized);
             }
 
             Progress = 1.0;
@@ -39,9 +39,9 @@
             return Root;
         }
 
-        private void Deserialize_BINARY(ref object reference, Type referenceType, long count, ref byte[] data, ref int offset, IDeserializedObject nextDeserialized)
+        private void Deserialize_BINARY(object reference, Type referenceType, long count, ref byte[] data, ref int offset, IDeserializedObject nextDeserialized)
         {
-            DeserializeCollection_BINARY(ref reference, referenceType, count, ref data, ref offset);
+            DeserializeCollection_BINARY(reference, referenceType, count, ref data, ref offset);
 
             Type DeserializedType = SerializableAncestor(referenceType);
             List<DeserializedMember> DeserializedMembers = ListDeserializedMembers_BINARY(DeserializedType, ref data, ref offset);
@@ -87,7 +87,7 @@
                 nextDeserialized.SetDeserialized();
         }
 
-        private void DeserializeCollection_BINARY(ref object reference, Type referenceType, long count, ref byte[] data, ref int offset)
+        private void DeserializeCollection_BINARY(object reference, Type referenceType, long count, ref byte[] data, ref int offset)
         {
             if (count >= 0)
             {
@@ -212,8 +212,8 @@
 
             if (referenceType.IsValueType)
             {
-                CreateObject(NewType, ref reference);
-                Deserialize_BINARY(ref reference, referenceType, -1, ref data, ref offset, null);
+                CreateObject(NewType, out reference);
+                Deserialize_BINARY(reference, referenceType, -1, ref data, ref offset, null);
             }
             else
             {
@@ -226,14 +226,14 @@
                 }
                 else if (ReferenceTag == ObjectTag.ObjectReference)
                 {
-                    CreateObject(NewType, ref reference);
+                    CreateObject(NewType, out reference);
                     AddDeserializedObject(reference, referenceType, -1);
                 }
                 else if (ReferenceTag == ObjectTag.ObjectList)
                 {
                     long Count = ReadFieldCount_BINARY(ref data, ref offset);
 
-                    CreateObject(NewType, Count, ref reference);
+                    CreateObject(NewType, Count, out reference);
                     AddDeserializedObject(reference, referenceType, Count);
                 }
                 else if (ReferenceTag == ObjectTag.ConstructedObject)
@@ -254,7 +254,7 @@
                             Parameters[i] = MemberValue;
                         }
 
-                        CreateObject(NewType, Parameters, ref reference);
+                        CreateObject(NewType, Parameters, out reference);
                         AddDeserializedObject(reference, referenceType, -1);
                     }
                 }

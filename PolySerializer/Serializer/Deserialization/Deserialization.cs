@@ -89,7 +89,7 @@
             }
         }
 
-        private static void CreateObject(Type referenceType, ref object reference)
+        private static void CreateObject(Type referenceType, out object reference)
         {
             try
             {
@@ -97,10 +97,11 @@
             }
             catch
             {
+                reference = null;
             }
         }
 
-        private static void CreateObject(Type referenceType, object[] parameters, ref object reference)
+        private static void CreateObject(Type referenceType, object[] parameters, out object reference)
         {
             try
             {
@@ -108,10 +109,11 @@
             }
             catch
             {
+                reference = null;
             }
         }
 
-        private static void CreateObject(Type valueType, long count, ref object reference)
+        private static void CreateObject(Type valueType, long count, out object reference)
         {
             try
             {
@@ -129,6 +131,7 @@
             }
             catch
             {
+                reference = null;
             }
         }
 

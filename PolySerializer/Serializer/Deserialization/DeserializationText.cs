@@ -56,7 +56,7 @@
 
                 IDeserializedObject NextDeserialized = DeserializedObjectList[i++];
                 Reference = NextDeserialized.Reference;
-                Deserialize_TEXT(ref Reference, NextDeserialized.DeserializedType, NextDeserialized.Count, ref data, ref offset, NextDeserialized);
+                Deserialize_TEXT(Reference, NextDeserialized.DeserializedType, NextDeserialized.Count, ref data, ref offset, NextDeserialized);
             }
 
             Progress = 1.0;
@@ -64,9 +64,9 @@
             return Root;
         }
 
-        private void Deserialize_TEXT(ref object reference, Type referenceType, long count, ref byte[] data, ref int offset, IDeserializedObject nextDeserialized)
+        private void Deserialize_TEXT(object reference, Type referenceType, long count, ref byte[] data, ref int offset, IDeserializedObject nextDeserialized)
         {
-            DeserializeCollection_TEXT(ref reference, referenceType, count, ref data, ref offset);
+            DeserializeCollection_TEXT(reference, referenceType, count, ref data, ref offset);
 
             Type DeserializedType = SerializableAncestor(referenceType);
             List<DeserializedMember> DeserializedMembers = ListDeserializedMembers_TEXT(DeserializedType, ref data, ref offset);
@@ -119,7 +119,7 @@
                 nextDeserialized.SetDeserialized();
         }
 
-        private void DeserializeCollection_TEXT(ref object reference, Type referenceType, long count, ref byte[] data, ref int offset)
+        private void DeserializeCollection_TEXT(object reference, Type referenceType, long count, ref byte[] data, ref int offset)
         {
             if (count >= 0)
             {
@@ -247,8 +247,8 @@
 
             if (referenceType.IsValueType)
             {
-                CreateObject(NewType, ref reference);
-                Deserialize_TEXT(ref reference, referenceType, -1, ref data, ref offset, null);
+                CreateObject(NewType, out reference);
+                Deserialize_TEXT(reference, referenceType, -1, ref data, ref offset, null);
             }
             else
             {
@@ -261,14 +261,14 @@
                 }
                 else if (ReferenceTag == ObjectTag.ObjectReference)
                 {
-                    CreateObject(NewType, ref reference);
+                    CreateObject(NewType, out reference);
                     AddDeserializedObject(reference, referenceType, -1);
                 }
                 else if (ReferenceTag == ObjectTag.ObjectList)
                 {
                     long Count = ReadFieldCount_TEXT(ref data, ref offset);
 
-                    CreateObject(NewType, Count, ref reference);
+                    CreateObject(NewType, Count, out reference);
                     AddDeserializedObject(reference, referenceType, Count);
                 }
                 else if (ReferenceTag == ObjectTag.ConstructedObject)
@@ -294,7 +294,7 @@
 
                         ReadSeparator_TEXT(ref data, ref offset);
 
-                        CreateObject(NewType, Parameters, ref reference);
+                        CreateObject(NewType, Parameters, out reference);
                         AddDeserializedObject(reference, referenceType, -1);
                     }
                 }
