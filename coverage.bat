@@ -1,21 +1,32 @@
-rem @echo off
+@echo off
 
-if not exist ".\packages\OpenCover.4.7.922\tools\OpenCover.Console.exe" goto error_console1
-if not exist ".\packages\Codecov.1.12.2\tools\codecov.exe" goto error_console2
-if not exist ".\packages\NUnit.ConsoleRunner.3.11.1\tools\nunit3-console.exe" goto error_console3
+setlocal
 
-dotnet publish Test-PolySerializer -c Debug -f net48 /p:Platform=x64 -o ./Test-PolySerializer/publish/x64/Debug
-dotnet publish Test-PolySerializer -c Release -f net48 /p:Platform=x64 -o ./Test-PolySerializer/publish/x64/Release
+set PROJECTNAME=Test-PolySerializer
+set RESULTFILENAME=Coverage-PolySerializer.xml
+set OPENCOVER=OpenCover.4.7.922
+set CODECOV=Codecov.1.12.2
+set NUINT_CONSOLE=NUnit.ConsoleRunner.3.11.1
+set FRAMEWORK=net48
 
-if not exist ".\Test-PolySerializer\publish\x64\Debug\Test-PolySerializer.dll" goto error_not_built
-if not exist ".\Test-PolySerializer\publish\x64\Release\Test-PolySerializer.dll" goto error_not_built
-if exist .\Test-PolySerializer\*.log del .\Test-PolySerializer\*.log
-if exist .\Test-PolySerializer\obj\x64\Debug\Coverage-PolySerializer-Debug_coverage.xml del .\Test-PolySerializer\obj\x64\Debug\Coverage-PolySerializer-Debug_coverage.xml
-if exist .\Test-PolySerializer\obj\x64\Release\Coverage-PolySerializer-Release_coverage.xml del .\Test-PolySerializer\obj\x64\Release\Coverage-PolySerializer-Release_coverage.xml
-".\packages\OpenCover.4.7.922\tools\OpenCover.Console.exe" -register:user -target:".\packages\NUnit.ConsoleRunner.3.11.1\tools\nunit3-console.exe" -targetargs:".\Test-PolySerializer\publish\x64\Debug\Test-PolySerializer.dll --trace=Debug --labels=Before" -filter:"+[PolySerializer*]* -[Test-PolySerializer*]*" -output:".\Test-PolySerializer\obj\x64\Debug\Coverage-PolySerializer-Debug_coverage.xml" -showunvisited
-".\packages\OpenCover.4.7.922\tools\OpenCover.Console.exe" -register:user -target:".\packages\NUnit.ConsoleRunner.3.11.1\tools\nunit3-console.exe" -targetargs:".\Test-PolySerializer\publish\x64\Release\Test-PolySerializer.dll --trace=Debug --labels=Before" -filter:"+[PolySerializer*]* -[Test-PolySerializer*]*" -output:".\Test-PolySerializer\obj\x64\Release\Coverage-PolySerializer-Release_coverage.xml" -showunvisited
-if exist .\Test-PolySerializer\obj\x64\Debug\Coverage-PolySerializer-Debug_coverage.xml .\packages\Codecov.1.12.2\tools\codecov -f ".\Test-PolySerializer\obj\x64\Debug\Coverage-PolySerializer-Debug_coverage.xml" -t "7174d319-55d3-45f6-bcdc-33f6fc5b163f"
-if exist .\Test-PolySerializer\obj\x64\Release\Coverage-PolySerializer-Release_coverage.xml .\packages\Codecov.1.12.2\tools\codecov -f ".\Test-PolySerializer\obj\x64\Release\Coverage-PolySerializer-Release_coverage.xml" -t "7174d319-55d3-45f6-bcdc-33f6fc5b163f"
+if not exist ".\packages\%OPENCOVER%\tools\OpenCover.Console.exe" goto error_console1
+if not exist ".\packages\%CODECOV%\tools\codecov.exe" goto error_console2
+if not exist ".\packages\%NUINT_CONSOLE%\tools\nunit3-console.exe" goto error_console3
+
+call ..\Certification\set_tokens.bat
+
+dotnet publish %PROJECTNAME% -c Debug -f %FRAMEWORK% /p:Platform=x64 -o ./%PROJECTNAME%/publish/x64/Debug
+dotnet publish %PROJECTNAME% -c Release -f %FRAMEWORK% /p:Platform=x64 -o ./%PROJECTNAME%/publish/x64/Release
+
+if not exist ".\%PROJECTNAME%\publish\x64\Debug\%PROJECTNAME%.dll" goto error_not_built
+if not exist ".\%PROJECTNAME%\publish\x64\Release\%PROJECTNAME%.dll" goto error_not_built
+if exist .\%PROJECTNAME%\*.log del .\%PROJECTNAME%\*.log
+if exist .\%PROJECTNAME%\obj\x64\Debug\%RESULTFILENAME% del .\%PROJECTNAME%\obj\x64\Debug\%RESULTFILENAME%
+if exist .\%PROJECTNAME%\obj\x64\Release\%RESULTFILENAME% del .\%PROJECTNAME%\obj\x64\Release\%RESULTFILENAME%
+".\packages\%OPENCOVER%\tools\OpenCover.Console.exe" -register:user -target:".\packages\%NUINT_CONSOLE%\tools\nunit3-console.exe" -targetargs:".\%PROJECTNAME%\publish\x64\Debug\%PROJECTNAME%.dll --trace=Debug --labels=Before" -filter:"+[PolySerializer*]* -[%PROJECTNAME%*]*" -output:".\%PROJECTNAME%\obj\x64\Debug\%RESULTFILENAME%"
+".\packages\%OPENCOVER%\tools\OpenCover.Console.exe" -register:user -target:".\packages\%NUINT_CONSOLE%\tools\nunit3-console.exe" -targetargs:".\%PROJECTNAME%\publish\x64\Release\%PROJECTNAME%.dll --trace=Debug --labels=Before" -filter:"+[PolySerializer*]* -[%PROJECTNAME%*]*" -output:".\%PROJECTNAME%\obj\x64\Release\%RESULTFILENAME%"
+if exist .\%PROJECTNAME%\obj\x64\Debug\%RESULTFILENAME% .\packages\%CODECOV%\tools\codecov -f ".\%PROJECTNAME%\obj\x64\Debug\%RESULTFILENAME%" -t %POLYSERIALIZER_CODECOV_TOKEN%
+if exist .\%PROJECTNAME%\obj\x64\Release\%RESULTFILENAME% .\packages\%CODECOV%\tools\codecov -f ".\%PROJECTNAME%\obj\x64\Release\%RESULTFILENAME%" -t %POLYSERIALIZER_CODECOV_TOKEN%
 goto end
 
 :error_console1
@@ -31,7 +42,7 @@ echo ERROR: nunit3-console not found.
 goto end
 
 :error_not_built
-echo ERROR: Test-PolySerializer.dll not built (both Debug and Release are required).
+echo ERROR: %PROJECTNAME%.dll not built (both Debug and Release are required).
 goto end
 
 :end
