@@ -44,7 +44,7 @@ deploy:
   provider: GitHub
   auth_token:
     secure: dUpQSnUT5/m88z1BqHNnRjaxxZzz09CmyqFJr/cAyWjqKeLgnKunlIZlEKAXlNIm
-  artifact: *.zip
+  artifact: PolySerializer-Debug,PolySerializer-Release
   draft: true
   prerelease: false
   on:
