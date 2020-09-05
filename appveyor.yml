@@ -24,7 +24,10 @@ before_build:
 build:
   project: ./build_all.xml
 
-#test: off
+test:
+  assemblies:
+    only:
+      - **/Debug/net48/*.dll
 
 artifacts:
   - path: PolySerializer/bin/x64/
