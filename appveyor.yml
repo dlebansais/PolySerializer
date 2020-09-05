@@ -37,7 +37,7 @@ artifacts:
     name: PolySerializer
 
 deploy:
-  release: %APPVEYOR_BUILD_VERSION%-%APPVEYOR_JOB_NUMBER%
+  release: %APPVEYOR_BUILD_VERSION%.%APPVEYOR_JOB_NUMBER%
   description: 'Automatic Deployment'
   provider: GitHub
   auth_token:
@@ -47,5 +47,5 @@ deploy:
   prerelease: false
   on:
     branch: master
-    APPVEYOR_REPO_TAG: false        # deploy on tag push only
+    APPVEYOR_REPO_TAG: true        # deploy on tag push only
 
