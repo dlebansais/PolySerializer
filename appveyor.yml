@@ -38,7 +38,7 @@ artifacts:
 
 deploy:
   release: %APPVEYOR_BUILD_VERSION%-%APPVEYOR_JOB_NUMBER%
-  description: '%APPVEYOR_REPO_COMMIT_MESSAGE%'
+  description: 'Automatic Deployment'
   provider: GitHub
   auth_token:
     secure: dUpQSnUT5/m88z1BqHNnRjaxxZzz09CmyqFJr/cAyWjqKeLgnKunlIZlEKAXlNIm
