@@ -25,9 +25,6 @@ build:
   project: ./PolySerializer.sln
 
 platform: x64
-configuration:
-  - Debug
-  - Release
 
 #test: off
 
@@ -37,11 +34,11 @@ artifacts:
 
 deploy:
   release: '%APPVEYOR_REPO_TAG_NAME%-%CONFIGURATION%'
-  description: '%APPVEYOR_REPO_COMMIT_MESSAGE_EXTENDED%'
+  description: 'APPVEYOR_REPO_COMMIT_MESSAGE'
   provider: GitHub
   auth_token:
     secure: dUpQSnUT5/m88z1BqHNnRjaxxZzz09CmyqFJr/cAyWjqKeLgnKunlIZlEKAXlNIm
-  artifact: PolySerializer-Debug,PolySerializer-Release
+  artifact: PolySerializer
   draft: true
   prerelease: false
   on:
