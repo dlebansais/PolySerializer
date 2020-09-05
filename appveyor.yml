@@ -37,7 +37,6 @@ artifacts:
     name: PolySerializer
 
 deploy:
-#  release: %APPVEYOR_REPO_TAG_NAME%-%APPVEYOR_BUILD_ID%
   release: %APPVEYOR_BUILD_VERSION%-%APPVEYOR_JOB_NUMBER%
   description: '%APPVEYOR_REPO_COMMIT_MESSAGE%'
   provider: GitHub
