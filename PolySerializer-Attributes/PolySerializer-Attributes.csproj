@@ -9,6 +9,7 @@
     <AssemblyName>PolySerializer-Attributes</AssemblyName>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
