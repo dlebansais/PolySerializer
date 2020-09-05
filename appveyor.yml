@@ -27,7 +27,7 @@ build:
 test:
   assemblies:
     only:
-      - **/Debug/net48/*.dll
+      - PolySerializer/bin/x64/Debug/net48/Test-PolySerializer.dll
 
 artifacts:
   - path: PolySerializer/bin/x64/
@@ -44,6 +44,5 @@ deploy:
   prerelease: false
   on:
     branch: master
-    configuration: release
     APPVEYOR_REPO_TAG: true        # deploy on tag push only
 
