@@ -25,6 +25,7 @@ build:
   project: ./PolySerializer.sln
 
 platform: x64
+configuration: Debug;Release
 
 #test: off
 
