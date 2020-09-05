@@ -10,6 +10,7 @@ install:
 
 script:
 - dotnet restore
+- cat ./PolySerializer/obj/project.assets.json
 - msbuild /p:Configuration=Travis PolySerializer.sln
 #- cp ./packages/NUnit.3.8.1/lib/net45/nunit.framework.dll ./PolySerializer/bin/x64/Travis/
 #- cp ./packages/DeepEqual.1.6.0.0/lib/net40/DeepEqual.dll ./PolySerializer/bin/x64/Travis/

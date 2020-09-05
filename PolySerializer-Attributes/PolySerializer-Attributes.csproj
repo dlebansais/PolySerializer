@@ -7,15 +7,16 @@
     <Configurations>Debug;Release;Travis</Configurations>
     <AssemblyName>PolySerializer-Attributes</AssemblyName>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
-    <DocumentationFile>bin\$(Platform)\$(Configuration)\netstandard2.0\PolySerializer-Attributes.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetFramework>netstandard2.0</TargetFramework>
+    <DocumentationFile>bin\$(Platform)\$(Configuration)\netstandard2.0\PolySerializer-Attributes.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetFramework>netstandard2.0</TargetFramework>
+    <DocumentationFile>bin\$(Platform)\$(Configuration)\netstandard2.0\PolySerializer-Attributes.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Travis|x64'">
@@ -25,22 +26,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Exec Command="if exist $(SolutionDir) call &quot;$(SolutionDir)updatecommit.bat&quot; &quot;$(SolutionDir)&quot; &quot;$(TargetPath)&quot;" />
-  </Target>
-
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Exec Command="if exist $(SolutionDir) call &quot;$(SolutionDir)updateversion.bat&quot; &quot;$(SolutionDir)&quot; &quot;$(SolutionPath)&quot;" />
-  </Target>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Exec Command="if exist $(SolutionDir) call &quot;$(SolutionDir)updatecommit.bat&quot; &quot;$(SolutionDir)&quot; &quot;$(TargetPath)&quot;" />
-  </Target>
-
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Exec Command="if exist $(SolutionDir) call &quot;$(SolutionDir)updateversion.bat&quot; &quot;$(SolutionDir)&quot; &quot;$(SolutionPath)&quot;" />
-  </Target>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.0">
@@ -68,5 +53,22 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Exec Command="if exist $(SolutionDir) call &quot;$(SolutionDir)updateversion.bat&quot; &quot;$(SolutionDir)&quot; &quot;$(SolutionPath)&quot;" />
+  </Target>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Exec Command="if exist $(SolutionDir) call &quot;$(SolutionDir)updatecommit.bat&quot; &quot;$(SolutionDir)&quot; &quot;$(TargetPath)&quot;" />
+  </Target>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Exec Command="if exist $(SolutionDir) call &quot;$(SolutionDir)updateversion.bat&quot; &quot;$(SolutionDir)&quot; &quot;$(SolutionPath)&quot;" />
+  </Target>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Exec Command="if exist $(SolutionDir) call &quot;$(SolutionDir)updatecommit.bat&quot; &quot;$(SolutionDir)&quot; &quot;$(TargetPath)&quot;" />
+    <Exec Command="if exist &quot;$(SolutionDir)signfile.bat&quot; call &quot;$(SolutionDir)signfile.bat&quot; &quot;$(SolutionDir)&quot; &quot;$(Configuration)-$(Platform)&quot; &quot;$(TargetPath)&quot;" />
+  </Target>
 
 </Project>

@@ -7,15 +7,16 @@
     <Platforms>x64</Platforms>
     <Configurations>Debug;Release;Travis</Configurations>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
-    <DocumentationFile>bin\$(Platform)\$(Configuration)\netstandard2.0\PolySerializer.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetFramework>netstandard2.0</TargetFramework>
+    <DocumentationFile>bin\$(Platform)\$(Configuration)\netstandard2.0\PolySerializer.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetFramework>netstandard2.0</TargetFramework>
+    <DocumentationFile>bin\$(Platform)\$(Configuration)\netstandard2.0\PolySerializer.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Travis|x64'">
