@@ -9,7 +9,7 @@ install:
 #- nuget install DeepEqual -Version 2.0.0 -OutputDirectory packages
 
 script:
-- dotnet restore
+#- dotnet restore
 #- cat ./PolySerializer/obj/project.assets.json
 - msbuild /p:Configuration=Travis PolySerializer.sln
 #- cp ./packages/NUnit.3.8.1/lib/net45/nunit.framework.dll ./PolySerializer/bin/x64/Travis/
