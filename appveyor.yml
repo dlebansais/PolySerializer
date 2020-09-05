@@ -24,11 +24,6 @@ before_build:
 build:
   project: ./build_all.xml
 
-test:
-  assemblies:
-    only:
-      - PolySerializer/bin/x64/Debug/net48/Test-PolySerializer.dll
-
 artifacts:
   - path: PolySerializer/bin/x64/
     name: PolySerializer
