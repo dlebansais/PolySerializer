@@ -30,7 +30,7 @@ configuration:
   - Release
 
 after_build:
-  - 7z a PolySerializer%APPVEYOR_JOB_NAME%.zip PolySerializer/bin/x64/
+  - 7z a PolySerializer-%CONFIGURATION%.zip PolySerializer/bin/x64/
 
 test: off
 
