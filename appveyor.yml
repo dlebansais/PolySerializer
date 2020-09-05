@@ -35,8 +35,8 @@ after_build:
 test: off
 
 artifacts:
-  - path: PolySerializer.zip
-    name: PolySerializer
+  - path: PolySerializer-%CONFIGURATION%.zip
+    name: PolySerializer-%CONFIGURATION%
 
 deploy:
   release: Placeholder
@@ -49,5 +49,5 @@ deploy:
   prerelease: false
   on:
     branch: master
-    APPVEYOR_REPO_TAG: true        # deploy on tag push only
+    APPVEYOR_REPO_TAG: false        # deploy on tag push only
 
