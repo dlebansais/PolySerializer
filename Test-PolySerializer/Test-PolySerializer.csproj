@@ -5,7 +5,7 @@
     <LangVersion>8.0</LangVersion>
     <RootNamespace>Test</RootNamespace>
     <Platforms>x64</Platforms>
-    <Configurations>Debug;Release;Travis</Configurations>
+    <Configurations>Debug;Release</Configurations>
     <AssemblyName>Test-PolySerializer</AssemblyName>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
   </PropertyGroup>

@@ -6,7 +6,7 @@
     <AssemblyName>PolySerializer</AssemblyName>
     <RootNamespace>PolySerializer</RootNamespace>
     <Platforms>x64</Platforms>
-    <Configurations>Debug;Release;Travis</Configurations>
+    <Configurations>Debug;Release</Configurations>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Version>1.1.0</Version>
