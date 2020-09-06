@@ -3,7 +3,7 @@
     using System;
 
     /// <summary>
-    /// Attribute to enable serialization, or specify how to serialize a member.
+    /// Attribute to enable serialization, or to specify how to serialize a member.
     /// </summary>
     [AttributeUsage(AttributeTargets.All, Inherited = true, AllowMultiple = true)]
     public class SerializableAttribute : Attribute
