@@ -30,7 +30,7 @@ test:
       - Test-PolySerializer/bin/x64/Release/net48/Test-PolySerializer.dll
 
 artifacts:
-  - path: PolySerializer/bin/x64/
+  - path: PolySerializer/bin/
     name: PolySerializer
 
 deploy:
