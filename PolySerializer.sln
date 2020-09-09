@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestDebug", "TestDebug\TestDebug.csproj", "{64480BB1-8A48-4157-AE88-D06BAF7C50FC}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PolySerializer", "PolySerializer\PolySerializer.csproj", "{0BE60CCF-E733-4E0F-B028-C95ABAF7E958}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PolySerializer-Attributes", "PolySerializer-Attributes\PolySerializer-Attributes.csproj", "{0EE126EC-FBE7-47F5-8706-1FE6950956E2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test-PolySerializer", "Test-PolySerializer\Test-PolySerializer.csproj", "{19A4D62D-7B14-452F-AB06-6E233D7BE17E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestDebug", "TestDebug\TestDebug.csproj", "{21C0C06E-07B1-4C87-BAF5-91188ACD802D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,9 +17,6 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Debug|x64.ActiveCfg = Debug|x64
-		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Debug|x64.Build.0 = Debug|x64
-		{64480BB1-8A48-4157-AE88-D06BAF7C50FC}.Release|x64.ActiveCfg = Release|x64
 		{0BE60CCF-E733-4E0F-B028-C95ABAF7E958}.Debug|x64.ActiveCfg = Debug|x64
 		{0BE60CCF-E733-4E0F-B028-C95ABAF7E958}.Debug|x64.Build.0 = Debug|x64
 		{0BE60CCF-E733-4E0F-B028-C95ABAF7E958}.Release|x64.ActiveCfg = Release|x64
@@ -32,6 +29,9 @@ Global
 		{19A4D62D-7B14-452F-AB06-6E233D7BE17E}.Debug|x64.Build.0 = Debug|x64
 		{19A4D62D-7B14-452F-AB06-6E233D7BE17E}.Release|x64.ActiveCfg = Release|x64
 		{19A4D62D-7B14-452F-AB06-6E233D7BE17E}.Release|x64.Build.0 = Release|x64
+		{21C0C06E-07B1-4C87-BAF5-91188ACD802D}.Debug|x64.ActiveCfg = Debug|x64
+		{21C0C06E-07B1-4C87-BAF5-91188ACD802D}.Debug|x64.Build.0 = Debug|x64
+		{21C0C06E-07B1-4C87-BAF5-91188ACD802D}.Release|x64.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

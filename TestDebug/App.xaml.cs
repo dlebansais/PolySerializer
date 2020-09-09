@@ -1,14 +1,15 @@
-﻿using PolySerializer;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-
-namespace TestDebug
+﻿namespace TestDebugFoo
 {
+    using PolySerializer;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Threading.Tasks;
+    using System.Windows;
+
     [System.Serializable]
     public class ParentA
     {
-        [PolySerializer.Serializable(Constructor= "Test0,Test1")]
+        [PolySerializer.Serializable(Constructor = "Test0,Test1")]
         public ParentA(string s0, string s1)
         {
             Test2 = s1;
@@ -21,15 +22,15 @@ namespace TestDebug
         [PolySerializer.Serializable(Condition = "IsAssigned")]
         public string Test2 { get; set; }
 
-        public sbyte  m0;
-        public byte   m1;
-        public short  m2;
+        public sbyte m0;
+        public byte m1;
+        public short m2;
         public ushort m3;
-        public int    m4;
-        public uint   m5;
-        public long   m6;
-        public ulong  m7;
-        public float  m8;
+        public int m4;
+        public uint m5;
+        public long m6;
+        public ulong m7;
+        public float m8;
         public double m9;
         public decimal m10;
         public System.Guid m11;
@@ -38,7 +39,7 @@ namespace TestDebug
         public ParentA m14;
     }
 
-    [Serializable]
+    [System.Serializable]
     public class ParentC
     {
         public void InitInt(int Value)
@@ -66,9 +67,9 @@ namespace TestDebug
     {
     }
 
-    class Program
+    public partial class App : Application
     {
-        static void Main(string[] args)
+        static App()
         {
             TestBasic10(1, 1);
 
@@ -103,6 +104,11 @@ namespace TestDebug
             Serialize(s, parentA0);
             Check(s);
             ParentA parentA1 = Deserialize(s);
+        }
+
+        public App()
+        {
+            Shutdown();
         }
 
         public static void TestBasic10(int mode, int format)
