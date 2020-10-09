@@ -230,7 +230,7 @@
             return Value;
         }
 
-        private object ReadFieldString_TEXT(ref byte[] data, ref int offset)
+        private object? ReadFieldString_TEXT(ref byte[] data, ref int offset)
         {
             string Value;
 
@@ -292,7 +292,7 @@
             return Value;
         }
 
-        private string ReadFieldType_TEXT(ref byte[] data, ref int offset)
+        private string? ReadFieldType_TEXT(ref byte[] data, ref int offset)
         {
             string Value;
 

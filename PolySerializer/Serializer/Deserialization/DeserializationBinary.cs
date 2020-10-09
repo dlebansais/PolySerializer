@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Reflection;
+    using Contracts;
 
     /// <summary>
     ///     Serialize objects to a stream, or deserialize objects from a stream.
@@ -16,10 +17,9 @@
 
             DeserializedObjectList.Clear();
 
-            object Reference;
-            ProcessDeserializable_BINARY(RootType, ref data, ref offset, out Reference);
+            ProcessDeserializable_BINARY(RootType, ref data, ref offset, out object? Reference);
 
-            Root = Reference;
+            Root = Reference!;
 
             if (RootType == null)
                 RootType = Root.GetType();
@@ -39,11 +39,11 @@
             return Root;
         }
 
-        private void Deserialize_BINARY(object reference, Type referenceType, long count, ref byte[] data, ref int offset, IDeserializedObject nextDeserialized)
+        private void Deserialize_BINARY(object reference, Type referenceType, long count, ref byte[] data, ref int offset, IDeserializedObject? nextDeserialized)
         {
             DeserializeCollection_BINARY(reference, referenceType, count, ref data, ref offset);
 
-            Type DeserializedType = SerializableAncestor(referenceType);
+            Type DeserializedType = SerializableAncestor(referenceType) !;
             List<DeserializedMember> DeserializedMembers = ListDeserializedMembers_BINARY(DeserializedType, ref data, ref offset);
 
             foreach (DeserializedMember Member in DeserializedMembers)
@@ -55,31 +55,27 @@
                         continue;
                 }
 
-                object MemberValue;
                 Type MemberType;
 
-                FieldInfo AsFieldInfo;
-                PropertyInfo AsPropertyInfo;
-
-                if ((AsFieldInfo = Member.MemberInfo as FieldInfo) != null)
-                    MemberType = AsFieldInfo.FieldType;
+                if (Member.MemberInfo is FieldInfo AsFieldInfoBefore)
+                    MemberType = AsFieldInfoBefore.FieldType;
                 else
                 {
-                    AsPropertyInfo = Member.MemberInfo as PropertyInfo;
+                    PropertyInfo AsPropertyInfo = (PropertyInfo)Member.MemberInfo;
                     MemberType = AsPropertyInfo.PropertyType;
                 }
 
-                ProcessDeserializable_BINARY(MemberType, ref data, ref offset, out MemberValue);
+                ProcessDeserializable_BINARY(MemberType, ref data, ref offset, out object? MemberValue);
 
-                if ((AsFieldInfo = Member.MemberInfo as FieldInfo) != null)
-                    AsFieldInfo.SetValue(reference, MemberValue);
+                if (Member.MemberInfo is FieldInfo AsFieldInfoAfter)
+                    AsFieldInfoAfter.SetValue(reference, MemberValue);
                 else
                 {
-                    AsPropertyInfo = Member.MemberInfo as PropertyInfo;
+                    PropertyInfo AsPropertyInfo = (PropertyInfo)Member.MemberInfo;
                     if (Member.PropertySetter == null)
                         AsPropertyInfo.SetValue(reference, MemberValue);
                     else
-                        Member.PropertySetter.Invoke(reference, new object[] { MemberValue });
+                        Member.PropertySetter.Invoke(reference, new object?[] { MemberValue });
                 }
             }
 
@@ -91,14 +87,11 @@
         {
             if (count >= 0)
             {
-                IInserter Inserter;
-                Type ItemType;
-                if (IsWriteableCollection(reference, referenceType, out Inserter, out ItemType))
+                if (IsWriteableCollection(reference, referenceType, out IInserter Inserter, out Type ItemType))
                 {
                     for (long i = 0; i < count; i++)
                     {
-                        object Item;
-                        ProcessDeserializable_BINARY(ItemType, ref data, ref offset, out Item);
+                        ProcessDeserializable_BINARY(ItemType, ref data, ref offset, out object? Item);
 
                         Inserter.AddItem(Item);
                     }
@@ -106,12 +99,12 @@
             }
         }
 
-        private delegate object ReadFieldHandler_BINARY(ref byte[] data, ref int offset);
-        private IDictionary<string, ReadFieldHandler_BINARY> ReadFieldHandlerTable_BINARY { get; set; }
+        private delegate object? ReadFieldHandler_BINARY(ref byte[] data, ref int offset);
+        private IDictionary<string, ReadFieldHandler_BINARY> ReadFieldHandlerTable_BINARY { get; set; } = new Dictionary<string, ReadFieldHandler_BINARY>();
 
         private void IniReadFieldHandlerTable_BINARY()
         {
-            if (ReadFieldHandlerTable_BINARY == null)
+            if (ReadFieldHandlerTable_BINARY.Count == 0)
                 ReadFieldHandlerTable_BINARY = new Dictionary<string, ReadFieldHandler_BINARY>()
                 {
                     { nameof(SByte), ReadFieldSByte_BINARY },
@@ -132,11 +125,11 @@
                 };
         }
 
-        private bool DeserializeBasicType_BINARY(Type valueType, ref byte[] data, ref int offset, out object value)
+        private bool DeserializeBasicType_BINARY(Type? valueType, ref byte[] data, ref int offset, out object? value)
         {
             IniReadFieldHandlerTable_BINARY();
 
-            string ValueName = valueType?.Name;
+            string? ValueName = valueType?.Name;
 
             if (ValueName != null && ReadFieldHandlerTable_BINARY.ContainsKey(ValueName))
             {
@@ -191,12 +184,12 @@
             }
         }
 
-        private void ProcessDeserializable_BINARY(Type referenceType, ref byte[] data, ref int offset, out object reference)
+        private void ProcessDeserializable_BINARY(Type? referenceType, ref byte[] data, ref int offset, out object? reference)
         {
             if (DeserializeBasicType_BINARY(referenceType, ref data, ref offset, out reference))
                 return;
 
-            string ReferenceTypeName = ReadFieldType_BINARY(ref data, ref offset);
+            string? ReferenceTypeName = ReadFieldType_BINARY(ref data, ref offset);
             if (ReferenceTypeName == null)
             {
                 reference = null;
@@ -204,16 +197,16 @@
             }
 
             OverrideTypeName(ref ReferenceTypeName);
-            referenceType = Type.GetType(ReferenceTypeName);
-            Type OriginalType = referenceType;
-            OverrideType(ref referenceType);
-            Type NewType = referenceType;
-            referenceType = OriginalType;
+            Type ReferenceType = Type.GetType(ReferenceTypeName) !;
+            Type OriginalType = ReferenceType;
+            OverrideType(ref ReferenceType);
+            Type NewType = ReferenceType;
+            ReferenceType = OriginalType;
 
-            if (referenceType.IsValueType)
+            if (ReferenceType.IsValueType)
             {
                 CreateObject(NewType, out reference);
-                Deserialize_BINARY(reference, referenceType, -1, ref data, ref offset, null);
+                Deserialize_BINARY(reference, ReferenceType, -1, ref data, ref offset, null);
             }
             else
             {
@@ -227,35 +220,34 @@
                 else if (ReferenceTag == ObjectTag.ObjectReference)
                 {
                     CreateObject(NewType, out reference);
-                    AddDeserializedObject(reference, referenceType, -1);
+                    AddDeserializedObject(reference, ReferenceType, -1);
                 }
                 else if (ReferenceTag == ObjectTag.ObjectList)
                 {
                     long Count = ReadFieldCount_BINARY(ref data, ref offset);
 
                     CreateObject(NewType, Count, out reference);
-                    AddDeserializedObject(reference, referenceType, Count);
+                    AddDeserializedObject(reference, ReferenceType, Count);
                 }
                 else if (ReferenceTag == ObjectTag.ConstructedObject)
                 {
                     List<SerializedMember> ConstructorParameters;
-                    if (ListConstructorParameters(referenceType, out ConstructorParameters))
+                    if (ListConstructorParameters(ReferenceType, out ConstructorParameters))
                     {
-                        object[] Parameters = new object[ConstructorParameters.Count];
+                        object?[] Parameters = new object?[ConstructorParameters.Count];
 
                         for (int i = 0; i < ConstructorParameters.Count; i++)
                         {
-                            PropertyInfo AsPropertyInfo = ConstructorParameters[i].MemberInfo as PropertyInfo;
+                            PropertyInfo AsPropertyInfo = (PropertyInfo)ConstructorParameters[i].MemberInfo;
 
-                            object MemberValue;
                             Type MemberType = AsPropertyInfo.PropertyType;
-                            ProcessDeserializable_BINARY(MemberType, ref data, ref offset, out MemberValue);
+                            ProcessDeserializable_BINARY(MemberType, ref data, ref offset, out object? MemberValue);
 
                             Parameters[i] = MemberValue;
                         }
 
                         CreateObject(NewType, Parameters, out reference);
-                        AddDeserializedObject(reference, referenceType, -1);
+                        AddDeserializedObject(reference, ReferenceType, -1);
                     }
                 }
             }
@@ -270,7 +262,7 @@
                 List<string> MemberNames = ReadFieldMembers_BINARY(ref data, ref offset);
                 foreach (string MemberName in MemberNames)
                 {
-                    MemberInfo[] MatchingMembers = deserializedType.GetMember(MemberName);
+                    MemberInfo[] MatchingMembers = deserializedType.GetMember(MemberName) !;
                     DeserializedMember NewMember = new DeserializedMember(MatchingMembers[0]);
 
                     CheckForSerializedCondition(NewMember);

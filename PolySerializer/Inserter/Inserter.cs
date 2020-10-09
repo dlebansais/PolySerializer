@@ -45,6 +45,6 @@
         /// <parameters>
         /// <param name="item">The item to add.</param>
         /// </parameters>
-        void AddItem(object item);
+        void AddItem(object? item);
     }
 }

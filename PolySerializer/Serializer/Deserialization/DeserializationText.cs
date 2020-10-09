@@ -5,6 +5,7 @@
     using System.IO;
     using System.Reflection;
     using System.Text;
+    using Contracts;
 
     /// <summary>
     ///     Serialize objects to a stream, or deserialize objects from a stream.
@@ -41,10 +42,9 @@
 
             DeserializedObjectList.Clear();
 
-            object Reference;
-            ProcessDeserializable_TEXT(RootType, ref data, ref offset, out Reference);
+            ProcessDeserializable_TEXT(RootType, ref data, ref offset, out object? Reference);
 
-            Root = Reference;
+            Root = Reference!;
 
             if (RootType == null)
                 RootType = Root.GetType();
@@ -64,11 +64,11 @@
             return Root;
         }
 
-        private void Deserialize_TEXT(object reference, Type referenceType, long count, ref byte[] data, ref int offset, IDeserializedObject nextDeserialized)
+        private void Deserialize_TEXT(object reference, Type referenceType, long count, ref byte[] data, ref int offset, IDeserializedObject? nextDeserialized)
         {
             DeserializeCollection_TEXT(reference, referenceType, count, ref data, ref offset);
 
-            Type DeserializedType = SerializableAncestor(referenceType);
+            Type DeserializedType = SerializableAncestor(referenceType) !;
             List<DeserializedMember> DeserializedMembers = ListDeserializedMembers_TEXT(DeserializedType, ref data, ref offset);
 
             int MemberIndex = 0;
@@ -87,31 +87,27 @@
                     offset++;
                 }
 
-                object MemberValue;
                 Type MemberType;
 
-                FieldInfo AsFieldInfo;
-                PropertyInfo AsPropertyInfo;
-
-                if ((AsFieldInfo = Member.MemberInfo as FieldInfo) != null)
-                    MemberType = AsFieldInfo.FieldType;
+                if (Member.MemberInfo is FieldInfo AsFieldInfoBefore)
+                    MemberType = AsFieldInfoBefore.FieldType;
                 else
                 {
-                    AsPropertyInfo = Member.MemberInfo as PropertyInfo;
+                    PropertyInfo AsPropertyInfo = (PropertyInfo)Member.MemberInfo;
                     MemberType = AsPropertyInfo.PropertyType;
                 }
 
-                ProcessDeserializable_TEXT(MemberType, ref data, ref offset, out MemberValue);
+                ProcessDeserializable_TEXT(MemberType, ref data, ref offset, out object? MemberValue);
 
-                if ((AsFieldInfo = Member.MemberInfo as FieldInfo) != null)
-                    AsFieldInfo.SetValue(reference, MemberValue);
+                if (Member.MemberInfo is FieldInfo AsFieldInfoAfter)
+                    AsFieldInfoAfter.SetValue(reference, MemberValue);
                 else
                 {
-                    AsPropertyInfo = Member.MemberInfo as PropertyInfo;
+                    PropertyInfo AsPropertyInfo = (PropertyInfo)Member.MemberInfo;
                     if (Member.PropertySetter == null)
                         AsPropertyInfo.SetValue(reference, MemberValue);
                     else
-                        Member.PropertySetter.Invoke(reference, new object[] { MemberValue });
+                        Member.PropertySetter.Invoke(reference, new object?[] { MemberValue });
                 }
             }
 
@@ -132,8 +128,7 @@
                         if (i > 0)
                             ReadSeparator_TEXT(ref data, ref offset);
 
-                        object Item;
-                        ProcessDeserializable_TEXT(ItemType, ref data, ref offset, out Item);
+                        ProcessDeserializable_TEXT(ItemType, ref data, ref offset, out object? Item);
 
                         Inserter.AddItem(Item);
                     }
@@ -141,12 +136,12 @@
             }
         }
 
-        private delegate object ReadFieldHandler_TEXT(ref byte[] data, ref int offset);
-        private IDictionary<string, ReadFieldHandler_TEXT> ReadFieldHandlerTable_TEXT { get; set; }
+        private delegate object? ReadFieldHandler_TEXT(ref byte[] data, ref int offset);
+        private IDictionary<string, ReadFieldHandler_TEXT> ReadFieldHandlerTable_TEXT { get; set; } = new Dictionary<string, ReadFieldHandler_TEXT>();
 
         private void IniReadFieldHandlerTable_TEXT()
         {
-            if (ReadFieldHandlerTable_TEXT == null)
+            if (ReadFieldHandlerTable_TEXT.Count == 0)
                 ReadFieldHandlerTable_TEXT = new Dictionary<string, ReadFieldHandler_TEXT>()
                 {
                     { nameof(SByte), ReadFieldSByte_TEXT },
@@ -167,11 +162,11 @@
                 };
         }
 
-        private bool DeserializeBasicType_TEXT(Type valueType, ref byte[] data, ref int offset, out object value)
+        private bool DeserializeBasicType_TEXT(Type? valueType, ref byte[] data, ref int offset, out object? value)
         {
             IniReadFieldHandlerTable_TEXT();
 
-            string ValueName = valueType?.Name;
+            string? ValueName = valueType?.Name;
 
             if (ValueName != null && ReadFieldHandlerTable_TEXT.ContainsKey(ValueName))
             {
@@ -226,12 +221,12 @@
             }
         }
 
-        private void ProcessDeserializable_TEXT(Type referenceType, ref byte[] data, ref int offset, out object reference)
+        private void ProcessDeserializable_TEXT(Type? referenceType, ref byte[] data, ref int offset, out object? reference)
         {
             if (DeserializeBasicType_TEXT(referenceType, ref data, ref offset, out reference))
                 return;
 
-            string ReferenceTypeName = ReadFieldType_TEXT(ref data, ref offset);
+            string? ReferenceTypeName = ReadFieldType_TEXT(ref data, ref offset);
             if (ReferenceTypeName == null)
             {
                 reference = null;
@@ -239,16 +234,16 @@
             }
 
             OverrideTypeName(ref ReferenceTypeName);
-            referenceType = Type.GetType(ReferenceTypeName);
-            Type OriginalType = referenceType;
-            OverrideType(ref referenceType);
-            Type NewType = referenceType;
-            referenceType = OriginalType;
+            Type ReferenceType = Type.GetType(ReferenceTypeName) !;
+            Type OriginalType = ReferenceType;
+            OverrideType(ref ReferenceType);
+            Type NewType = ReferenceType;
+            ReferenceType = OriginalType;
 
-            if (referenceType.IsValueType)
+            if (ReferenceType.IsValueType)
             {
                 CreateObject(NewType, out reference);
-                Deserialize_TEXT(reference, referenceType, -1, ref data, ref offset, null);
+                Deserialize_TEXT(reference, ReferenceType, -1, ref data, ref offset, null);
             }
             else
             {
@@ -262,32 +257,31 @@
                 else if (ReferenceTag == ObjectTag.ObjectReference)
                 {
                     CreateObject(NewType, out reference);
-                    AddDeserializedObject(reference, referenceType, -1);
+                    AddDeserializedObject(reference, ReferenceType, -1);
                 }
                 else if (ReferenceTag == ObjectTag.ObjectList)
                 {
                     long Count = ReadFieldCount_TEXT(ref data, ref offset);
 
                     CreateObject(NewType, Count, out reference);
-                    AddDeserializedObject(reference, referenceType, Count);
+                    AddDeserializedObject(reference, ReferenceType, Count);
                 }
                 else if (ReferenceTag == ObjectTag.ConstructedObject)
                 {
                     List<SerializedMember> ConstructorParameters;
-                    if (ListConstructorParameters(referenceType, out ConstructorParameters))
+                    if (ListConstructorParameters(ReferenceType, out ConstructorParameters))
                     {
-                        object[] Parameters = new object[ConstructorParameters.Count];
+                        object?[] Parameters = new object?[ConstructorParameters.Count];
 
                         for (int i = 0; i < ConstructorParameters.Count; i++)
                         {
                             if (i > 0)
                                 ReadSeparator_TEXT(ref data, ref offset);
 
-                            PropertyInfo AsPropertyInfo = ConstructorParameters[i].MemberInfo as PropertyInfo;
+                            PropertyInfo AsPropertyInfo = (PropertyInfo)ConstructorParameters[i].MemberInfo;
 
-                            object MemberValue;
                             Type MemberType = AsPropertyInfo.PropertyType;
-                            ProcessDeserializable_TEXT(MemberType, ref data, ref offset, out MemberValue);
+                            ProcessDeserializable_TEXT(MemberType, ref data, ref offset, out object? MemberValue);
 
                             Parameters[i] = MemberValue;
                         }
@@ -295,7 +289,7 @@
                         ReadSeparator_TEXT(ref data, ref offset);
 
                         CreateObject(NewType, Parameters, out reference);
-                        AddDeserializedObject(reference, referenceType, -1);
+                        AddDeserializedObject(reference, ReferenceType, -1);
                     }
                 }
             }

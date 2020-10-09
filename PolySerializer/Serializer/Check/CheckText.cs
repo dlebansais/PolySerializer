@@ -5,6 +5,7 @@
     using System.IO;
     using System.Reflection;
     using System.Text;
+    using Contracts;
 
     /// <summary>
     ///     Serialize objects to a stream, or deserialize objects from a stream.
@@ -66,12 +67,12 @@
             return Success;
         }
 
-        private bool Check_TEXT(Type referenceType, long count, ref byte[] data, ref int offset, ICheckedObject nextChecked)
+        private bool Check_TEXT(Type referenceType, long count, ref byte[] data, ref int offset, ICheckedObject? nextChecked)
         {
             if (!CheckCollection_TEXT(referenceType, count, ref data, ref offset))
                 return false;
 
-            Type CheckedType = SerializableAncestor(referenceType);
+            Type CheckedType = SerializableAncestor(referenceType) !;
             List<DeserializedMember> CheckedMembers = ListDeserializedMembers_TEXT(CheckedType, ref data, ref offset);
 
             int MemberIndex = 0;
@@ -92,14 +93,11 @@
 
                 Type MemberType;
 
-                FieldInfo AsFieldInfo;
-                PropertyInfo AsPropertyInfo;
-
-                if ((AsFieldInfo = Member.MemberInfo as FieldInfo) != null)
+                if (Member.MemberInfo is FieldInfo AsFieldInfo)
                     MemberType = AsFieldInfo.FieldType;
                 else
                 {
-                    AsPropertyInfo = Member.MemberInfo as PropertyInfo;
+                    PropertyInfo AsPropertyInfo = (PropertyInfo)Member.MemberInfo;
                     MemberType = AsPropertyInfo.PropertyType;
                 }
 
@@ -135,11 +133,11 @@
             return true;
         }
 
-        private bool CheckBasicType_TEXT(Type valueType, ref byte[] data, ref int offset)
+        private bool CheckBasicType_TEXT(Type? valueType, ref byte[] data, ref int offset)
         {
             IniReadFieldHandlerTable_TEXT();
 
-            string ValueName = valueType?.Name;
+            string? ValueName = valueType?.Name;
 
             if (ValueName != null && ReadFieldHandlerTable_TEXT.ContainsKey(ValueName))
             {
@@ -191,25 +189,24 @@
             }
         }
 
-        private bool ProcessCheckable_TEXT(Type referenceType, ref byte[] data, ref int offset)
+        private bool ProcessCheckable_TEXT(Type? referenceType, ref byte[] data, ref int offset)
         {
             if (CheckBasicType_TEXT(referenceType, ref data, ref offset))
                 return true;
 
-            string ReferenceTypeName = ReadFieldType_TEXT(ref data, ref offset);
+            string? ReferenceTypeName = ReadFieldType_TEXT(ref data, ref offset);
             if (ReferenceTypeName == null)
                 return true;
 
             OverrideTypeName(ref ReferenceTypeName);
-            referenceType = Type.GetType(ReferenceTypeName);
-            Type OriginalType = referenceType;
-            OverrideType(ref referenceType);
-            Type NewType = referenceType;
-            referenceType = OriginalType;
+            Type ReferenceType = Type.GetType(ReferenceTypeName) !;
+            Type OriginalType = ReferenceType;
+            OverrideType(ref ReferenceType);
+            ReferenceType = OriginalType;
 
-            if (referenceType.IsValueType)
+            if (ReferenceType.IsValueType)
             {
-                if (!Check_TEXT(referenceType, -1, ref data, ref offset, null))
+                if (!Check_TEXT(ReferenceType, -1, ref data, ref offset, null))
                     return false;
             }
             else
@@ -222,24 +219,24 @@
                 }
                 else if (ReferenceTag == ObjectTag.ObjectReference)
                 {
-                    AddCheckedObject(referenceType, -1);
+                    AddCheckedObject(ReferenceType, -1);
                 }
                 else if (ReferenceTag == ObjectTag.ObjectList)
                 {
                     long Count = ReadFieldCount_TEXT(ref data, ref offset);
-                    AddCheckedObject(referenceType, Count);
+                    AddCheckedObject(ReferenceType, Count);
                 }
                 else if (ReferenceTag == ObjectTag.ConstructedObject)
                 {
                     List<SerializedMember> ConstructorParameters;
-                    if (ListConstructorParameters(referenceType, out ConstructorParameters))
+                    if (ListConstructorParameters(ReferenceType, out ConstructorParameters))
                     {
                         for (int i = 0; i < ConstructorParameters.Count; i++)
                         {
                             if (i > 0)
                                 ReadSeparator_TEXT(ref data, ref offset);
 
-                            PropertyInfo AsPropertyInfo = ConstructorParameters[i].MemberInfo as PropertyInfo;
+                            PropertyInfo AsPropertyInfo = (PropertyInfo)ConstructorParameters[i].MemberInfo;
 
                             Type MemberType = AsPropertyInfo.PropertyType;
                             if (!ProcessCheckable_TEXT(MemberType, ref data, ref offset))
@@ -248,7 +245,7 @@
 
                         ReadSeparator_TEXT(ref data, ref offset);
 
-                        AddCheckedObject(referenceType, -1);
+                        AddCheckedObject(ReferenceType, -1);
                     }
                 }
             }

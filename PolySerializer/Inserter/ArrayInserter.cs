@@ -1,6 +1,7 @@
 ﻿namespace PolySerializer
 {
     using System;
+    using Contracts;
 
     /// <summary>
     ///     Inserter for arrays.
@@ -15,7 +16,7 @@
         /// <summary>
         ///     Array to which items will be added.
         /// </summary>
-        public Array Reference { get; private set; }
+        public Array Reference { get; private set; } = null !;
 
         /// <summary>
         ///     Index of the slow where the next item will be inserted.
@@ -24,7 +25,7 @@
 
         /// <summary>
         ///     Checks if <paramref name="reference"/> with base type <paramref name="referenceType"/> can be handled by this inserter.
-        ///     If so, the saves the reference for future calls to <see cref="AddItem"/> and returns the type of items for this collection.
+        ///     If so, saves the reference for future calls to <see cref="AddItem"/> and returns the type of items for this collection.
         /// </summary>
         /// <parameters>
         /// <param name="reference">The collection to check.</param>
@@ -36,17 +37,16 @@
         /// </returns>
         public bool TrySetReference(object reference, Type referenceType, out Type itemType)
         {
+            Contract.RequireNotNull(referenceType, out Type ReferenceType);
+
             if (reference is Array AsArray)
             {
-                if (referenceType == null)
-                    throw new ArgumentNullException(nameof(referenceType));
-
                 Reference = AsArray;
-                itemType = referenceType.GetElementType();
+                itemType = ReferenceType.GetElementType() !;
                 return true;
             }
 
-            itemType = null;
+            Contract.Unused(out itemType);
             return false;
         }
 
@@ -63,16 +63,15 @@
         /// </returns>
         public bool TryMatchType(Type referenceType, out Type itemType)
         {
-            if (referenceType == null)
-                throw new ArgumentNullException(nameof(referenceType));
+            Contract.RequireNotNull(referenceType, out Type ReferenceType);
 
-            if (referenceType.IsArray)
+            if (ReferenceType.IsArray)
             {
-                itemType = referenceType.GetElementType();
+                itemType = ReferenceType.GetElementType() !;
                 return true;
             }
 
-            itemType = null;
+            Contract.Unused(out itemType);
             return false;
         }
 
@@ -82,7 +81,7 @@
         /// <parameters>
         /// <param name="item">The item to add.</param>
         /// </parameters>
-        public void AddItem(object item)
+        public void AddItem(object? item)
         {
             Reference.SetValue(item, Index++);
         }

@@ -8,6 +8,7 @@
     using System.IO;
     using System.Reflection;
     using System.Threading.Tasks;
+    using Contracts;
 
     #region Interface
     /// <summary>
@@ -93,23 +94,23 @@
         /// <summary>
         ///     The output stream on which serialized data has been written to in <see cref="Serialize"/>.
         /// </summary>
-        Stream Output { get; }
+        Stream? Output { get; }
 
         /// <summary>
         ///     The object serialized (after a call to <see cref="Serialize"/>) or created (after a call to <see cref="Deserialize"/>).
         /// </summary>
-        object Root { get; }
+        object? Root { get; }
 
         /// <summary>
         ///     The input stream from which deserialized data has been read from in <see cref="Deserialize"/>.
         /// </summary>
-        Stream Input { get; }
+        Stream? Input { get; }
 
         /// <summary>
         ///     Type of the <see cref="Root"/> object after a call to <see cref="Serialize"/>, or type of the object to create in <see cref="Deserialize"/>.
         ///     If null, <see cref="Deserialize"/> finds the type to use from the serialized data. If not null, the serialized data must be compatible with this type or <see cref="Deserialize"/> will throw an exception.
         /// </summary>
-        Type RootType { get; set; }
+        Type? RootType { get; set; }
 
         /// <summary>
         ///     The serialization or deserialization progress as a number between 0 and 1.
@@ -172,23 +173,23 @@
         /// <summary>
         ///     The output stream on which serialized data has been written to in <see cref="Serialize"/>.
         /// </summary>
-        public Stream Output { get; private set; }
+        public Stream? Output { get; private set; }
 
         /// <summary>
         ///     The object serialized (after a call to <see cref="Serialize"/>) or created (after a call to <see cref="Deserialize"/>).
         /// </summary>
-        public object Root { get; private set; }
+        public object? Root { get; private set; }
 
         /// <summary>
         ///     The input stream from which deserialized data has been read from in <see cref="Deserialize"/>.
         /// </summary>
-        public Stream Input { get; private set; }
+        public Stream? Input { get; private set; }
 
         /// <summary>
         ///     Type of the <see cref="Root"/> object after a call to <see cref="Serialize"/>, or type of the object to create in <see cref="Deserialize"/>.
         ///     If null, <see cref="Deserialize"/> finds the type to use from the serialized data. If not null, the serialized data must be compatible with this type or <see cref="Deserialize"/> will throw an exception.
         /// </summary>
-        public Type RootType { get; set; }
+        public Type? RootType { get; set; }
 
         /// <summary>
         /// Sets or gets a list of assemblies that can override the original assembly of a type during deserialization.
@@ -251,9 +252,9 @@
         /// <returns>
         ///     The first ancestor type that can be serialized, null if none. If null is returned, <paramref name="referenceType"/> cannot be serialized.
         /// </returns>
-        public static Type SerializableAncestor(Type referenceType)
+        public static Type? SerializableAncestor(Type referenceType)
         {
-            Type t = referenceType;
+            Type? t = referenceType;
 
             while (t != null && !t.Attributes.HasFlag(TypeAttributes.Serializable) && t.GetCustomAttribute(typeof(PolySerializer.SerializableAttribute)) == null)
                 t = t.BaseType;
@@ -274,15 +275,14 @@
         /// </returns>
         public static bool IsReadableCollection(Type referenceType, object reference, out IEnumerator enumerator)
         {
-            if (referenceType == null)
-                throw new ArgumentNullException(nameof(referenceType));
+            Contract.RequireNotNull(referenceType, out Type ReferenceType);
 
-            Type CurrentType;
+            Type? CurrentType;
 
-            if (referenceType.IsGenericType)
-                CurrentType = referenceType.GetGenericTypeDefinition();
+            if (ReferenceType.IsGenericType)
+                CurrentType = ReferenceType.GetGenericTypeDefinition();
             else
-                CurrentType = referenceType;
+                CurrentType = ReferenceType;
 
             while (CurrentType != null)
             {
@@ -290,14 +290,14 @@
                 foreach (Type Interface in Interfaces)
                     if (Interface == typeof(IEnumerable))
                     {
-                        enumerator = Interface.InvokeMember("GetEnumerator", BindingFlags.Public, null, reference, null, CultureInfo.InvariantCulture) as IEnumerator;
+                        enumerator = (IEnumerator)Interface.InvokeMember("GetEnumerator", BindingFlags.Public, null, reference, null, CultureInfo.InvariantCulture) !;
                         return true;
                     }
 
                 CurrentType = CurrentType.BaseType;
             }
 
-            enumerator = null;
+            Contract.Unused(out enumerator);
             return false;
         }
 
@@ -337,8 +337,8 @@
                 }
             }
 
-            inserter = null;
-            itemType = null;
+            Contract.Unused(out inserter);
+            Contract.Unused(out itemType);
             return false;
         }
 
@@ -377,8 +377,8 @@
                 }
             }
 
-            inserter = null;
-            itemType = null;
+            Contract.Unused(out inserter);
+            Contract.Unused(out itemType);
             return false;
         }
         #endregion
@@ -396,24 +396,24 @@
 
         private static bool IsSerializableConstructor(ConstructorInfo constructor, Type serializedType, out List<SerializedMember> constructorParameters)
         {
-            SerializableAttribute CustomAttribute = constructor.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
+            SerializableAttribute? CustomAttribute = constructor.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
             if (CustomAttribute == null)
             {
-                constructorParameters = null;
+                Contract.Unused(out constructorParameters);
                 return false;
             }
 
-            if (CustomAttribute.Constructor == null)
+            if (CustomAttribute.ConstructorX.Length == 0)
             {
-                constructorParameters = null;
+                Contract.Unused(out constructorParameters);
                 return false;
             }
 
-            string[] Properties = CustomAttribute.Constructor.Split(',');
+            string[] Properties = CustomAttribute.ConstructorX.Split(',');
             ParameterInfo[] Parameters = constructor.GetParameters();
             if (Properties.Length == 0 || Properties.Length != Parameters.Length)
             {
-                constructorParameters = null;
+                Contract.Unused(out constructorParameters);
                 return false;
             }
 
@@ -460,8 +460,7 @@
 
         private static bool IsStaticOrReadOnly(MemberInfo memberInfo)
         {
-            FieldInfo AsFieldInfo;
-            if ((AsFieldInfo = memberInfo as FieldInfo) != null)
+            if (memberInfo is FieldInfo AsFieldInfo)
             {
                 if (AsFieldInfo.Attributes.HasFlag(FieldAttributes.Static) || AsFieldInfo.Attributes.HasFlag(FieldAttributes.InitOnly))
                     return true;
@@ -472,10 +471,9 @@
 
         private static bool IsExcludedFromSerialization(SerializedMember newMember)
         {
-            SerializableAttribute CustomSerializable = newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
-            if (CustomSerializable != null)
+            if (newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) is SerializableAttribute CustomSerializable)
             {
-                if (CustomSerializable.Exclude)
+                if (CustomSerializable.ExcludeX)
                     return true;
             }
 
@@ -484,8 +482,7 @@
 
         private static bool IsReadOnlyPropertyWithNoSetter(SerializedMember newMember)
         {
-            PropertyInfo AsPropertyInfo;
-            if ((AsPropertyInfo = newMember.MemberInfo as PropertyInfo) != null)
+            if (newMember.MemberInfo is PropertyInfo AsPropertyInfo)
             {
                 if (AsPropertyInfo.CanWrite)
                 {
@@ -498,10 +495,9 @@
             else
                 return false;
 
-            SerializableAttribute CustomSerializable = newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
-            if (CustomSerializable != null)
+            if (newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) is SerializableAttribute CustomSerializable)
             {
-                if (CustomSerializable.Setter != null)
+                if (CustomSerializable.SetterX.Length > 0)
                     return false;
             }
 
@@ -510,8 +506,7 @@
 
         private static bool IsExcludedIndexer(SerializedMember newMember)
         {
-            SerializableAttribute CustomSerializable = newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
-            if (CustomSerializable != null)
+            if (newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) is SerializableAttribute CustomSerializable)
                 return false;
 
             if (newMember.MemberInfo.Name == "Item" && newMember.MemberInfo.MemberType == MemberTypes.Property)
@@ -522,28 +517,24 @@
 
         private static void CheckSerializationCondition(object reference, Type serializedType, SerializedMember newMember)
         {
-            SerializableAttribute CustomSerializable = newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
-            if (CustomSerializable != null)
+            if (newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) is SerializableAttribute CustomSerializable)
             {
-                if (CustomSerializable.Condition != null)
+                if (CustomSerializable.ConditionX.Length > 0)
                 {
-                    MemberInfo[] ConditionMembers = serializedType.GetMember(CustomSerializable.Condition);
+                    MemberInfo[] ConditionMembers = serializedType.GetMember(CustomSerializable.ConditionX);
                     if (ConditionMembers != null)
                     {
                         foreach (MemberInfo ConditionMember in ConditionMembers)
                         {
-                            FieldInfo AsFieldInfo;
-                            PropertyInfo AsPropertyInfo;
-
-                            if ((AsFieldInfo = ConditionMember as FieldInfo) != null)
+                            if (ConditionMember is FieldInfo AsFieldInfo)
                             {
                                 if (AsFieldInfo.FieldType == typeof(bool))
-                                    newMember.SetCondition((bool)AsFieldInfo.GetValue(reference));
+                                    newMember.SetCondition((bool)AsFieldInfo.GetValue(reference) !);
                             }
-                            else if ((AsPropertyInfo = ConditionMember as PropertyInfo) != null)
+                            else if (ConditionMember is PropertyInfo AsPropertyInfo)
                             {
                                 if (AsPropertyInfo.PropertyType == typeof(bool))
-                                    newMember.SetCondition((bool)AsPropertyInfo.GetValue(reference));
+                                    newMember.SetCondition((bool)AsPropertyInfo.GetValue(reference) !);
                             }
                         }
                     }
@@ -559,7 +550,7 @@
                 if (IsSerializableConstructor(Constructor, serializedType, out constructorParameters))
                     return true;
 
-            constructorParameters = null;
+            Contract.Unused(out constructorParameters);
             return false;
         }
         #endregion

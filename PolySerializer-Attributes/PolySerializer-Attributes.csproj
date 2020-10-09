@@ -3,13 +3,18 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1;netcoreapp3.1</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
-    <RootNamespace>PolySerializer</RootNamespace>
+    <Nullable>enable</Nullable>
     <Platforms>x64</Platforms>
+    <RootNamespace>PolySerializer</RootNamespace>
     <Configurations>Debug;Release</Configurations>
     <AssemblyName>PolySerializer-Attributes</AssemblyName>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Version>1.1.0</Version>
+    <AssemblyVersion>1.1.0.150</AssemblyVersion>
+    <FileVersion>1.1.0.150</FileVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/dlebansais/Contracts</RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

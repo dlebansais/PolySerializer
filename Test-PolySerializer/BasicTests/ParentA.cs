@@ -5,6 +5,6 @@ namespace Test
     [Serializable]
     public class ParentA
     {
-        public string Test;
+        public string? Test;
     }
 }

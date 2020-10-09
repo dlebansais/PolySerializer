@@ -2,6 +2,7 @@
 {
     using System;
     using System.Reflection;
+    using Contracts;
 
     /// <summary>
     ///     Inserter for any class that supports the Add() method.
@@ -16,12 +17,12 @@
         /// <summary>
         ///     List to which items will be added.
         /// </summary>
-        public object Reference { get; private set; }
+        public object Reference { get; private set; } = null!;
 
         /// <summary>
         ///     Method of the class called to add an item.
         /// </summary>
-        public MethodInfo AddMethod { get; private set; }
+        public MethodInfo AddMethod { get; private set; } = null!;
 
         /// <summary>
         ///     Checks if <paramref name="reference"/> with base type <paramref name="referenceType"/> can be handled by this inserter.
@@ -37,16 +38,15 @@
         /// </returns>
         public bool TrySetReference(object reference, Type referenceType, out Type itemType)
         {
-            if (referenceType == null)
-                throw new ArgumentNullException(nameof(referenceType));
+            Contract.RequireNotNull(referenceType, out Type ReferenceType);
 
-            Type[] GenericArguments = referenceType.GetGenericArguments();
+            Type[] GenericArguments = ReferenceType.GetGenericArguments();
             if (GenericArguments.Length > 0)
             {
                 Type GenericArgument = GenericArguments[0];
-                MethodInfo SelectedAddMethod = null;
+                MethodInfo? SelectedAddMethod = null;
 
-                MethodInfo[] MethodInfos = referenceType.GetMethods();
+                MethodInfo[] MethodInfos = ReferenceType.GetMethods();
                 foreach (MethodInfo MethodInfo in MethodInfos)
                     if (MethodInfo.Name == "Add")
                     {
@@ -71,7 +71,7 @@
                 }
             }
 
-            itemType = null;
+            Contract.Unused(out itemType);
             return false;
         }
 
@@ -88,16 +88,15 @@
         /// </returns>
         public bool TryMatchType(Type referenceType, out Type itemType)
         {
-            if (referenceType == null)
-                throw new ArgumentNullException(nameof(referenceType));
+            Contract.RequireNotNull(referenceType, out Type ReferenceType);
 
-            Type[] GenericArguments = referenceType.GetGenericArguments();
+            Type[] GenericArguments = ReferenceType.GetGenericArguments();
             if (GenericArguments.Length > 0)
             {
                 Type GenericArgument = GenericArguments[0];
-                MethodInfo SelectedAddMethod = null;
+                MethodInfo? SelectedAddMethod = null;
 
-                MethodInfo[] MethodInfos = referenceType.GetMethods();
+                MethodInfo[] MethodInfos = ReferenceType.GetMethods();
                 foreach (MethodInfo MethodInfo in MethodInfos)
                     if (MethodInfo.Name == "Add")
                     {
@@ -121,7 +120,7 @@
                 }
             }
 
-            itemType = null;
+            Contract.Unused(out itemType);
             return false;
         }
 
@@ -131,9 +130,9 @@
         /// <parameters>
         /// <param name="item">The item to add.</param>
         /// </parameters>
-        public void AddItem(object item)
+        public void AddItem(object? item)
         {
-            AddMethod.Invoke(Reference, new object[] { item });
+            AddMethod.Invoke(Reference, new object?[] { item });
         }
     }
 }

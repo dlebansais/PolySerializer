@@ -3,6 +3,7 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using Contracts;
 
     /// <summary>
     ///     Inserter for lists.
@@ -17,7 +18,7 @@
         /// <summary>
         ///     List to which items will be added.
         /// </summary>
-        public IList Reference { get; private set; }
+        public IList Reference { get; private set; } = null!;
 
         /// <summary>
         ///     Checks if <paramref name="reference"/> with base type <paramref name="referenceType"/> can be handled by this inserter.
@@ -33,12 +34,11 @@
         /// </returns>
         public bool TrySetReference(object reference, Type referenceType, out Type itemType)
         {
+            Contract.RequireNotNull(referenceType, out Type ReferenceType);
+
             if (reference is IList AsIList)
             {
-                if (referenceType == null)
-                    throw new ArgumentNullException(nameof(referenceType));
-
-                foreach (Type Interface in referenceType.GetInterfaces())
+                foreach (Type Interface in ReferenceType.GetInterfaces())
                 {
                     if (Interface.IsGenericType)
                         if (Interface.GetGenericTypeDefinition() == typeof(IList<>))
@@ -56,7 +56,7 @@
                 }
             }
 
-            itemType = null;
+            Contract.Unused(out itemType);
             return false;
         }
 
@@ -73,10 +73,9 @@
         /// </returns>
         public bool TryMatchType(Type referenceType, out Type itemType)
         {
-            if (referenceType == null)
-                throw new ArgumentNullException(nameof(referenceType));
+            Contract.RequireNotNull(referenceType, out Type ReferenceType);
 
-            foreach (Type Interface in referenceType.GetInterfaces())
+            foreach (Type Interface in ReferenceType.GetInterfaces())
             {
                 if (Interface.IsGenericType)
                     if (Interface.GetGenericTypeDefinition() == typeof(IList<>))
@@ -92,7 +91,7 @@
                     }
             }
 
-            itemType = null;
+            Contract.Unused(out itemType);
             return false;
         }
 
@@ -102,7 +101,7 @@
         /// <parameters>
         /// <param name="item">The item to add.</param>
         /// </parameters>
-        public void AddItem(object item)
+        public void AddItem(object? item)
         {
             Reference.Add(item);
         }

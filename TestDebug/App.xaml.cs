@@ -9,7 +9,7 @@
     [System.Serializable]
     public class ParentA
     {
-        [PolySerializer.Serializable(Constructor = "Test0,Test1")]
+        [PolySerializer.Serializable(ConstructorX = "Test0,Test1")]
         public ParentA(string s0, string s1)
         {
             Test2 = s1;
@@ -19,7 +19,7 @@
         public string Test0 { get; set; }
         public string Test1 { get; set; }
 
-        [PolySerializer.Serializable(Condition = "IsAssigned")]
+        [PolySerializer.Serializable(ConditionX = "IsAssigned")]
         public string Test2 { get; set; }
 
         public sbyte m0;

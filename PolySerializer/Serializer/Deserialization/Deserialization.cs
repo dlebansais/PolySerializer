@@ -73,7 +73,7 @@
                 return INTERNAL_Deserialize_BINARY(ref Data, ref Offset);
         }
 
-        private void ReadStringField(ref byte[] data, ref int offset, out string value)
+        private void ReadStringField(ref byte[] data, ref int offset, out string? value)
         {
             ReadField(ref data, ref offset, CountByteSize);
             int CharCount = BitConverter.ToInt32(data, offset);
@@ -91,32 +91,32 @@
 
         private static void CreateObject(Type referenceType, out object reference)
         {
-            reference = Activator.CreateInstance(referenceType);
+            reference = Activator.CreateInstance(referenceType) !;
         }
 
-        private static void CreateObject(Type referenceType, object[] parameters, out object reference)
+        private static void CreateObject(Type referenceType, object?[] parameters, out object reference)
         {
-            reference = Activator.CreateInstance(referenceType, parameters);
+            reference = Activator.CreateInstance(referenceType, parameters) !;
         }
 
         private static void CreateObject(Type valueType, long count, out object reference)
         {
             if (valueType.IsArray)
             {
-                Type ArrayType = valueType.GetElementType();
-                reference = Array.CreateInstance(ArrayType, count);
+                Type ArrayType = valueType.GetElementType() !;
+                reference = Array.CreateInstance(ArrayType, count) !;
             }
             else if (count < int.MaxValue)
             {
-                reference = Activator.CreateInstance(valueType, (int)count);
+                reference = Activator.CreateInstance(valueType, (int)count) !;
             }
             else
-                reference = Activator.CreateInstance(valueType, count);
+                reference = Activator.CreateInstance(valueType, count) !;
         }
 
         private static Type DeserializedTrueType(string typeName)
         {
-            return Type.GetType(typeName);
+            return Type.GetType(typeName) !;
         }
 
         private bool OverrideTypeName(ref string referenceTypeName)
@@ -167,9 +167,9 @@
                         Assembly = AssemblyOverrideTable[Assembly];
 
                         GlobalOverride = true;
-                        Type = Assembly.GetType(Type.FullName);
-                        if (Type != null)
-                            TypeList[i] = Type;
+                        Type? UpdatedType = Assembly.GetType(Type.FullName!);
+                        if (UpdatedType != null)
+                            TypeList[i] = UpdatedType;
                     }
                 }
 
@@ -275,10 +275,9 @@
 
         private static bool IsExcludedFromDeserialization(DeserializedMember newMember)
         {
-            SerializableAttribute CustomSerializable = newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
-            if (CustomSerializable != null)
+            if (newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) is SerializableAttribute CustomSerializable)
             {
-                if (CustomSerializable.Exclude)
+                if (CustomSerializable.ExcludeX)
                     return true;
             }
 
@@ -287,8 +286,7 @@
 
         private static bool IsReadOnlyPropertyWithNoValidSetter(Type deserializedType, DeserializedMember newMember)
         {
-            PropertyInfo AsPropertyInfo;
-            if ((AsPropertyInfo = newMember.MemberInfo as PropertyInfo) != null)
+            if (newMember.MemberInfo is PropertyInfo AsPropertyInfo)
             {
                 if (AsPropertyInfo.CanWrite)
                 {
@@ -298,21 +296,18 @@
                         return false;
                 }
 
-                SerializableAttribute CustomSerializable = newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
-                if (CustomSerializable != null)
+                if (newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) is SerializableAttribute CustomSerializable)
                 {
-                    if (CustomSerializable.Setter != null)
+                    if (CustomSerializable.SetterX.Length > 0)
                     {
-                        MemberInfo[] SetterMembers = deserializedType.GetMember(CustomSerializable.Setter);
+                        MemberInfo[] SetterMembers = deserializedType.GetMember(CustomSerializable.SetterX);
                         if (SetterMembers != null)
                         {
                             Type ExpectedParameterType = AsPropertyInfo.PropertyType;
 
                             foreach (MemberInfo SetterMember in SetterMembers)
                             {
-                                MethodInfo AsMethodInfo;
-
-                                if ((AsMethodInfo = SetterMember as MethodInfo) != null)
+                                if (SetterMember is MethodInfo AsMethodInfo)
                                 {
                                     ParameterInfo[] Parameters = AsMethodInfo.GetParameters();
                                     if (Parameters != null && Parameters.Length == 1)
@@ -338,8 +333,7 @@
 
         private static bool IsExcludedIndexer(DeserializedMember newMember)
         {
-            SerializableAttribute CustomSerializable = newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
-            if (CustomSerializable != null)
+            if (newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) is SerializableAttribute CustomSerializable)
                 return false;
 
             if (newMember.MemberInfo.Name == "Item" && newMember.MemberInfo.MemberType == MemberTypes.Property)
@@ -350,10 +344,9 @@
 
         private static void CheckForSerializedCondition(DeserializedMember newMember)
         {
-            SerializableAttribute CustomSerializable = newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
-            if (CustomSerializable != null)
+            if (newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) is SerializableAttribute CustomSerializable)
             {
-                if (CustomSerializable.Condition != null)
+                if (CustomSerializable.ConditionX.Length > 0)
                     newMember.SetHasCondition();
             }
         }
@@ -361,6 +354,7 @@
         private void ReadField(ref byte[] data, ref int offset, int minLength)
         {
             bool Reload = false;
+            Stream InputStream = Input !;
 
             if (offset + minLength > data.Length)
             {
@@ -376,11 +370,11 @@
 
             if (Reload)
             {
-                long Length = Input.Length - Input.Position;
+                long Length = InputStream.Length - InputStream.Position;
                 if (Length > data.Length - offset)
                     Length = data.Length - offset;
 
-                Input.Read(data, offset, (int)Length);
+                InputStream.Read(data, offset, (int)Length);
                 offset = 0;
             }
         }

@@ -3,13 +3,23 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1;netcoreapp3.1</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <Platforms>x64</Platforms>
     <AssemblyName>PolySerializer</AssemblyName>
     <RootNamespace>PolySerializer</RootNamespace>
-    <Platforms>x64</Platforms>
     <Configurations>Debug;Release</Configurations>
-    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Version>1.1.0</Version>
+    <Version>1.2.3</Version>
+    <Authors>David Le Bansais</Authors>
+    <Company />
+    <Product />
+    <Description>A generic .NET serializer for object exchange between assemblies</Description>
+    <Copyright>Copyright © 2019 David Le Bansais</Copyright>
+    <AssemblyVersion>1.2.3.150</AssemblyVersion>
+    <FileVersion>1.2.3.150</FileVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/dlebansais/PolySerializer</RepositoryUrl>
+    <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -17,6 +27,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Contracts" Version="1.0.3" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

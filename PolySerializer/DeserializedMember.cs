@@ -14,7 +14,7 @@
         #region Properties
         public MemberInfo MemberInfo { get; private set; }
         public bool HasCondition { get; private set; }
-        public MethodInfo PropertySetter { get; private set; }
+        public MethodInfo? PropertySetter { get; private set; }
         #endregion
 
         #region Client Interface

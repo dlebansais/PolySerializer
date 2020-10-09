@@ -157,12 +157,11 @@
             return Value;
         }
 
-        private object ReadFieldString_BINARY(ref byte[] data, ref int offset)
+        private object? ReadFieldString_BINARY(ref byte[] data, ref int offset)
         {
-            string Value;
+            string? Value;
 
-            string StringValue;
-            ReadStringField(ref data, ref offset, out StringValue);
+            ReadStringField(ref data, ref offset, out string? StringValue);
             Value = StringValue;
 
             return Value;
@@ -180,12 +179,12 @@
             return Value;
         }
 
-        private string ReadFieldType_BINARY(ref byte[] data, ref int offset)
+        private string? ReadFieldType_BINARY(ref byte[] data, ref int offset)
         {
-            string Value;
+            string? Value;
 
-            ReadStringField(ref data, ref offset, out string AsString);
-            Value = AsString;
+            ReadStringField(ref data, ref offset, out string? StringValue);
+            Value = StringValue;
 
             return Value;
         }
@@ -200,9 +199,8 @@
 
             for (int i = 0; i < MemberCount; i++)
             {
-                string MemberName;
-                ReadStringField(ref data, ref offset, out MemberName);
-                MemberNames.Add(MemberName);
+                ReadStringField(ref data, ref offset, out string? MemberName);
+                MemberNames.Add(MemberName!);
             }
 
             return MemberNames;

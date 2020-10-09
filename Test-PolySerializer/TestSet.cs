@@ -1,15 +1,15 @@
-﻿using PolySerializer;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Reflection;
-using System.Threading;
-using System.IO;
-using DeepEqual.Syntax;
-
-namespace Test
+﻿namespace Test
 {
+    using PolySerializer;
+    using NUnit.Framework;
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.Reflection;
+    using System.Threading;
+    using System.IO;
+    using DeepEqual.Syntax;
+
     [TestFixture]
     public class TestSet
     {
@@ -22,7 +22,7 @@ namespace Test
             Thread.CurrentThread.CurrentCulture = enUS;
             Thread.CurrentThread.CurrentUICulture = enUS;
 
-            Assembly PolySerializerAssembly;
+            Assembly? PolySerializerAssembly;
 
             try
             {
@@ -68,7 +68,7 @@ namespace Test
                 Assert.That(s.Check(fs), "Basic check");
             }
 
-            ParentA parentA1;
+            ParentA? parentA1;
 
             using (FileStream fs = new FileStream("test.log", FileMode.Open, FileAccess.Read))
             {
@@ -110,7 +110,7 @@ namespace Test
                 Assert.That(s.Check(fs), "Basic check of parent");
             }
 
-            ChildAA childAA1;
+            ChildAA? childAA1;
 
             using (FileStream fs = new FileStream("test.log", FileMode.Open, FileAccess.Read))
             {
@@ -154,7 +154,7 @@ namespace Test
                 Assert.That(s.Check(fs), "Basic polymorphic check");
             }
 
-            ChildAB childAB;
+            ChildAB? childAB;
             using (FileStream fs = new FileStream("test.log", FileMode.Open, FileAccess.Read))
             {
                 childAB = s.Deserialize(fs) as ChildAB;
@@ -197,7 +197,7 @@ namespace Test
                 Assert.That(s.Check(fs), "Basic polymorphic check child to parent");
             }
 
-            ParentA parentA;
+            ParentA? parentA;
             using (FileStream fs = new FileStream("test.log", FileMode.Open, FileAccess.Read))
             {
                 parentA = s.Deserialize(fs) as ParentA;
@@ -240,7 +240,7 @@ namespace Test
                 Assert.That(s.Check(fs), "Basic polymorphic check parent to child");
             }
 
-            ChildAA childAA;
+            ChildAA? childAA;
             using (FileStream fs = new FileStream("test.log", FileMode.Open, FileAccess.Read))
             {
                 childAA = s.Deserialize(fs) as ChildAA;
@@ -281,7 +281,7 @@ namespace Test
                 Assert.That(s.Check(fs), "Basic deep check of parent");
             }
 
-            GrandChildAA grandChildAA1;
+            GrandChildAA? grandChildAA1;
             using (FileStream fs = new FileStream("test.log", FileMode.Open, FileAccess.Read))
             {
                 grandChildAA1 = s.Deserialize(fs) as GrandChildAA;
@@ -324,7 +324,7 @@ namespace Test
                 Assert.That(s.Check(fs), "Basic deep polymorphic check");
             }
 
-            GrandChildAB grandChildAB;
+            GrandChildAB? grandChildAB;
             using (FileStream fs = new FileStream("test.log", FileMode.Open, FileAccess.Read))
             {
                 grandChildAB = s.Deserialize(fs) as GrandChildAB;
@@ -367,7 +367,7 @@ namespace Test
                 Assert.That(s.Check(fs), "Basic deep polymorphic check child to parent");
             }
 
-            ParentA parentA;
+            ParentA? parentA;
             using (FileStream fs = new FileStream("test.log", FileMode.Open, FileAccess.Read))
             {
                 parentA = s.Deserialize(fs) as ParentA;
@@ -410,7 +410,7 @@ namespace Test
                 Assert.That(s.Check(fs), "Basic deep polymorphic check parent to child");
             }
 
-            GrandChildAA grandChildAA;
+            GrandChildAA? grandChildAA;
             using (FileStream fs = new FileStream("test.log", FileMode.Open, FileAccess.Read))
             {
                 grandChildAA = s.Deserialize(fs) as GrandChildAA;
@@ -451,7 +451,8 @@ namespace Test
                 Assert.That(s.Check(fs), "Basic check of built-in types");
             }
 
-            ParentB parentB1;
+            ParentB? parentB1;
+
             using (FileStream fs = new FileStream("test.log", FileMode.Open, FileAccess.Read))
             {
                 parentB1 = s.Deserialize(fs) as ParentB;
@@ -495,7 +496,8 @@ namespace Test
                 Assert.That(s.Check(fs), "Basic check of readonly properties (check should succeed)");
             }
 
-            ParentC parentC1 = new ParentC();
+            ParentC? parentC1;
+
             using (FileStream fs = new FileStream("test.log", FileMode.Open, FileAccess.Read))
             {
                 parentC1 = s.Deserialize(fs) as ParentC;

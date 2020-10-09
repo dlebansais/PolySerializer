@@ -14,7 +14,7 @@
     internal class CheckedObject : ICheckedObject
     {
         #region Init
-        public CheckedObject(Type checkedType, long count)
+        internal CheckedObject(Type checkedType, long count)
         {
             CheckedType = checkedType;
             Count = count;
@@ -38,7 +38,7 @@
         #region Debugging
         public override string ToString()
         {
-            string Result = CheckedType.FullName;
+            string Result = CheckedType.FullName !;
 
             if (IsChecked)
                 Result += " (Checked)";

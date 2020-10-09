@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Reflection;
+    using Contracts;
 
     /// <summary>
     ///     Serialize objects to a stream, or deserialize objects from a stream.
@@ -41,12 +42,12 @@
             return Success;
         }
 
-        private bool Check_BINARY(Type referenceType, long count, ref byte[] data, ref int offset, ICheckedObject nextChecked)
+        private bool Check_BINARY(Type referenceType, long count, ref byte[] data, ref int offset, ICheckedObject? nextChecked)
         {
             if (!CheckCollection_BINARY(referenceType, count, ref data, ref offset))
                 return false;
 
-            Type CheckedType = SerializableAncestor(referenceType);
+            Type CheckedType = SerializableAncestor(referenceType) !;
             List<DeserializedMember> CheckedMembers = ListDeserializedMembers_BINARY(CheckedType, ref data, ref offset);
 
             foreach (DeserializedMember Member in CheckedMembers)
@@ -60,14 +61,11 @@
 
                 Type MemberType;
 
-                FieldInfo AsFieldInfo;
-                PropertyInfo AsPropertyInfo;
-
-                if ((AsFieldInfo = Member.MemberInfo as FieldInfo) != null)
+                if (Member.MemberInfo is FieldInfo AsFieldInfo)
                     MemberType = AsFieldInfo.FieldType;
                 else
                 {
-                    AsPropertyInfo = Member.MemberInfo as PropertyInfo;
+                    PropertyInfo AsPropertyInfo = (PropertyInfo)Member.MemberInfo;
                     MemberType = AsPropertyInfo.PropertyType;
                 }
 
@@ -100,11 +98,11 @@
             return true;
         }
 
-        private bool CheckBasicType_BINARY(Type valueType, ref byte[] data, ref int offset)
+        private bool CheckBasicType_BINARY(Type? valueType, ref byte[] data, ref int offset)
         {
             IniReadFieldHandlerTable_BINARY();
 
-            string ValueName = valueType?.Name;
+            string? ValueName = valueType?.Name;
 
             if (ValueName != null && ReadFieldHandlerTable_BINARY.ContainsKey(ValueName))
             {
@@ -156,25 +154,24 @@
             }
         }
 
-        private bool ProcessCheckable_BINARY(Type referenceType, ref byte[] data, ref int offset)
+        private bool ProcessCheckable_BINARY(Type? referenceType, ref byte[] data, ref int offset)
         {
             if (CheckBasicType_BINARY(referenceType, ref data, ref offset))
                 return true;
 
-            string ReferenceTypeName = ReadFieldType_BINARY(ref data, ref offset);
+            string? ReferenceTypeName = ReadFieldType_BINARY(ref data, ref offset);
             if (ReferenceTypeName == null)
                 return true;
 
             OverrideTypeName(ref ReferenceTypeName);
-            referenceType = Type.GetType(ReferenceTypeName);
-            Type OriginalType = referenceType;
-            OverrideType(ref referenceType);
-            Type NewType = referenceType;
-            referenceType = OriginalType;
+            Type ReferenceType = Type.GetType(ReferenceTypeName) !;
+            Type OriginalType = ReferenceType;
+            OverrideType(ref ReferenceType);
+            ReferenceType = OriginalType;
 
-            if (referenceType.IsValueType)
+            if (ReferenceType.IsValueType)
             {
-                if (!Check_BINARY(referenceType, -1, ref data, ref offset, null))
+                if (!Check_BINARY(ReferenceType, -1, ref data, ref offset, null))
                     return false;
             }
             else
@@ -187,28 +184,28 @@
                 }
                 else if (ReferenceTag == ObjectTag.ObjectReference)
                 {
-                    AddCheckedObject(referenceType, -1);
+                    AddCheckedObject(ReferenceType, -1);
                 }
                 else if (ReferenceTag == ObjectTag.ObjectList)
                 {
                     long Count = ReadFieldCount_BINARY(ref data, ref offset);
-                    AddCheckedObject(referenceType, Count);
+                    AddCheckedObject(ReferenceType, Count);
                 }
                 else if (ReferenceTag == ObjectTag.ConstructedObject)
                 {
                     List<SerializedMember> ConstructorParameters;
-                    if (ListConstructorParameters(referenceType, out ConstructorParameters))
+                    if (ListConstructorParameters(ReferenceType, out ConstructorParameters))
                     {
                         for (int i = 0; i < ConstructorParameters.Count; i++)
                         {
-                            PropertyInfo AsPropertyInfo = ConstructorParameters[i].MemberInfo as PropertyInfo;
+                            PropertyInfo AsPropertyInfo = (PropertyInfo)ConstructorParameters[i].MemberInfo;
 
                             Type MemberType = AsPropertyInfo.PropertyType;
                             if (!ProcessCheckable_BINARY(MemberType, ref data, ref offset))
                                 return false;
                         }
 
-                        AddCheckedObject(referenceType, -1);
+                        AddCheckedObject(ReferenceType, -1);
                     }
                 }
             }

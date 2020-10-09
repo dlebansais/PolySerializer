@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+    using Contracts;
 
     /// <summary>
     /// Perform partial search/replace in assembly qualified type names.
@@ -33,10 +34,10 @@
         public NamespaceDescriptor(string path)
         {
             Path = path;
-            Assembly = null;
-            Version = null;
-            Culture = null;
-            PublicKeyToken = null;
+            Assembly = string.Empty;
+            Version = string.Empty;
+            Culture = string.Empty;
+            PublicKeyToken = string.Empty;
         }
 
         /// <summary>
@@ -48,9 +49,9 @@
         {
             Path = path;
             Assembly = assembly;
-            Version = null;
-            Culture = null;
-            PublicKeyToken = null;
+            Version = string.Empty;
+            Culture = string.Empty;
+            PublicKeyToken = string.Empty;
         }
 
         /// <summary>
@@ -64,8 +65,8 @@
             Path = path;
             Assembly = assembly;
             Version = version;
-            Culture = null;
-            PublicKeyToken = null;
+            Culture = string.Empty;
+            PublicKeyToken = string.Empty;
         }
 
         /// <summary>
@@ -124,10 +125,9 @@
         /// <returns>True if at least one searched part in <paramref name="name"/> was replaced.</returns>
         public static bool Match(string name, NamespaceDescriptor descriptorSearch, NamespaceDescriptor descriptorReplace, out string nameOverride)
         {
-            if (name == null)
-                throw new ArgumentNullException(nameof(name));
+            Contract.RequireNotNull(name, out string Name);
 
-            string[] FullNamePath = name.Split(',');
+            string[] FullNamePath = Name.Split(',');
 
             bool IsValidName = FullNamePath.Length == 5 &&
                                FullNamePath[1].StartsWith(AssemblyPattern, StringComparison.InvariantCulture) &&
@@ -149,7 +149,7 @@
             if (IsMatch)
                 nameOverride = $"{namespaceOverride},{assemblyOverride},{versionOverride},{cultureOverride},{publicKeyTokenOverride}";
             else
-                nameOverride = name;
+                nameOverride = Name;
 
             return IsMatch;
         }
@@ -196,7 +196,7 @@
 
         private static bool StringMatch(string text, string searchText, string replaceText, out string textOverride)
         {
-            if (searchText == null)
+            if (searchText.Length == 0)
             {
                 textOverride = text;
                 return true;
@@ -227,10 +227,9 @@
         /// <param name="type">The type to read.</param>
         public static string PathFromType(Type type)
         {
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
+            Contract.RequireNotNull(type, out Type Type);
 
-            string FullName = type.AssemblyQualifiedName;
+            string FullName = Type.AssemblyQualifiedName!;
 
             string[] FullNamePath = FullName.Split(',');
             Debug.Assert(FullNamePath.Length == 5);
@@ -255,10 +254,9 @@
         /// <param name="type">The type to read.</param>
         public static string AssemblyFromType(Type type)
         {
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
+            Contract.RequireNotNull(type, out Type Type);
 
-            string FullName = type.AssemblyQualifiedName;
+            string FullName = Type.AssemblyQualifiedName!;
 
             string[] FullNamePath = FullName.Split(',');
             Debug.Assert(FullNamePath.Length == 5);
@@ -272,10 +270,9 @@
         /// <param name="type">The type to read.</param>
         public static string VersionFromType(Type type)
         {
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
+            Contract.RequireNotNull(type, out Type Type);
 
-            return TextWithPatternFromType(type, VersionPattern);
+            return TextWithPatternFromType(Type, VersionPattern);
         }
 
         /// <summary>
@@ -284,10 +281,9 @@
         /// <param name="type">The type to read.</param>
         public static string CultureFromType(Type type)
         {
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
+            Contract.RequireNotNull(type, out Type Type);
 
-            return TextWithPatternFromType(type, CulturePattern);
+            return TextWithPatternFromType(Type, CulturePattern);
         }
 
         /// <summary>
@@ -296,20 +292,16 @@
         /// <param name="type">The type to read.</param>
         public static string PublicKeyTokenFromType(Type type)
         {
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
+            Contract.RequireNotNull(type, out Type Type);
 
-            return TextWithPatternFromType(type, PublicKeyTokenPattern);
+            return TextWithPatternFromType(Type, PublicKeyTokenPattern);
         }
 
         private static string TextWithPatternFromType(Type type, string pattern)
         {
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
+            Contract.RequireNotNull(type, out Type Type);
 
-            string Result = null;
-
-            string FullName = type.AssemblyQualifiedName;
+            string FullName = Type.AssemblyQualifiedName!;
             int StartIndex = FullName.LastIndexOf(pattern, StringComparison.InvariantCulture);
             Debug.Assert(StartIndex >= 0);
 
@@ -321,9 +313,10 @@
                     EndIndex = EndName.Length;
 
                 if (EndIndex >= 0)
-                    Result = EndName.Substring(0, EndIndex);
+                    return EndName.Substring(0, EndIndex);
             }
 
+            Contract.Unused(out string Result);
             return Result;
         }
         #endregion
@@ -334,7 +327,7 @@
         /// </summary>
         /// <param name="obj">The object to compare with the current instance.</param>
         /// <returns>True if <paramref name="obj"/> and this instance are the same type and represent the same value; otherwise, false.</returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return base.Equals(obj);
         }

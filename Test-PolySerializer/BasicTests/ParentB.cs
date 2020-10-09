@@ -137,10 +137,10 @@ namespace Test
         public uint FieldUInt32;
         public long FieldInt64;
         public ulong FieldUInt64;
-        public object FieldObject;
+        public object? FieldObject;
         public short FieldInt16;
         public ushort FieldUInt16;
-        public string FieldString;
+        public string? FieldString;
 
         public bool PropBoolean { get; set; }
         public byte PropByte { get; set; }
@@ -153,10 +153,10 @@ namespace Test
         public uint PropUInt32 { get; set; }
         public long PropInt64 { get; set; }
         public ulong PropUInt64 { get; set; }
-        public object PropObject { get; set; }
+        public object? PropObject { get; set; }
         public short PropInt16 { get; set; }
         public ushort PropUInt16 { get; set; }
-        public string PropString { get; set; }
+        public string? PropString { get; set; }
 
         protected bool ProtFieldBoolean;
         protected byte ProtFieldByte;
@@ -169,10 +169,10 @@ namespace Test
         protected uint ProtFieldUInt32;
         protected long ProtFieldInt64;
         protected ulong ProtFieldUInt64;
-        protected object ProtFieldObject;
+        protected object? ProtFieldObject;
         protected short ProtFieldInt16;
         protected ushort ProtFieldUInt16;
-        protected string ProtFieldString;
+        protected string? ProtFieldString;
 
         protected bool ProtFPropBoolean { get; set; }
         protected byte ProtFPropByte { get; set; }
@@ -185,10 +185,10 @@ namespace Test
         protected uint ProtFPropUInt32 { get; set; }
         protected long ProtFPropInt64 { get; set; }
         protected ulong ProtFPropUInt64 { get; set; }
-        protected object ProtFPropObject { get; set; }
+        protected object? ProtFPropObject { get; set; }
         protected short ProtFPropInt16 { get; set; }
         protected ushort ProtFPropUInt16 { get; set; }
-        protected string ProtFPropString { get; set; }
+        protected string? ProtFPropString { get; set; }
 
         private bool PrivFieldBoolean;
         private byte PrivFieldByte;
@@ -201,10 +201,10 @@ namespace Test
         private uint PrivFieldUInt32;
         private long PrivFieldInt64;
         private ulong PrivFieldUInt64;
-        private object PrivFieldObject;
+        private object? PrivFieldObject;
         private short PrivFieldInt16;
         private ushort PrivFieldUInt16;
-        private string PrivFieldString;
+        private string? PrivFieldString;
 
         private bool PrivFPropBoolean { get; set; }
         private byte PrivFPropByte { get; set; }
@@ -217,9 +217,9 @@ namespace Test
         private uint PrivFPropUInt32 { get; set; }
         private long PrivFPropInt64 { get; set; }
         private ulong PrivFPropUInt64 { get; set; }
-        private object PrivFPropObject { get; set; }
+        private object? PrivFPropObject { get; set; }
         private short PrivFPropInt16 { get; set; }
         private ushort PrivFPropUInt16 { get; set; }
-        private string PrivFPropString { get; set; }
+        private string? PrivFPropString { get; set; }
     }
 }

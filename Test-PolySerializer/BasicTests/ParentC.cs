@@ -21,7 +21,7 @@ namespace Test
         }
 
         public int PropInt { get; private set; }
-        public string PropString { get; private set; }
-        public object PropObject { get; private set; }
+        public string? PropString { get; private set; }
+        public object? PropObject { get; private set; }
     }
 }

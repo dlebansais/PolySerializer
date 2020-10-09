@@ -12,7 +12,7 @@
     {
         private void INTERNAL_Serialize_BINARY()
         {
-            RootType = Root.GetType();
+            RootType = Root?.GetType();
 
             byte[] Data = new byte[MinAllocatedSize];
             int Offset = 0;
@@ -21,7 +21,7 @@
 
             SerializedObjectList.Clear();
             CycleDetectionTable.Clear();
-            ProcessSerializable_BINARY(Root, ref Data, ref Offset);
+            ProcessSerializable_BINARY(Root!, ref Data, ref Offset);
 
             int i = 0;
             while (i < SerializedObjectList.Count)
@@ -33,24 +33,24 @@
                 Serialize_BINARY(Reference, NextSerialized.ReferenceType, NextSerialized.Count, ref Data, ref Offset, NextSerialized);
             }
 
-            Output.Write(Data, 0, Offset);
+            Output?.Write(Data, 0, Offset);
             LastAllocatedSize = (uint)Data.Length;
 
             Progress = 1.0;
         }
 
-        private void Serialize_BINARY(object reference, Type serializedType, long count, ref byte[] data, ref int offset, ISerializableObject nextSerialized)
+        private void Serialize_BINARY(object reference, Type serializedType, long count, ref byte[] data, ref int offset, ISerializableObject? nextSerialized)
         {
             if (count >= 0)
             {
-                IEnumerable AsEnumerable = reference as IEnumerable;
+                IEnumerable AsEnumerable = (IEnumerable)reference;
                 IEnumerator Enumerator = AsEnumerable.GetEnumerator();
 
                 for (long i = 0; i < count; i++)
                 {
                     Enumerator.MoveNext();
 
-                    object Item = Enumerator.Current;
+                    object Item = Enumerator.Current!;
                     ProcessSerializable_BINARY(Item, ref data, ref offset);
                 }
             }
@@ -68,15 +68,12 @@
 
                 object MemberValue;
 
-                FieldInfo AsFieldInfo;
-                PropertyInfo AsPropertyInfo;
-
-                if ((AsFieldInfo = Member.MemberInfo as FieldInfo) != null)
-                    MemberValue = AsFieldInfo.GetValue(reference);
+                if (Member.MemberInfo is FieldInfo AsFieldInfo)
+                    MemberValue = AsFieldInfo.GetValue(reference) !;
                 else
                 {
-                    AsPropertyInfo = Member.MemberInfo as PropertyInfo;
-                    MemberValue = AsPropertyInfo.GetValue(reference);
+                    PropertyInfo AsPropertyInfo = (PropertyInfo)Member.MemberInfo;
+                    MemberValue = AsPropertyInfo.GetValue(reference) !;
                 }
 
                 ProcessSerializable_BINARY(MemberValue, ref data, ref offset);
@@ -234,7 +231,7 @@
             if (SerializeBasicType_BINARY(reference, ref data, ref offset))
                 return;
 
-            Type ReferenceType = SerializableAncestor(reference.GetType());
+            Type ReferenceType = SerializableAncestor(reference.GetType()) !;
             AddFieldType_BINARY(ref data, ref offset, ReferenceType);
 
             if (ReferenceType.IsValueType)
@@ -260,9 +257,8 @@
 
                             foreach (SerializedMember Member in ConstructorParameters)
                             {
-                                PropertyInfo AsPropertyInfo;
-                                AsPropertyInfo = Member.MemberInfo as PropertyInfo;
-                                object MemberValue = AsPropertyInfo.GetValue(reference);
+                                PropertyInfo AsPropertyInfo = (PropertyInfo)Member.MemberInfo;
+                                object MemberValue = AsPropertyInfo.GetValue(reference) !;
 
                                 ProcessSerializable_BINARY(MemberValue, ref data, ref offset);
                             }
@@ -368,7 +364,7 @@
 
         private void AddFieldType_BINARY(ref byte[] data, ref int offset, Type value)
         {
-            AddFieldString_BINARY(ref data, ref offset, value.AssemblyQualifiedName);
+            AddFieldString_BINARY(ref data, ref offset, value.AssemblyQualifiedName!);
         }
 
         private void AddFieldMembers_BINARY(ref byte[] data, ref int offset, List<SerializedMember> serializedMembers)

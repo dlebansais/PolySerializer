@@ -49,7 +49,7 @@
 
         private void AddSerializedObject(object reference, long count)
         {
-            Type SerializedType = SerializableAncestor(reference.GetType());
+            Type SerializedType = SerializableAncestor(reference.GetType()) !;
             SerializableObject NewSerialized = new SerializableObject(reference, SerializedType, count);
             SerializedObjectList.Add(NewSerialized);
 
@@ -58,10 +58,8 @@
 
         private static long GetCollectionCount(object reference)
         {
-            IEnumerable AsEnumerable;
-
             long Count = 0;
-            if ((AsEnumerable = reference as IEnumerable) != null)
+            if (reference is IEnumerable AsEnumerable)
             {
                 IEnumerator Enumerator = AsEnumerable.GetEnumerator();
                 while (Enumerator.MoveNext())
@@ -75,9 +73,11 @@
 
         private void AddField(ref byte[] data, ref int offset, byte[] content)
         {
+            Stream OutputStream = Output!;
+
             if (offset + content.Length > data.Length)
             {
-                Output.Write(data, 0, offset);
+                OutputStream.Write(data, 0, offset);
                 offset = 0;
 
                 if (data.Length < content.Length)
