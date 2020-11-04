@@ -403,13 +403,13 @@
                 return false;
             }
 
-            if (CustomAttribute.ConstructorX.Length == 0)
+            if (CustomAttribute.Constructor.Length == 0)
             {
                 Contract.Unused(out constructorParameters);
                 return false;
             }
 
-            string[] Properties = CustomAttribute.ConstructorX.Split(',');
+            string[] Properties = CustomAttribute.Constructor.Split(',');
             ParameterInfo[] Parameters = constructor.GetParameters();
             if (Properties.Length == 0 || Properties.Length != Parameters.Length)
             {
@@ -473,7 +473,7 @@
         {
             if (newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) is SerializableAttribute CustomSerializable)
             {
-                if (CustomSerializable.ExcludeX)
+                if (CustomSerializable.Exclude)
                     return true;
             }
 
@@ -497,7 +497,7 @@
 
             if (newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) is SerializableAttribute CustomSerializable)
             {
-                if (CustomSerializable.SetterX.Length > 0)
+                if (CustomSerializable.Setter.Length > 0)
                     return false;
             }
 
@@ -519,9 +519,9 @@
         {
             if (newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) is SerializableAttribute CustomSerializable)
             {
-                if (CustomSerializable.ConditionX.Length > 0)
+                if (CustomSerializable.Condition.Length > 0)
                 {
-                    MemberInfo[] ConditionMembers = serializedType.GetMember(CustomSerializable.ConditionX);
+                    MemberInfo[] ConditionMembers = serializedType.GetMember(CustomSerializable.Condition);
                     if (ConditionMembers != null)
                     {
                         foreach (MemberInfo ConditionMember in ConditionMembers)

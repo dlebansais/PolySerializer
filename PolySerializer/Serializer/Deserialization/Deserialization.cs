@@ -277,7 +277,7 @@
         {
             if (newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) is SerializableAttribute CustomSerializable)
             {
-                if (CustomSerializable.ExcludeX)
+                if (CustomSerializable.Exclude)
                     return true;
             }
 
@@ -298,9 +298,9 @@
 
                 if (newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) is SerializableAttribute CustomSerializable)
                 {
-                    if (CustomSerializable.SetterX.Length > 0)
+                    if (CustomSerializable.Setter.Length > 0)
                     {
-                        MemberInfo[] SetterMembers = deserializedType.GetMember(CustomSerializable.SetterX);
+                        MemberInfo[] SetterMembers = deserializedType.GetMember(CustomSerializable.Setter);
                         if (SetterMembers != null)
                         {
                             Type ExpectedParameterType = AsPropertyInfo.PropertyType;
@@ -346,7 +346,7 @@
         {
             if (newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) is SerializableAttribute CustomSerializable)
             {
-                if (CustomSerializable.ConditionX.Length > 0)
+                if (CustomSerializable.Condition.Length > 0)
                     newMember.SetHasCondition();
             }
         }

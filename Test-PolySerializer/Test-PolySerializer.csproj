@@ -52,6 +52,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="publish\**" />
+    <EmbeddedResource Remove="publish\**" />
+    <None Remove="publish\**" />
+    <Page Remove="publish\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\PolySerializer-Attributes\PolySerializer-Attributes.csproj" />
     <ProjectReference Include="..\PolySerializer\PolySerializer.csproj" />
   </ItemGroup>
