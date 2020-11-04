@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PolySerializer", "PolySerializer\PolySerializer.csproj", "{0BE60CCF-E733-4E0F-B028-C95ABAF7E958}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PolySerializer-Attributes", "PolySerializer-Attributes\PolySerializer-Attributes.csproj", "{0EE126EC-FBE7-47F5-8706-1FE6950956E2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{426B89FF-6756-45BE-883A-F71D65E9282F} = {426B89FF-6756-45BE-883A-F71D65E9282F}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test-PolySerializer", "Test-PolySerializer\Test-PolySerializer.csproj", "{19A4D62D-7B14-452F-AB06-6E233D7BE17E}"
 EndProject
@@ -15,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PreBuild", "PreBuild\PreBuild.csproj", "{426B89FF-6756-45BE-883A-F71D65E9282F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +42,10 @@ Global
 		{21C0C06E-07B1-4C87-BAF5-91188ACD802D}.Debug|x64.ActiveCfg = Debug|x64
 		{21C0C06E-07B1-4C87-BAF5-91188ACD802D}.Debug|x64.Build.0 = Debug|x64
 		{21C0C06E-07B1-4C87-BAF5-91188ACD802D}.Release|x64.ActiveCfg = Release|x64
+		{426B89FF-6756-45BE-883A-F71D65E9282F}.Debug|x64.ActiveCfg = Debug|x64
+		{426B89FF-6756-45BE-883A-F71D65E9282F}.Debug|x64.Build.0 = Debug|x64
+		{426B89FF-6756-45BE-883A-F71D65E9282F}.Release|x64.ActiveCfg = Release|x64
+		{426B89FF-6756-45BE-883A-F71D65E9282F}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
