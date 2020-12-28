@@ -2,10 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.IO;
     using System.Reflection;
     using System.Threading.Tasks;
+    using Contracts;
 
     /// <summary>
     ///     Serialize objects to a stream, or deserialize objects from a stream.
@@ -290,8 +290,7 @@
             {
                 if (AsPropertyInfo.CanWrite)
                 {
-                    Debug.Assert(AsPropertyInfo.SetMethod != null);
-                    MethodInfo Setter = AsPropertyInfo.SetMethod;
+                    Contract.RequireNotNull(AsPropertyInfo.SetMethod, out MethodInfo Setter);
                     if (Setter.Attributes.HasFlag(MethodAttributes.Public))
                         return false;
                 }

@@ -3,7 +3,6 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Globalization;
     using System.IO;
     using System.Reflection;
@@ -486,8 +485,7 @@
             {
                 if (AsPropertyInfo.CanWrite)
                 {
-                    Debug.Assert(AsPropertyInfo.SetMethod != null);
-                    MethodInfo Setter = AsPropertyInfo.SetMethod;
+                    Contract.RequireNotNull(AsPropertyInfo.SetMethod, out MethodInfo Setter);
                     if (Setter.Attributes.HasFlag(MethodAttributes.Public))
                         return false;
                 }
