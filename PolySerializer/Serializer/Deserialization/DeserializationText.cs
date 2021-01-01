@@ -68,7 +68,7 @@
         {
             DeserializeCollection_TEXT(reference, referenceType, count, ref data, ref offset);
 
-            Type DeserializedType = SerializableAncestor(referenceType) !;
+            Type DeserializedType = SerializableAncestor(referenceType)!;
             List<DeserializedMember> DeserializedMembers = ListDeserializedMembers_TEXT(DeserializedType, ref data, ref offset);
 
             int MemberIndex = 0;
@@ -234,7 +234,7 @@
             }
 
             OverrideTypeName(ref ReferenceTypeName);
-            Type ReferenceType = Type.GetType(ReferenceTypeName) !;
+            Type ReferenceType = Type.GetType(ReferenceTypeName)!;
             Type OriginalType = ReferenceType;
             OverrideType(ref ReferenceType);
             Type NewType = ReferenceType;

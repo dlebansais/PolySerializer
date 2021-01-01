@@ -289,7 +289,7 @@
                 foreach (Type Interface in Interfaces)
                     if (Interface == typeof(IEnumerable))
                     {
-                        enumerator = (IEnumerator)Interface.InvokeMember("GetEnumerator", BindingFlags.Public, null, reference, null, CultureInfo.InvariantCulture) !;
+                        enumerator = (IEnumerator)Interface.InvokeMember("GetEnumerator", BindingFlags.Public, null, reference, null, CultureInfo.InvariantCulture)!;
                         return true;
                     }
 
@@ -527,12 +527,12 @@
                             if (ConditionMember is FieldInfo AsFieldInfo)
                             {
                                 if (AsFieldInfo.FieldType == typeof(bool))
-                                    newMember.SetCondition((bool)AsFieldInfo.GetValue(reference) !);
+                                    newMember.SetCondition((bool)AsFieldInfo.GetValue(reference)!);
                             }
                             else if (ConditionMember is PropertyInfo AsPropertyInfo)
                             {
                                 if (AsPropertyInfo.PropertyType == typeof(bool))
-                                    newMember.SetCondition((bool)AsPropertyInfo.GetValue(reference) !);
+                                    newMember.SetCondition((bool)AsPropertyInfo.GetValue(reference)!);
                             }
                         }
                     }

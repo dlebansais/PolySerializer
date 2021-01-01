@@ -91,32 +91,32 @@
 
         private static void CreateObject(Type referenceType, out object reference)
         {
-            reference = Activator.CreateInstance(referenceType) !;
+            reference = Activator.CreateInstance(referenceType)!;
         }
 
         private static void CreateObject(Type referenceType, object?[] parameters, out object reference)
         {
-            reference = Activator.CreateInstance(referenceType, parameters) !;
+            reference = Activator.CreateInstance(referenceType, parameters)!;
         }
 
         private static void CreateObject(Type valueType, long count, out object reference)
         {
             if (valueType.IsArray)
             {
-                Type ArrayType = valueType.GetElementType() !;
-                reference = Array.CreateInstance(ArrayType, count) !;
+                Type ArrayType = valueType.GetElementType()!;
+                reference = Array.CreateInstance(ArrayType, count)!;
             }
             else if (count < int.MaxValue)
             {
-                reference = Activator.CreateInstance(valueType, (int)count) !;
+                reference = Activator.CreateInstance(valueType, (int)count)!;
             }
             else
-                reference = Activator.CreateInstance(valueType, count) !;
+                reference = Activator.CreateInstance(valueType, count)!;
         }
 
         private static Type DeserializedTrueType(string typeName)
         {
-            return Type.GetType(typeName) !;
+            return Type.GetType(typeName)!;
         }
 
         private bool OverrideTypeName(ref string referenceTypeName)

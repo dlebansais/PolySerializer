@@ -69,11 +69,11 @@
                 object MemberValue;
 
                 if (Member.MemberInfo is FieldInfo AsFieldInfo)
-                    MemberValue = AsFieldInfo.GetValue(reference) !;
+                    MemberValue = AsFieldInfo.GetValue(reference)!;
                 else
                 {
                     PropertyInfo AsPropertyInfo = (PropertyInfo)Member.MemberInfo;
-                    MemberValue = AsPropertyInfo.GetValue(reference) !;
+                    MemberValue = AsPropertyInfo.GetValue(reference)!;
                 }
 
                 ProcessSerializable_BINARY(MemberValue, ref data, ref offset);
@@ -231,7 +231,7 @@
             if (SerializeBasicType_BINARY(reference, ref data, ref offset))
                 return;
 
-            Type ReferenceType = SerializableAncestor(reference.GetType()) !;
+            Type ReferenceType = SerializableAncestor(reference.GetType())!;
             AddFieldType_BINARY(ref data, ref offset, ReferenceType);
 
             if (ReferenceType.IsValueType)
@@ -258,7 +258,7 @@
                             foreach (SerializedMember Member in ConstructorParameters)
                             {
                                 PropertyInfo AsPropertyInfo = (PropertyInfo)Member.MemberInfo;
-                                object MemberValue = AsPropertyInfo.GetValue(reference) !;
+                                object MemberValue = AsPropertyInfo.GetValue(reference)!;
 
                                 ProcessSerializable_BINARY(MemberValue, ref data, ref offset);
                             }

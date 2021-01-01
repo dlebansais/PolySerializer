@@ -47,7 +47,7 @@
             if (!CheckCollection_BINARY(referenceType, count, ref data, ref offset))
                 return false;
 
-            Type CheckedType = SerializableAncestor(referenceType) !;
+            Type CheckedType = SerializableAncestor(referenceType)!;
             List<DeserializedMember> CheckedMembers = ListDeserializedMembers_BINARY(CheckedType, ref data, ref offset);
 
             foreach (DeserializedMember Member in CheckedMembers)
@@ -164,7 +164,7 @@
                 return true;
 
             OverrideTypeName(ref ReferenceTypeName);
-            Type ReferenceType = Type.GetType(ReferenceTypeName) !;
+            Type ReferenceType = Type.GetType(ReferenceTypeName)!;
             Type OriginalType = ReferenceType;
             OverrideType(ref ReferenceType);
             ReferenceType = OriginalType;

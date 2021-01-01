@@ -72,7 +72,7 @@
             if (!CheckCollection_TEXT(referenceType, count, ref data, ref offset))
                 return false;
 
-            Type CheckedType = SerializableAncestor(referenceType) !;
+            Type CheckedType = SerializableAncestor(referenceType)!;
             List<DeserializedMember> CheckedMembers = ListDeserializedMembers_TEXT(CheckedType, ref data, ref offset);
 
             int MemberIndex = 0;
@@ -199,7 +199,7 @@
                 return true;
 
             OverrideTypeName(ref ReferenceTypeName);
-            Type ReferenceType = Type.GetType(ReferenceTypeName) !;
+            Type ReferenceType = Type.GetType(ReferenceTypeName)!;
             Type OriginalType = ReferenceType;
             OverrideType(ref ReferenceType);
             ReferenceType = OriginalType;

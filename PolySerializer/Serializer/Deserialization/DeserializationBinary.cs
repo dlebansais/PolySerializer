@@ -43,7 +43,7 @@
         {
             DeserializeCollection_BINARY(reference, referenceType, count, ref data, ref offset);
 
-            Type DeserializedType = SerializableAncestor(referenceType) !;
+            Type DeserializedType = SerializableAncestor(referenceType)!;
             List<DeserializedMember> DeserializedMembers = ListDeserializedMembers_BINARY(DeserializedType, ref data, ref offset);
 
             foreach (DeserializedMember Member in DeserializedMembers)
@@ -197,7 +197,7 @@
             }
 
             OverrideTypeName(ref ReferenceTypeName);
-            Type ReferenceType = Type.GetType(ReferenceTypeName) !;
+            Type ReferenceType = Type.GetType(ReferenceTypeName)!;
             Type OriginalType = ReferenceType;
             OverrideType(ref ReferenceType);
             Type NewType = ReferenceType;
@@ -262,7 +262,7 @@
                 List<string> MemberNames = ReadFieldMembers_BINARY(ref data, ref offset);
                 foreach (string MemberName in MemberNames)
                 {
-                    MemberInfo[] MatchingMembers = deserializedType.GetMember(MemberName) !;
+                    MemberInfo[] MatchingMembers = deserializedType.GetMember(MemberName)!;
                     DeserializedMember NewMember = new DeserializedMember(MatchingMembers[0]);
 
                     CheckForSerializedCondition(NewMember);

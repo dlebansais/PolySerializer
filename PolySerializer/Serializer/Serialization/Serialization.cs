@@ -49,7 +49,7 @@
 
         private void AddSerializedObject(object reference, long count)
         {
-            Type SerializedType = SerializableAncestor(reference.GetType()) !;
+            Type SerializedType = SerializableAncestor(reference.GetType())!;
             SerializableObject NewSerialized = new SerializableObject(reference, SerializedType, count);
             SerializedObjectList.Add(NewSerialized);
 

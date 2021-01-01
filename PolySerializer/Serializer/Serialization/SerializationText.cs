@@ -80,11 +80,11 @@
                 object MemberValue;
 
                 if (Member.MemberInfo is FieldInfo AsFieldInfo)
-                    MemberValue = AsFieldInfo.GetValue(reference) !;
+                    MemberValue = AsFieldInfo.GetValue(reference)!;
                 else
                 {
                     PropertyInfo AsPropertyInfo = (PropertyInfo)Member.MemberInfo;
-                    MemberValue = AsPropertyInfo.GetValue(reference) !;
+                    MemberValue = AsPropertyInfo.GetValue(reference)!;
                 }
 
                 ProcessSerializable_TEXT(MemberValue, ref data, ref offset);
@@ -241,7 +241,7 @@
             if (SerializeBasicType_TEXT(reference, ref data, ref offset))
                 return;
 
-            Type ReferenceType = SerializableAncestor(reference.GetType()) !;
+            Type ReferenceType = SerializableAncestor(reference.GetType())!;
             AddFieldType_TEXT(ref data, ref offset, ReferenceType);
 
             if (ReferenceType.IsValueType)
@@ -271,7 +271,7 @@
                                     AddFieldStringDirect_TEXT(ref data, ref offset, ";");
 
                                 PropertyInfo AsPropertyInfo = (PropertyInfo)Member.MemberInfo;
-                                object MemberValue = AsPropertyInfo.GetValue(reference) !;
+                                object MemberValue = AsPropertyInfo.GetValue(reference)!;
 
                                 ProcessSerializable_TEXT(MemberValue, ref data, ref offset);
                             }

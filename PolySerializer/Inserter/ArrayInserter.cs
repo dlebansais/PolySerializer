@@ -42,7 +42,7 @@
             if (reference is Array AsArray)
             {
                 Reference = AsArray;
-                itemType = ReferenceType.GetElementType() !;
+                itemType = ReferenceType.GetElementType()!;
                 return true;
             }
 
@@ -67,7 +67,7 @@
 
             if (ReferenceType.IsArray)
             {
-                itemType = ReferenceType.GetElementType() !;
+                itemType = ReferenceType.GetElementType()!;
                 return true;
             }
 
