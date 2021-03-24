@@ -10,17 +10,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Codecov" Version="1.12.2" />
+    <PackageReference Include="Codecov" Version="1.13.0" />
     <PackageReference Include="DeepEqual-Forked" Version="2.0.0.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="5.0.1">
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="5.0.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="NUnit" Version="3.12.0">
+    <PackageReference Include="NUnit" Version="3.13.1">
         <NoWarn>NU1701</NoWarn>
     </PackageReference>
-    <PackageReference Include="NUnit.ConsoleRunner" Version="3.11.1">
+    <PackageReference Include="NUnit.ConsoleRunner" Version="3.12.0">
         <NoWarn>NU1701</NoWarn>
     </PackageReference>
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0">
@@ -28,10 +28,10 @@
     </PackageReference>
     <PackageReference Include="OpenCover" Version="4.7.922" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
-    <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
+    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="5.0.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 
