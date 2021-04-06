@@ -1,4 +1,6 @@
-﻿namespace PolySerializer
+﻿[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Test-PolySerializer")]
+
+namespace PolySerializer
 {
     using System;
     using System.Collections;

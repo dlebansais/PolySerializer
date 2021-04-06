@@ -11,7 +11,7 @@
         /// <summary>
         /// Gets or sets a value indicating whether the member should be excluded from serialization (and deserialization).
         /// </summary>
-        public bool Exclude { get; set; }
+        public bool Exclude { get; set; } = false;
 
         /// <summary>
         /// Gets or sets a condition for deserializing a member.

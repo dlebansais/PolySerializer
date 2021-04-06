@@ -7,9 +7,9 @@ set TESTPROJECTNAME=Test-%PROJECTNAME%
 set RESULTFILENAME=Coverage-%PROJECTNAME%.xml
 set OPENCOVER_VERSION=4.7.922
 set OPENCOVER=OpenCover.%OPENCOVER_VERSION%
-set CODECOV_VERSION=1.12.2
+set CODECOV_VERSION=1.13.0
 set CODECOV=Codecov.%CODECOV_VERSION%
-set NUINT_CONSOLE_VERSION=3.11.1
+set NUINT_CONSOLE_VERSION=3.12.0
 set NUINT_CONSOLE=NUnit.ConsoleRunner.%NUINT_CONSOLE_VERSION%
 set FRAMEWORK=net48
 
@@ -24,17 +24,17 @@ if not exist ".\packages\%NUINT_CONSOLE%\tools\nunit3-console.exe" goto error_co
 call ..\Certification\set_tokens.bat
 
 dotnet publish %TESTPROJECTNAME% -c Debug -f %FRAMEWORK% /p:Platform=x64 -o ./%TESTPROJECTNAME%/publish/x64/Debug
-rem dotnet publish %TESTPROJECTNAME% -c Release -f %FRAMEWORK% /p:Platform=x64 -o ./%TESTPROJECTNAME%/publish/x64/Release
+dotnet publish %TESTPROJECTNAME% -c Release -f %FRAMEWORK% /p:Platform=x64 -o ./%TESTPROJECTNAME%/publish/x64/Release
 
 if not exist ".\%TESTPROJECTNAME%\publish\x64\Debug\%TESTPROJECTNAME%.dll" goto error_not_built
-rem if not exist ".\%TESTPROJECTNAME%\publish\x64\Release\%TESTPROJECTNAME%.dll" goto error_not_built
+if not exist ".\%TESTPROJECTNAME%\publish\x64\Release\%TESTPROJECTNAME%.dll" goto error_not_built
 if exist .\%TESTPROJECTNAME%\*.log del .\%TESTPROJECTNAME%\*.log
 if exist .\%TESTPROJECTNAME%\obj\x64\Debug\%RESULTFILENAME% del .\%TESTPROJECTNAME%\obj\x64\Debug\%RESULTFILENAME%
-rem if exist .\%TESTPROJECTNAME%\obj\x64\Release\%RESULTFILENAME% del .\%TESTPROJECTNAME%\obj\x64\Release\%RESULTFILENAME%
+if exist .\%TESTPROJECTNAME%\obj\x64\Release\%RESULTFILENAME% del .\%TESTPROJECTNAME%\obj\x64\Release\%RESULTFILENAME%
 ".\packages\%OPENCOVER%\tools\OpenCover.Console.exe" -register:user -target:".\packages\%NUINT_CONSOLE%\tools\nunit3-console.exe" -targetargs:".\%TESTPROJECTNAME%\publish\x64\Debug\%TESTPROJECTNAME%.dll --trace=Debug --labels=Before" -filter:"+[%PROJECTNAME%*]* -[%TESTPROJECTNAME%*]*" -output:".\%TESTPROJECTNAME%\obj\x64\Debug\%RESULTFILENAME%"
-rem ".\packages\%OPENCOVER%\tools\OpenCover.Console.exe" -register:user -target:".\packages\%NUINT_CONSOLE%\tools\nunit3-console.exe" -targetargs:".\%TESTPROJECTNAME%\publish\x64\Release\%TESTPROJECTNAME%.dll --trace=Debug --labels=Before" -filter:"+[%PROJECTNAME%*]* -[%TESTPROJECTNAME%*]*" -output:".\%TESTPROJECTNAME%\obj\x64\Release\%RESULTFILENAME%"
-if exist .\%TESTPROJECTNAME%\obj\x64\Debug\%RESULTFILENAME% .\packages\%CODECOV%\tools\codecov -f ".\%TESTPROJECTNAME%\obj\x64\Debug\%RESULTFILENAME%" -t %POLYSERIALIZER_CODECOV_TOKEN%
-rem if exist .\%TESTPROJECTNAME%\obj\x64\Release\%RESULTFILENAME% .\packages\%CODECOV%\tools\codecov -f ".\%TESTPROJECTNAME%\obj\x64\Release\%RESULTFILENAME%" -t %POLYSERIALIZER_CODECOV_TOKEN%
+".\packages\%OPENCOVER%\tools\OpenCover.Console.exe" -register:user -target:".\packages\%NUINT_CONSOLE%\tools\nunit3-console.exe" -targetargs:".\%TESTPROJECTNAME%\publish\x64\Release\%TESTPROJECTNAME%.dll --trace=Debug --labels=Before" -filter:"+[%PROJECTNAME%*]* -[%TESTPROJECTNAME%*]*" -output:".\%TESTPROJECTNAME%\obj\x64\Release\%RESULTFILENAME%"
+if exist .\%TESTPROJECTNAME%\obj\x64\Debug\%RESULTFILENAME% .\packages\%CODECOV%\tools\win7-x86\codecov -f ".\%TESTPROJECTNAME%\obj\x64\Debug\%RESULTFILENAME%" -t %POLYSERIALIZER_CODECOV_TOKEN%
+if exist .\%TESTPROJECTNAME%\obj\x64\Release\%RESULTFILENAME% .\packages\%CODECOV%\tools\win7-x86\codecov -f ".\%TESTPROJECTNAME%\obj\x64\Release\%RESULTFILENAME%" -t %POLYSERIALIZER_CODECOV_TOKEN%
 goto end
 
 :error_console1

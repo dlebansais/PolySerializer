@@ -41,11 +41,7 @@
         #region Debugging
         public override string ToString()
         {
-            string Result;
-            if (Reference == null)
-                Result = $"null for {DeserializedType.FullName}";
-            else
-                Result = $"{Reference} as {DeserializedType.FullName}";
+            string Result = $"{Reference} as {DeserializedType.FullName}";
 
             if (IsDeserialized)
                 Result += " (Deserialized)";

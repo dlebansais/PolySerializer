@@ -41,11 +41,7 @@
         #region Debugging
         public override string ToString()
         {
-            string Result;
-            if (Reference == null)
-                Result = $"null for {ReferenceType.Name}";
-            else
-                Result = $"{Reference} as {ReferenceType.FullName}";
+            string Result = $"{Reference} as {ReferenceType.FullName}";
 
             if (Count >= 0)
                 Result += $" (*{Count})";
