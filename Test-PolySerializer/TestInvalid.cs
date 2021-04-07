@@ -21,6 +21,12 @@
         public TestInvalid0 Test { get; set; } = new TestInvalid0();
     }
 
+    [System.Serializable]
+    public class TestInvalid2
+    {
+        public List<TestInvalid0> Test { get; set; } = new List<TestInvalid0>();
+    }
+
     [TestFixture]
     public class TestInvalid
     {
@@ -60,6 +66,39 @@
 
             Stream2.Seek(0, SeekOrigin.Begin);
             IsCompatible = s.Check(Stream2);
+
+            Assert.IsFalse(IsCompatible);
+
+            MemoryStream Stream3 = new MemoryStream();
+            using (BinaryWriter Writer = new BinaryWriter(Stream3, Encoding.ASCII, true))
+            {
+                Writer.Write(0xFFFFFFFF);
+                Writer.Write(0xFFFFFFFF);
+            }
+
+            Stream3.Seek(0, SeekOrigin.Begin);
+
+            s.RootType = null;
+
+            IsCompatible = s.Check(Stream3);
+
+            Assert.IsFalse(IsCompatible);
+
+            MemoryStream Stream4 = new MemoryStream();
+            TestInvalid2 test4 = new TestInvalid2();
+            test4.Test.Add(new TestInvalid0());
+
+            s.Serialize(Stream4, test4);
+
+            Stream4.Seek(0x290, SeekOrigin.Begin);
+
+            using (BinaryWriter Writer = new BinaryWriter(Stream4, Encoding.ASCII, true))
+            {
+                Writer.Write("xyz");
+            }
+
+            Stream4.Seek(0, SeekOrigin.Begin);
+            IsCompatible = s.Check(Stream4);
 
             Assert.IsFalse(IsCompatible);
         }
