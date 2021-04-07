@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Reflection;
     using System.Threading.Tasks;
@@ -106,12 +107,42 @@
                 Type ArrayType = valueType.GetElementType()!;
                 reference = Array.CreateInstance(ArrayType, count)!;
             }
-            else if (count < int.MaxValue)
-            {
-                reference = Activator.CreateInstance(valueType, (int)count)!;
-            }
             else
-                reference = Activator.CreateInstance(valueType, count)!;
+            {
+                bool HasParameterlessConstructor = false;
+                bool HasConstructorWithCount = false;
+
+                ConstructorInfo[] Constructors = valueType.GetConstructors();
+                foreach (ConstructorInfo Constructor in Constructors)
+                {
+                    ParameterInfo[] Parameters = Constructor.GetParameters();
+
+                    if (Parameters.Length == 0)
+                        HasParameterlessConstructor = true;
+                    else if (Parameters.Length == 1)
+                    {
+                        Type ParameterType = Parameters[0].ParameterType;
+                        if (ParameterType == typeof(int) || ParameterType == typeof(long))
+                        {
+                            HasConstructorWithCount = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (HasConstructorWithCount)
+                {
+                    if (count < int.MaxValue)
+                        reference = Activator.CreateInstance(valueType, (int)count)!;
+                    else
+                        reference = Activator.CreateInstance(valueType, count)!;
+                }
+                else
+                {
+                    Debug.Assert(HasParameterlessConstructor);
+                    reference = Activator.CreateInstance(valueType)!;
+                }
+            }
         }
 
         private static Type DeserializedTrueType(string typeName)
