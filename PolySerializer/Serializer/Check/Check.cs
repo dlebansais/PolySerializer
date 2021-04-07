@@ -56,19 +56,28 @@
             bool IsCheckedAsText;
             if (Format == SerializationFormat.TextPreferred || Format == SerializationFormat.BinaryPreferred)
             {
-                // Takes into account the UTF-8 indicator.
-                if (Data[0] == 0xEF && Data[1] == 0xBB && Data[2] == 0xBF)
-                    Offset += 3;
+                HandleUTF8Indicator(Data, ref Offset);
 
                 IsCheckedAsText = Data[Offset] == 'M' && Data[Offset + 1] == 'o' && Data[Offset + 2] == 'd' && Data[Offset + 3] == 'e';
             }
             else
+            {
                 IsCheckedAsText = Format == SerializationFormat.TextOnly;
+
+                if (IsCheckedAsText)
+                    HandleUTF8Indicator(Data, ref Offset);
+            }
 
             if (IsCheckedAsText)
                 return INTERNAL_Check_TEXT(ref Data, ref Offset);
             else
                 return INTERNAL_Check_BINARY(ref Data, ref Offset);
+        }
+
+        private void HandleUTF8Indicator(byte[] data, ref int offset)
+        {
+            if (data[0] == 0xEF && data[1] == 0xBB && data[2] == 0xBF)
+                offset += 3;
         }
 
         private void AddCheckedObject(Type checkedType, long count)

@@ -59,14 +59,17 @@
             bool IsDeserializedAsText;
             if (Format == SerializationFormat.TextPreferred || Format == SerializationFormat.BinaryPreferred)
             {
-                // Takes into account the UTF-8 indicator.
-                if (Data[0] == 0xEF && Data[1] == 0xBB && Data[2] == 0xBF)
-                    Offset += 3;
+                HandleUTF8Indicator(Data, ref Offset);
 
                 IsDeserializedAsText = Data[Offset] == 'M' && Data[Offset + 1] == 'o' && Data[Offset + 2] == 'd' && Data[Offset + 3] == 'e';
             }
             else
+            {
                 IsDeserializedAsText = Format == SerializationFormat.TextOnly;
+
+                if (IsDeserializedAsText)
+                    HandleUTF8Indicator(Data, ref Offset);
+            }
 
             if (IsDeserializedAsText)
                 return INTERNAL_Deserialize_TEXT(ref Data, ref Offset);
