@@ -233,9 +233,21 @@
             string FullName = Type.AssemblyQualifiedName!;
 
             string[] FullNamePath = FullName.Split(',');
-            Debug.Assert(FullNamePath.Length == 5);
+            Debug.Assert(FullNamePath.Length >= 5);
 
-            string[] NamePath = FullNamePath[0].Split('.');
+            string FullNameStart = string.Empty;
+            for (int i = 0; i + 4 < FullNamePath.Length; i++)
+            {
+                if (FullNameStart.Length > 0)
+                    FullNameStart += ",";
+
+                FullNameStart += FullNamePath[i];
+            }
+
+            if (FullNameStart.Contains("[["))
+                FullNameStart = FullNameStart.Substring(0, FullNameStart.IndexOf("[["));
+
+            string[] NamePath = FullNameStart.Split('.');
 
             string Result = string.Empty;
             for (int i = 0; i + 1 < NamePath.Length; i++)
@@ -260,9 +272,9 @@
             string FullName = Type.AssemblyQualifiedName!;
 
             string[] FullNamePath = FullName.Split(',');
-            Debug.Assert(FullNamePath.Length == 5);
+            Debug.Assert(FullNamePath.Length >= 5);
 
-            return FullNamePath[1].Trim();
+            return FullNamePath[FullNamePath.Length - 4].Trim();
         }
 
         /// <summary>

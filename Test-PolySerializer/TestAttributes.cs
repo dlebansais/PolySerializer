@@ -29,6 +29,13 @@
         }
     }
 
+    [System.Serializable]
+    public class TestAttributes2<T>
+        where T : struct
+    {
+        public T Test { get; set; }
+    }
+
     [TestFixture]
     public class TestAttributes
     {
@@ -148,6 +155,30 @@
             Test1.TestAttributes1 test1Copy = (Test1.TestAttributes1)s.Deserialize(Stream);
 
             Assert.AreEqual(1, test1Copy.Test);
+        }
+
+        [Test]
+        public static void Generic()
+        {
+            Serializer s = new Serializer();
+
+            Dictionary<NamespaceDescriptor, NamespaceDescriptor> NamespaceOverrideTable = new();
+            s.NamespaceOverrideTable = NamespaceOverrideTable;
+
+            NamespaceDescriptor Descriptor0 = NamespaceDescriptor.DescriptorFromType(typeof(TestAttributes2<int>));
+            NamespaceDescriptor Descriptor1 = NamespaceDescriptor.DescriptorFromType(typeof(TestAttributes2<int>));
+            NamespaceOverrideTable.Add(Descriptor0, Descriptor1);
+
+            TestAttributes2<int> test2 = new TestAttributes2<int>();
+            test2.Test = 2;
+
+            MemoryStream Stream = new MemoryStream();
+            s.Serialize(Stream, test2);
+
+            Stream.Seek(0, SeekOrigin.Begin);
+            TestAttributes2<int> test2Copy = (TestAttributes2<int>)s.Deserialize(Stream);
+
+            Assert.AreEqual(2, test2Copy.Test);
         }
     }
 }

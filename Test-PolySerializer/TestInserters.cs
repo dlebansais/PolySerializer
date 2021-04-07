@@ -41,6 +41,10 @@
             s.Serialize(Stream, test0);
 
             Stream.Seek(0, SeekOrigin.Begin);
+            bool IsCompatible = s.Check(Stream);
+            Assert.IsTrue(IsCompatible);
+
+            Stream.Seek(0, SeekOrigin.Begin);
             TestInserters0 test0Copy = (TestInserters0)s.Deserialize(Stream);
 
             Assert.AreEqual(1, test0Copy.TestArray.Length);

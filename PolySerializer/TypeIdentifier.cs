@@ -46,7 +46,9 @@
             GenericDefinition = genericDefinition;
             GenericParameters = genericParameters;
 
-            Debug.Assert((!IsGeneric && Name == GenericDefinition && GenericParameters.Count == 0) || (IsGeneric && Name != GenericDefinition && GenericParameters.Count > 0));
+            bool IsGenericType = IsGeneric && Name != GenericDefinition && GenericParameters.Count > 0;
+            bool NotGenericType = !IsGeneric && Name == GenericDefinition && GenericParameters.Count == 0;
+            Debug.Assert(IsGenericType || NotGenericType);
         }
         #endregion
 
