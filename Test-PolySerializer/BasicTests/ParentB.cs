@@ -1,16 +1,19 @@
-﻿using PolySerializer;
-
-namespace Test
+﻿namespace Test
 {
+    using PolySerializer;
+
     [Serializable]
     public class ParentB
     {
+        static readonly System.Guid TestGuid = new System.Guid("{4DA159C1-4B37-4DEE-A4FC-0F27F3FE9C15}");
+
         public void Init()
         {
             FieldBoolean = true;
             FieldByte = 0xAA;
             FieldSByte = -12;
-            FieldChar = '@';
+            FieldChar0 = '@';
+            FieldChar1 = '\'';
             FieldDecimal = 1.001m;
             FieldDouble = 1.01;
             FieldSingle = 1.1f;
@@ -21,7 +24,9 @@ namespace Test
             FieldObject = new ParentA();
             FieldInt16 = -16;
             FieldUInt16 = 0xFFFE;
-            FieldString = "FieldString";
+            FieldString0 = "FieldString";
+            FieldString1 = null;
+            FieldGuid = TestGuid;
 
             PropBoolean = true;
             PropByte = 0xAA;
@@ -38,6 +43,7 @@ namespace Test
             PropInt16 = -16;
             PropUInt16 = 0xFFFE;
             PropString = "PropString";
+            PropGuid = TestGuid;
 
             ProtFieldBoolean = true;
             ProtFieldByte = 0xAA;
@@ -54,6 +60,7 @@ namespace Test
             ProtFieldInt16 = -16;
             ProtFieldUInt16 = 0xFFFE;
             ProtFieldString = "ProtFieldString";
+            ProtFieldGuid = TestGuid;
 
             ProtFPropBoolean = true;
             ProtFPropByte = 0xAA;
@@ -70,6 +77,7 @@ namespace Test
             ProtFPropInt16 = -16;
             ProtFPropUInt16 = 0xFFFE;
             ProtFPropString = "ProtFPropString";
+            ProtFPropGuid = TestGuid;
 
             PrivFieldBoolean = true;
             PrivFieldByte = 0xAA;
@@ -86,6 +94,7 @@ namespace Test
             PrivFieldInt16 = -16;
             PrivFieldUInt16 = 0xFFFE;
             PrivFieldString = "PrivFieldString";
+            PrivFieldGuid = TestGuid;
 
             PrivFPropBoolean = true;
             PrivFPropByte = 0xAA;
@@ -102,6 +111,7 @@ namespace Test
             PrivFPropInt16 = -16;
             PrivFPropUInt16 = 0xFFFE;
             PrivFPropString = "PrivFPropString";
+            PrivFPropGuid = TestGuid;
         }
 
         public bool Use()
@@ -121,6 +131,7 @@ namespace Test
             if (PrivFieldInt16 == -16)
             if (PrivFieldUInt16 == 0xFFFE)
             if (PrivFieldString == "PrivFieldString")
+            if (PrivFieldGuid == TestGuid)
             return true;
 
             return false;
@@ -129,7 +140,8 @@ namespace Test
         public bool FieldBoolean;
         public byte FieldByte;
         public sbyte FieldSByte;
-        public char FieldChar;
+        public char FieldChar0;
+        public char FieldChar1;
         public decimal FieldDecimal;
         public double FieldDouble;
         public float FieldSingle;
@@ -140,7 +152,9 @@ namespace Test
         public object? FieldObject;
         public short FieldInt16;
         public ushort FieldUInt16;
-        public string? FieldString;
+        public string? FieldString0;
+        public string? FieldString1;
+        public System.Guid FieldGuid;
 
         public bool PropBoolean { get; set; }
         public byte PropByte { get; set; }
@@ -157,6 +171,7 @@ namespace Test
         public short PropInt16 { get; set; }
         public ushort PropUInt16 { get; set; }
         public string? PropString { get; set; }
+        public System.Guid PropGuid { get; set; }
 
         protected bool ProtFieldBoolean;
         protected byte ProtFieldByte;
@@ -173,6 +188,7 @@ namespace Test
         protected short ProtFieldInt16;
         protected ushort ProtFieldUInt16;
         protected string? ProtFieldString;
+        protected System.Guid ProtFieldGuid;
 
         protected bool ProtFPropBoolean { get; set; }
         protected byte ProtFPropByte { get; set; }
@@ -189,6 +205,7 @@ namespace Test
         protected short ProtFPropInt16 { get; set; }
         protected ushort ProtFPropUInt16 { get; set; }
         protected string? ProtFPropString { get; set; }
+        protected System.Guid ProtFPropGuid { get; set; }
 
         private bool PrivFieldBoolean;
         private byte PrivFieldByte;
@@ -205,6 +222,7 @@ namespace Test
         private short PrivFieldInt16;
         private ushort PrivFieldUInt16;
         private string? PrivFieldString;
+        private System.Guid PrivFieldGuid;
 
         private bool PrivFPropBoolean { get; set; }
         private byte PrivFPropByte { get; set; }
@@ -221,5 +239,6 @@ namespace Test
         private short PrivFPropInt16 { get; set; }
         private ushort PrivFPropUInt16 { get; set; }
         private string? PrivFPropString { get; set; }
+        private System.Guid PrivFPropGuid { get; set; }
     }
 }

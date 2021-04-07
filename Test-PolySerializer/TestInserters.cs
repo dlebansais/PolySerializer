@@ -18,7 +18,13 @@
         public Dictionary<int, int> TestDictionary { get; set; } = new Dictionary<int, int>();
         public StringCollection TestStrings { get; set; } = new StringCollection();
         public TestInserters0? Self { get; set; }
-}
+    }
+
+    [System.Serializable]
+    public class TestInserters1
+    {
+        public string TestString { get; set; } = string.Empty;
+    }
 
     [TestFixture]
     public class TestInserters
@@ -84,6 +90,7 @@
             test0.TestArray[0] = 1;
             test0.TestList = new List<int>();
             test0.TestList.Add(2);
+            test0.TestList.Add(4);
             test0.TestSet = new SortedSet<int>();
             test0.TestSet.Add(3);
             test0.TestStrings.Add("*");
@@ -111,12 +118,31 @@
 
             Assert.AreEqual(1, test0Copy.TestArray.Length);
             Assert.AreEqual(1, test0Copy.TestArray[0]);
-            Assert.AreEqual(1, test0Copy.TestList.Count);
+            Assert.AreEqual(2, test0Copy.TestList.Count);
             Assert.AreEqual(2, test0Copy.TestList[0]);
+            Assert.AreEqual(4, test0Copy.TestList[1]);
             Assert.AreEqual(1, test0Copy.TestSet.Count);
             Assert.AreEqual(3, test0Copy.TestSet.Min);
             Assert.AreEqual(3, test0Copy.TestSet.Max);
             Assert.AreEqual(0, test0Copy.TestStrings.Count);
+        }
+
+        [Test]
+        public static void BigObject()
+        {
+            Serializer s = new Serializer();
+
+            TestInserters1 test1 = new TestInserters1();
+
+            string TestString = string.Empty;
+
+            for (int i = 0; i < 10000; i++)
+                TestString += "0123456789";
+
+            test1.TestString = TestString;
+
+            MemoryStream Stream0 = new MemoryStream();
+            s.Serialize(Stream0, test1);
         }
     }
 }

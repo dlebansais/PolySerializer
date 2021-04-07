@@ -303,7 +303,7 @@
             string Text1 = "Mode=xyz\n{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n0x00000000";
             MemoryStream Stream1 = new MemoryStream(Encoding.ASCII.GetBytes(Text1));
 
-            //Assert.Throws(typeof(InvalidDataException), () => s.Check(Stream1));
+            Assert.Throws(typeof(InvalidDataException), () => s.Check(Stream1));
 
             string Text2 = "Mode=Default\n{Test.xyz, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n0x00000000";
             MemoryStream Stream2 = new MemoryStream(Encoding.ASCII.GetBytes(Text2));

@@ -7,6 +7,7 @@
     using System.Globalization;
     using System.IO;
     using System.Reflection;
+    using System.Threading.Tasks;
 
     [System.Serializable]
     public class TestAttributes0
@@ -48,10 +49,10 @@
     [System.Serializable]
     public class TestAttributes4
     {
-        [PolySerializer.Serializable(Constructor = "Test")]
-        public TestAttributes4(int test)
+        [PolySerializer.Serializable(Constructor = "Test,Test")]
+        public TestAttributes4(int test0, int test1)
         {
-            Test = test;
+            Test = test0;
         }
 
         public int Test { get; set; }
@@ -69,13 +70,17 @@
             TestAttributes0 test0 = new TestAttributes0();
             test0.SetTest(1);
 
-            MemoryStream Stream = new MemoryStream();
-            s.Serialize(Stream, test0);
+            MemoryStream Stream0 = new MemoryStream();
+            s.Serialize(Stream0, test0);
 
-            Stream.Seek(0, SeekOrigin.Begin);
-            TestAttributes0 test0Copy = (TestAttributes0)s.Deserialize(Stream);
+            Stream0.Seek(0, SeekOrigin.Begin);
+            TestAttributes0 test0Copy = (TestAttributes0)s.Deserialize(Stream0);
 
             Assert.AreEqual(1, test0Copy.Test);
+
+            MemoryStream Stream1 = new MemoryStream();
+            Task t = s.SerializeAsync(Stream1, test0);
+            t.Wait();
         }
 
         [Test]
@@ -291,7 +296,7 @@
             Serializer s = new Serializer();
             bool IsCompatible;
 
-            TestAttributes4 test0 = new TestAttributes4(1);
+            TestAttributes4 test0 = new TestAttributes4(1,1);
 
             MemoryStream Stream0 = new MemoryStream();
             s.Serialize(Stream0, test0);
@@ -314,7 +319,7 @@
             s.Format = SerializationFormat.TextPreferred;
             bool IsCompatible;
 
-            TestAttributes4 test0 = new TestAttributes4(1);
+            TestAttributes4 test0 = new TestAttributes4(1,1);
 
             MemoryStream Stream0 = new MemoryStream();
             s.Serialize(Stream0, test0);

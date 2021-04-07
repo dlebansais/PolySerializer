@@ -72,8 +72,11 @@
                 ReadField(ref data, ref offset, 1);
             while (data[offset++] != '\'');
 
-            if (offset == CharOffset + 4 && data[CharOffset + 1] == '\\' && data[CharOffset + 2] == '\'')
+            if (offset == CharOffset + 3 && data[CharOffset + 1] == '\\' && data[CharOffset + 2] == '\'')
+            {
                 Value = '\'';
+                offset++;
+            }
             else
                 Value = Encoding.UTF8.GetString(data, CharOffset + 1, offset - CharOffset - 2)[0];
 
