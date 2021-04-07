@@ -129,11 +129,12 @@
 
             string[] FullNamePath = Name.Split(',');
 
-            bool IsValidName = FullNamePath.Length == 5 &&
-                               FullNamePath[1].StartsWith(AssemblyPattern, StringComparison.InvariantCulture) &&
-                               FullNamePath[2].StartsWith(VersionPattern, StringComparison.InvariantCulture) &&
-                               FullNamePath[3].StartsWith(CulturePattern, StringComparison.InvariantCulture) &&
-                               FullNamePath[4].StartsWith(PublicKeyTokenPattern, StringComparison.InvariantCulture);
+            bool IsValidLength = FullNamePath.Length == 5;
+            bool IsValidAssembly = IsValidLength && FullNamePath[1].StartsWith(AssemblyPattern, StringComparison.InvariantCulture);
+            bool IsValidVersion = IsValidLength && FullNamePath[2].StartsWith(VersionPattern, StringComparison.InvariantCulture);
+            bool IsValidCulture = IsValidLength && FullNamePath[3].StartsWith(CulturePattern, StringComparison.InvariantCulture);
+            bool IsValidToken = IsValidLength && FullNamePath[4].StartsWith(PublicKeyTokenPattern, StringComparison.InvariantCulture);
+            bool IsValidName = IsValidLength && IsValidAssembly && IsValidVersion && IsValidCulture && IsValidToken;
 
             // Name should be always valid for a type name unless .NET changes drastically.
             if (!IsValidName)
