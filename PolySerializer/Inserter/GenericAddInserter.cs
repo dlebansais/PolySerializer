@@ -43,35 +43,46 @@
             Type[] GenericArguments = ReferenceType.GetGenericArguments();
             if (GenericArguments.Length > 0)
             {
-                Type GenericArgument = GenericArguments[0];
-                MethodInfo? SelectedAddMethod = null;
-
-                MethodInfo[] MethodInfos = ReferenceType.GetMethods();
-                foreach (MethodInfo MethodInfo in MethodInfos)
-                    if (MethodInfo.Name == "Add")
-                    {
-                        ParameterInfo[] ParameterInfos = MethodInfo.GetParameters();
-                        if (ParameterInfos.Length == 1)
-                        {
-                            ParameterInfo FirstParameterInfo = ParameterInfos[0];
-                            if (FirstParameterInfo.ParameterType == GenericArgument)
-                            {
-                                SelectedAddMethod = MethodInfo;
-                                break;
-                            }
-                        }
-                    }
-
-                if (SelectedAddMethod != null)
+                Type GenericArgumentType = GenericArguments[0];
+                if (IsAddMethod(ReferenceType, GenericArgumentType, out MethodInfo SelectedAddMethod))
                 {
                     Reference = reference;
                     AddMethod = SelectedAddMethod;
-                    itemType = GenericArgument;
+                    itemType = GenericArgumentType;
                     return true;
                 }
             }
 
             Contract.Unused(out itemType);
+            return false;
+        }
+
+        private bool IsAddMethod(Type referenceType, Type genericArgumentType, out MethodInfo selectedAddMethod)
+        {
+            MethodInfo[] MethodInfos = referenceType.GetMethods();
+            foreach (MethodInfo MethodInfo in MethodInfos)
+                if (MethodInfo.Name == "Add")
+                    if (IsSingleParameterAddMethod(MethodInfo, genericArgumentType, out selectedAddMethod))
+                        return true;
+
+            Contract.Unused(out selectedAddMethod);
+            return false;
+        }
+
+        private bool IsSingleParameterAddMethod(MethodInfo methodInfo, Type genericArgumentType, out MethodInfo selectedAddMethod)
+        {
+            ParameterInfo[] ParameterInfos = methodInfo.GetParameters();
+            if (ParameterInfos.Length == 1)
+            {
+                ParameterInfo FirstParameterInfo = ParameterInfos[0];
+                if (FirstParameterInfo.ParameterType == genericArgumentType)
+                {
+                    selectedAddMethod = methodInfo;
+                    return true;
+                }
+            }
+
+            Contract.Unused(out selectedAddMethod);
             return false;
         }
 

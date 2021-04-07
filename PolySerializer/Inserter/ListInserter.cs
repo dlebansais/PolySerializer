@@ -3,6 +3,7 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using Contracts;
 
     /// <summary>
@@ -37,23 +38,37 @@
             Contract.RequireNotNull(referenceType, out Type ReferenceType);
 
             if (reference is IList AsIList)
-            {
-                foreach (Type Interface in ReferenceType.GetInterfaces())
-                {
-                    if (Interface.IsGenericType)
-                        if (Interface.GetGenericTypeDefinition() == typeof(IList<>))
-                        {
-                            Type[] GenericArguments = Interface.GetGenericArguments();
-                            if (GenericArguments.Length > 0)
-                            {
-                                Type GenericArgument = GenericArguments[0];
+                return TrySetListReference(AsIList, ReferenceType, out itemType);
 
-                                Reference = AsIList;
-                                itemType = GenericArgument;
-                                return true;
-                            }
-                        }
-                }
+            Contract.Unused(out itemType);
+            return false;
+        }
+
+        private bool TrySetListReference(IList listReference, Type referenceType, out Type itemType)
+        {
+            foreach (Type Interface in referenceType.GetInterfaces())
+                if (Interface.IsGenericType)
+                    if (Interface.GetGenericTypeDefinition() == typeof(IList<>))
+                        if (TrySetGenericListReference(listReference, Interface, out itemType))
+                            return true;
+
+            Contract.Unused(out itemType);
+            return false;
+        }
+
+        private bool TrySetGenericListReference(IList listReference, Type interfaceType, out Type itemType)
+        {
+            Debug.Assert(interfaceType.IsGenericType);
+            Debug.Assert(interfaceType.GetGenericTypeDefinition() == typeof(IList<>));
+
+            Type[] GenericArguments = interfaceType.GetGenericArguments();
+            if (GenericArguments.Length > 0)
+            {
+                Type GenericArgument = GenericArguments[0];
+
+                Reference = listReference;
+                itemType = GenericArgument;
+                return true;
             }
 
             Contract.Unused(out itemType);
@@ -76,19 +91,27 @@
             Contract.RequireNotNull(referenceType, out Type ReferenceType);
 
             foreach (Type Interface in ReferenceType.GetInterfaces())
-            {
                 if (Interface.IsGenericType)
                     if (Interface.GetGenericTypeDefinition() == typeof(IList<>))
-                    {
-                        Type[] GenericArguments = Interface.GetGenericArguments();
-                        if (GenericArguments.Length > 0)
-                        {
-                            Type GenericArgument = GenericArguments[0];
-
-                            itemType = GenericArgument;
+                        if (TryMatchGenericType(Interface, out itemType))
                             return true;
-                        }
-                    }
+
+            Contract.Unused(out itemType);
+            return false;
+        }
+
+        private bool TryMatchGenericType(Type interfaceType, out Type itemType)
+        {
+            Debug.Assert(interfaceType.IsGenericType);
+            Debug.Assert(interfaceType.GetGenericTypeDefinition() == typeof(IList<>));
+
+            Type[] GenericArguments = interfaceType.GetGenericArguments();
+            if (GenericArguments.Length > 0)
+            {
+                Type GenericArgument = GenericArguments[0];
+
+                itemType = GenericArgument;
+                return true;
             }
 
             Contract.Unused(out itemType);
