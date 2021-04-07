@@ -104,29 +104,11 @@
             Type[] GenericArguments = ReferenceType.GetGenericArguments();
             if (GenericArguments.Length > 0)
             {
-                Type GenericArgument = GenericArguments[0];
-                MethodInfo? SelectedAddMethod = null;
-
-                MethodInfo[] MethodInfos = ReferenceType.GetMethods();
-                foreach (MethodInfo MethodInfo in MethodInfos)
-                    if (MethodInfo.Name == "Add")
-                    {
-                        ParameterInfo[] ParameterInfos = MethodInfo.GetParameters();
-                        if (ParameterInfos.Length == 1)
-                        {
-                            ParameterInfo FirstParameterInfo = ParameterInfos[0];
-                            if (FirstParameterInfo.ParameterType == GenericArgument)
-                            {
-                                SelectedAddMethod = MethodInfo;
-                                break;
-                            }
-                        }
-                    }
-
-                if (SelectedAddMethod != null)
+                Type GenericArgumentType = GenericArguments[0];
+                if (IsAddMethod(ReferenceType, GenericArgumentType, out MethodInfo SelectedAddMethod))
                 {
                     AddMethod = SelectedAddMethod;
-                    itemType = GenericArgument;
+                    itemType = GenericArgumentType;
                     return true;
                 }
             }

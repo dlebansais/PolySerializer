@@ -14,6 +14,8 @@
         public int[] TestArray { get; set; } = new int[0];
         public List<int> TestList { get; set; } = new List<int>();
         public SortedSet<int> TestSet { get; set; } = new SortedSet<int>();
+        public Dictionary<int, int> TestDictionary { get; set; } = new Dictionary<int, int>();
+        public Array TestEmptyArray { get; set; } = new int[0];
     }
 
     [TestFixture]
