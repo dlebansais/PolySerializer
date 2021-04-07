@@ -197,7 +197,10 @@
                 return true;
 
             OverrideTypeName(ref ReferenceTypeName);
-            Type ReferenceType = Type.GetType(ReferenceTypeName)!;
+            Type? ReferenceType = Type.GetType(ReferenceTypeName);
+            if (ReferenceType == null)
+                return false;
+
             Type OriginalType = ReferenceType;
             OverrideType(ref ReferenceType);
             ReferenceType = OriginalType;

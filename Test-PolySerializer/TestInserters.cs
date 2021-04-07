@@ -87,6 +87,7 @@
             test0.TestSet = new SortedSet<int>();
             test0.TestSet.Add(3);
             test0.TestStrings.Add("*");
+            test0.Self = test0;
 
             MemoryStream Stream = new MemoryStream();
             using (StreamWriter Writer = new StreamWriter(Stream, Encoding.UTF8, 128, true))
