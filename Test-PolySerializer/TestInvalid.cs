@@ -36,6 +36,18 @@
         public TestInvalid3 Test { get; set; } = new TestInvalid3();
     }
 
+    [System.Serializable]
+    public class TestInvalid5
+    {
+        [PolySerializer.Serializable(Constructor = "Test")]
+        public TestInvalid5(TestInvalid0 test)
+        {
+            Test = test;
+        }
+
+        public TestInvalid0 Test { get; set; }
+    }
+
     [TestFixture]
     public class TestInvalid
     {
@@ -130,6 +142,31 @@
 
             Stream5.Seek(0, SeekOrigin.Begin);
             IsCompatible = s.Check(Stream5);
+
+            Assert.IsFalse(IsCompatible);
+        }
+
+        [Test]
+        public static void InvalidConstructor()
+        {
+            Serializer s = new Serializer();
+            bool IsCompatible;
+
+            TestInvalid0 parameter = new TestInvalid0();
+            TestInvalid5 test0 = new TestInvalid5(parameter);
+
+            MemoryStream Stream0 = new MemoryStream();
+            s.Serialize(Stream0, test0);
+
+            Stream0.Seek(0xDA, SeekOrigin.Begin);
+
+            using (BinaryWriter Writer = new BinaryWriter(Stream0, Encoding.ASCII, true))
+            {
+                Writer.Write("xyz");
+            }
+
+            Stream0.Seek(0, SeekOrigin.Begin);
+            IsCompatible = s.Check(Stream0);
 
             Assert.IsFalse(IsCompatible);
         }

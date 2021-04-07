@@ -36,6 +36,27 @@
         public T Test { get; set; }
     }
 
+    [System.Serializable]
+    public class TestAttributes3
+    {
+        [PolySerializer.Serializable(Condition = "TestCondition")]
+        public int Test { get; set; }
+
+        public bool TestCondition { get; set; }
+    }
+
+    [System.Serializable]
+    public class TestAttributes4
+    {
+        [PolySerializer.Serializable(Constructor = "Test")]
+        public TestAttributes4(int test)
+        {
+            Test = test;
+        }
+
+        public int Test { get; set; }
+    }
+
     [TestFixture]
     public class TestAttributes
     {
@@ -179,6 +200,69 @@
             TestAttributes2<int> test2Copy = (TestAttributes2<int>)s.Deserialize(Stream);
 
             Assert.AreEqual(2, test2Copy.Test);
+        }
+
+        [Test]
+        public static void CheckCondition()
+        {
+            Serializer s = new Serializer();
+            bool IsCompatible;
+
+            TestAttributes3 test0 = new TestAttributes3();
+            test0.Test = 1;
+            test0.TestCondition = false;
+
+            MemoryStream Stream0 = new MemoryStream();
+            s.Serialize(Stream0, test0);
+
+            Stream0.Seek(0, SeekOrigin.Begin);
+            IsCompatible = s.Check(Stream0);
+
+            Assert.IsTrue(IsCompatible);
+
+            Stream0.Seek(0, SeekOrigin.Begin);
+            TestAttributes3 test0Copy = (TestAttributes3)s.Deserialize(Stream0);
+
+            Assert.AreEqual(0, test0Copy.Test);
+
+            TestAttributes3 test1 = new TestAttributes3();
+            test1.Test = 1;
+            test1.TestCondition = true;
+
+            MemoryStream Stream1 = new MemoryStream();
+            s.Serialize(Stream1, test1);
+
+            Stream1.Seek(0, SeekOrigin.Begin);
+            IsCompatible = s.Check(Stream1);
+
+            Assert.IsTrue(IsCompatible);
+
+            Stream1.Seek(0, SeekOrigin.Begin);
+            TestAttributes3 test1Copy = (TestAttributes3)s.Deserialize(Stream1);
+
+            Assert.AreEqual(1, test1Copy.Test);
+        }
+
+        [Test]
+        public static void CheckConstructor()
+        {
+            Serializer s = new Serializer();
+            bool IsCompatible;
+
+            TestAttributes4 test0 = new TestAttributes4(1);
+
+            MemoryStream Stream0 = new MemoryStream();
+            s.Serialize(Stream0, test0);
+
+            Stream0.Seek(0, SeekOrigin.Begin);
+            IsCompatible = s.Check(Stream0);
+
+            Assert.IsTrue(IsCompatible);
+
+            Stream0.Seek(0, SeekOrigin.Begin);
+            TestAttributes4 test0Copy = (TestAttributes4)s.Deserialize(Stream0);
+
+            Assert.AreEqual(1, test0Copy.Test);
         }
     }
 }
