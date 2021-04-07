@@ -306,19 +306,12 @@
             int StartIndex = FullName.LastIndexOf(pattern, StringComparison.InvariantCulture);
             Debug.Assert(StartIndex >= 0);
 
-            if (StartIndex >= 0)
-            {
-                string EndName = FullName.Substring(StartIndex + pattern.Length);
-                int EndIndex = EndName.IndexOf(",", StringComparison.InvariantCulture);
-                if (EndIndex < 0)
-                    EndIndex = EndName.Length;
+            string EndName = FullName.Substring(StartIndex + pattern.Length);
+            int EndIndex = EndName.IndexOf(",", StringComparison.InvariantCulture);
+            if (EndIndex < 0)
+                EndIndex = EndName.Length;
 
-                if (EndIndex >= 0)
-                    return EndName.Substring(0, EndIndex);
-            }
-
-            Contract.Unused(out string Result);
-            return Result;
+            return EndName.Substring(0, EndIndex);
         }
         #endregion
 

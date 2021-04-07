@@ -67,8 +67,13 @@
             NamespaceDescriptor Descriptor3 = new NamespaceDescriptor(nameof(Test), CurrentAssemblyName.Name, CurrentAssemblyName.Version.ToString());
             NamespaceDescriptor Descriptor4 = new NamespaceDescriptor(nameof(Test), CurrentAssemblyName.Name, CurrentAssemblyName.Version.ToString(), "neutral", "null");
             NamespaceDescriptor Descriptor5 = NamespaceDescriptor.DescriptorFromType(typeof(TestAttributes0));
+            NamespaceDescriptor Descriptor6 = NamespaceDescriptor.DescriptorFromType(typeof(Test1.TestAttributes1));
 
-            Assert.AreEqual(Descriptor4, Descriptor5);
+            object Reference = Descriptor5;
+            Assert.IsTrue(Descriptor4.Equals(Reference));
+            Assert.IsTrue(Descriptor4.Equals(Descriptor5));
+            Assert.IsTrue(Descriptor4 == Descriptor5);
+            Assert.IsFalse(Descriptor4 != Descriptor5);
 
             NamespaceOverrideTable.Add(Descriptor1, Descriptor5);
             NamespaceOverrideTable.Add(Descriptor2, Descriptor5);
