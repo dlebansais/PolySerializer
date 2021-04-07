@@ -123,26 +123,25 @@
         {
             switch (value)
             {
-                default:
-                case bool As_bool:
+                case bool _:
                     AddFieldBool_BINARY(ref data, ref offset, (bool)value);
                     break;
-                case char As_char:
+                case char _:
                     AddFieldChar_BINARY(ref data, ref offset, (char)value);
                     break;
-                case decimal As_decimal:
+                case decimal _:
                     AddFieldDecimal_BINARY(ref data, ref offset, (decimal)value);
                     break;
-                case double As_double:
+                case double _:
                     AddFieldDouble_BINARY(ref data, ref offset, (double)value);
                     break;
-                case float As_float:
+                case float _:
                     AddFieldFloat_BINARY(ref data, ref offset, (float)value);
                     break;
-                case string As_string:
+                case string _:
                     AddFieldString_BINARY(ref data, ref offset, (string)value);
                     break;
-                case Guid As_Guid:
+                case Guid _:
                     AddFieldGuid_BINARY(ref data, ref offset, (Guid)value);
                     break;
             }
@@ -154,29 +153,28 @@
         {
             switch (value)
             {
-                default:
-                case sbyte As_sbyte:
+                case sbyte _:
                     AddFieldSByte_BINARY(ref data, ref offset, (sbyte)value);
                     break;
-                case byte As_byte:
+                case byte _:
                     AddFieldByte_BINARY(ref data, ref offset, (byte)value);
                     break;
-                case int As_int:
+                case int _:
                     AddFieldInt_BINARY(ref data, ref offset, (int)value);
                     break;
-                case long As_long:
+                case long _:
                     AddFieldLong_BINARY(ref data, ref offset, (long)value);
                     break;
-                case short As_short:
+                case short _:
                     AddFieldShort_BINARY(ref data, ref offset, (short)value);
                     break;
-                case uint As_uint:
+                case uint _:
                     AddFieldUInt_BINARY(ref data, ref offset, (uint)value);
                     break;
-                case ulong As_ulong:
+                case ulong _:
                     AddFieldULong_BINARY(ref data, ref offset, (ulong)value);
                     break;
-                case ushort As_ushort:
+                case ushort _:
                     AddFieldUShort_BINARY(ref data, ref offset, (ushort)value);
                     break;
             }

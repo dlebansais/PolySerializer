@@ -134,25 +134,25 @@
             switch (value)
             {
                 default:
-                case bool As_bool:
+                case bool _:
                     AddFieldBool_TEXT(ref data, ref offset, (bool)value);
                     break;
-                case char As_char:
+                case char _:
                     AddFieldChar_TEXT(ref data, ref offset, (char)value);
                     break;
-                case decimal As_decimal:
+                case decimal _:
                     AddFieldDecimal_TEXT(ref data, ref offset, (decimal)value);
                     break;
-                case double As_double:
+                case double _:
                     AddFieldDouble_TEXT(ref data, ref offset, (double)value);
                     break;
-                case float As_float:
+                case float _:
                     AddFieldFloat_TEXT(ref data, ref offset, (float)value);
                     break;
-                case string As_string:
+                case string _:
                     AddFieldString_TEXT(ref data, ref offset, (string)value);
                     break;
-                case Guid As_Guid:
+                case Guid _:
                     AddFieldGuid_TEXT(ref data, ref offset, (Guid)value);
                     break;
             }
@@ -165,28 +165,28 @@
             switch (value)
             {
                 default:
-                case sbyte As_sbyte:
+                case sbyte _:
                     AddFieldSByte_TEXT(ref data, ref offset, (sbyte)value);
                     break;
-                case byte As_byte:
+                case byte _:
                     AddFieldByte_TEXT(ref data, ref offset, (byte)value);
                     break;
-                case int As_int:
+                case int _:
                     AddFieldInt_TEXT(ref data, ref offset, (int)value);
                     break;
-                case long As_long:
+                case long _:
                     AddFieldLong_TEXT(ref data, ref offset, (long)value);
                     break;
-                case short As_short:
+                case short _:
                     AddFieldShort_TEXT(ref data, ref offset, (short)value);
                     break;
-                case uint As_uint:
+                case uint _:
                     AddFieldUInt_TEXT(ref data, ref offset, (uint)value);
                     break;
-                case ulong As_ulong:
+                case ulong _:
                     AddFieldULong_TEXT(ref data, ref offset, (ulong)value);
                     break;
-                case ushort As_ushort:
+                case ushort _:
                     AddFieldUShort_TEXT(ref data, ref offset, (ushort)value);
                     break;
             }
@@ -357,11 +357,7 @@
 
         private void AddFieldString_TEXT(ref byte[] data, ref int offset, string value)
         {
-            if (value == null)
-                value = "null";
-            else
-                value = "\"" + value.Replace("\"", "\\\"") + "\"";
-
+            value = "\"" + value.Replace("\"", "\\\"") + "\"";
             AddField(ref data, ref offset, Encoding.UTF8.GetBytes(value));
         }
 
