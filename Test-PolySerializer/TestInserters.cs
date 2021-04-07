@@ -4,9 +4,8 @@
     using PolySerializer;
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
+    using System.Collections.Specialized;
     using System.IO;
-    using System.Reflection;
 
     [System.Serializable]
     public class TestInserters0
@@ -15,7 +14,7 @@
         public List<int> TestList { get; set; } = new List<int>();
         public SortedSet<int> TestSet { get; set; } = new SortedSet<int>();
         public Dictionary<int, int> TestDictionary { get; set; } = new Dictionary<int, int>();
-        public Array TestEmptyArray { get; set; } = new int[0];
+        public StringCollection TestStrings { get; set; } = new StringCollection();
     }
 
     [TestFixture]
@@ -38,6 +37,7 @@
             test0.TestList.Add(2);
             test0.TestSet = new SortedSet<int>();
             test0.TestSet.Add(3);
+            test0.TestStrings.Add("*");
 
             MemoryStream Stream = new MemoryStream();
             s.Serialize(Stream, test0);
@@ -56,6 +56,7 @@
             Assert.AreEqual(1, test0Copy.TestSet.Count);
             Assert.AreEqual(3, test0Copy.TestSet.Min);
             Assert.AreEqual(3, test0Copy.TestSet.Max);
+            Assert.AreEqual(0, test0Copy.TestStrings.Count);
         }
     }
 }

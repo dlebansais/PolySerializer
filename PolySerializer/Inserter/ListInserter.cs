@@ -49,30 +49,27 @@
             foreach (Type Interface in referenceType.GetInterfaces())
                 if (Interface.IsGenericType)
                     if (Interface.GetGenericTypeDefinition() == typeof(IList<>))
-                        if (TrySetGenericListReference(listReference, Interface, out itemType))
-                            return true;
+                    {
+                        SetGenericListReference(listReference, Interface, out itemType);
+                        return true;
+                    }
 
             Contract.Unused(out itemType);
             return false;
         }
 
-        private bool TrySetGenericListReference(IList listReference, Type interfaceType, out Type itemType)
+        private void SetGenericListReference(IList listReference, Type interfaceType, out Type itemType)
         {
             Debug.Assert(interfaceType.IsGenericType);
             Debug.Assert(interfaceType.GetGenericTypeDefinition() == typeof(IList<>));
 
             Type[] GenericArguments = interfaceType.GetGenericArguments();
-            if (GenericArguments.Length > 0)
-            {
-                Type GenericArgument = GenericArguments[0];
+            Debug.Assert(GenericArguments.Length > 0);
 
-                Reference = listReference;
-                itemType = GenericArgument;
-                return true;
-            }
+            Type GenericArgument = GenericArguments[0];
 
-            Contract.Unused(out itemType);
-            return false;
+            Reference = listReference;
+            itemType = GenericArgument;
         }
 
         /// <summary>
@@ -93,29 +90,26 @@
             foreach (Type Interface in ReferenceType.GetInterfaces())
                 if (Interface.IsGenericType)
                     if (Interface.GetGenericTypeDefinition() == typeof(IList<>))
-                        if (TryMatchGenericType(Interface, out itemType))
-                            return true;
+                    {
+                        MatchGenericType(Interface, out itemType);
+                        return true;
+                    }
 
             Contract.Unused(out itemType);
             return false;
         }
 
-        private bool TryMatchGenericType(Type interfaceType, out Type itemType)
+        private void MatchGenericType(Type interfaceType, out Type itemType)
         {
             Debug.Assert(interfaceType.IsGenericType);
             Debug.Assert(interfaceType.GetGenericTypeDefinition() == typeof(IList<>));
 
             Type[] GenericArguments = interfaceType.GetGenericArguments();
-            if (GenericArguments.Length > 0)
-            {
-                Type GenericArgument = GenericArguments[0];
+            Debug.Assert(GenericArguments.Length > 0);
 
-                itemType = GenericArgument;
-                return true;
-            }
+            Type GenericArgument = GenericArguments[0];
 
-            Contract.Unused(out itemType);
-            return false;
+            itemType = GenericArgument;
         }
 
         /// <summary>

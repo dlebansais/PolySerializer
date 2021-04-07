@@ -1,6 +1,7 @@
 ﻿namespace PolySerializer
 {
     using System;
+    using System.Diagnostics;
     using System.Reflection;
     using Contracts;
 
@@ -75,11 +76,10 @@
             if (ParameterInfos.Length == 1)
             {
                 ParameterInfo FirstParameterInfo = ParameterInfos[0];
-                if (FirstParameterInfo.ParameterType == genericArgumentType)
-                {
-                    selectedAddMethod = methodInfo;
-                    return true;
-                }
+                Debug.Assert(FirstParameterInfo.ParameterType == genericArgumentType);
+
+                selectedAddMethod = methodInfo;
+                return true;
             }
 
             Contract.Unused(out selectedAddMethod);
