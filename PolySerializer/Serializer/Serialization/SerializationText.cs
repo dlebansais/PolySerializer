@@ -133,7 +133,6 @@
         {
             switch (value)
             {
-                default:
                 case bool _:
                     AddFieldBool_TEXT(ref data, ref offset, (bool)value);
                     break;
@@ -164,7 +163,6 @@
         {
             switch (value)
             {
-                default:
                 case sbyte _:
                     AddFieldSByte_TEXT(ref data, ref offset, (sbyte)value);
                     break;

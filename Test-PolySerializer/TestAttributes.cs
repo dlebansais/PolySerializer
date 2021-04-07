@@ -79,8 +79,16 @@
             Assert.AreEqual(1, test0Copy.Test);
 
             MemoryStream Stream1 = new MemoryStream();
-            Task t = s.SerializeAsync(Stream1, test0);
-            t.Wait();
+            Task SerializeTask = s.SerializeAsync(Stream1, test0);
+            SerializeTask.Wait();
+
+            Stream1.Seek(0, SeekOrigin.Begin);
+            Task<object> DeserializeTask = s.DeserializeAsync(Stream1);
+            DeserializeTask.Wait();
+
+            TestAttributes0 test1Copy = (TestAttributes0)DeserializeTask.Result;
+
+            Assert.AreEqual(1, test1Copy.Test);
         }
 
         [Test]

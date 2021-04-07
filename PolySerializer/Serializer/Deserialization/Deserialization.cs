@@ -148,11 +148,6 @@
             }
         }
 
-        private static Type DeserializedTrueType(string typeName)
-        {
-            return Type.GetType(typeName)!;
-        }
-
         private bool OverrideTypeName(ref string referenceTypeName)
         {
             if (NamespaceOverrideTable.Count == 0)
