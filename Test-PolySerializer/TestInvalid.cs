@@ -2,12 +2,9 @@
 {
     using NUnit.Framework;
     using PolySerializer;
-    using System;
     using System.Collections.Generic;
-    using System.Collections.Specialized;
     using System.IO;
     using System.Text;
-    using System.Threading.Tasks;
 
     [System.Serializable]
     public class TestInvalid0
@@ -25,6 +22,18 @@
     public class TestInvalid2
     {
         public List<TestInvalid0> Test { get; set; } = new List<TestInvalid0>();
+    }
+
+    [System.Serializable]
+    public struct TestInvalid3
+    {
+        public TestInvalid0 Test;
+    }
+
+    [System.Serializable]
+    public class TestInvalid4
+    {
+        public TestInvalid3 Test { get; set; } = new TestInvalid3();
     }
 
     [TestFixture]
@@ -51,6 +60,8 @@
 
             Stream1.Seek(0, SeekOrigin.Begin);
             IsCompatible = s.Check(Stream1);
+
+            Assert.IsFalse(IsCompatible);
 
             TestInvalid1 test2 = new TestInvalid1();
             
@@ -99,6 +110,26 @@
 
             Stream4.Seek(0, SeekOrigin.Begin);
             IsCompatible = s.Check(Stream4);
+
+            Assert.IsFalse(IsCompatible);
+
+            TestInvalid4 test5 = new TestInvalid4();
+            TestInvalid3 test51 = new TestInvalid3();
+            test51.Test = new TestInvalid0();
+            test5.Test = test51;
+
+            MemoryStream Stream5 = new MemoryStream();
+            s.Serialize(Stream5, test5);
+
+            Stream5.Seek(0x191, SeekOrigin.Begin);
+
+            using (BinaryWriter Writer = new BinaryWriter(Stream5, Encoding.ASCII, true))
+            {
+                Writer.Write("xyz");
+            }
+
+            Stream5.Seek(0, SeekOrigin.Begin);
+            IsCompatible = s.Check(Stream5);
 
             Assert.IsFalse(IsCompatible);
         }

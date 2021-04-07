@@ -17,7 +17,8 @@
         public SortedSet<int> TestSet { get; set; } = new SortedSet<int>();
         public Dictionary<int, int> TestDictionary { get; set; } = new Dictionary<int, int>();
         public StringCollection TestStrings { get; set; } = new StringCollection();
-    }
+        public TestInserters0? Self { get; set; }
+}
 
     [TestFixture]
     public class TestInserters
@@ -40,6 +41,7 @@
             test0.TestSet = new SortedSet<int>();
             test0.TestSet.Add(3);
             test0.TestStrings.Add("*");
+            test0.Self = test0;
 
             MemoryStream Stream = new MemoryStream();
             s.Serialize(Stream, test0);

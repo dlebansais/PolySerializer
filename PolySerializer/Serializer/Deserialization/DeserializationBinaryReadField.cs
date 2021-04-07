@@ -220,7 +220,7 @@
         {
             int Value;
 
-            Value = (int)ReadFieldLong_BINARY(ref data, ref offset);
+            Value = (int)(long)ReadFieldLong_BINARY(ref data, ref offset);
 
             return Value;
         }
