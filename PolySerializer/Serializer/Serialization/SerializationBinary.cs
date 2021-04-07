@@ -202,6 +202,7 @@
                 case nameof(UInt16):
                     AddFieldUShort_BINARY(ref data, ref offset, (ushort)value);
                     break;
+                default:
                 case nameof(Int32):
                     AddFieldInt_BINARY(ref data, ref offset, (int)value);
                     break;
@@ -213,9 +214,6 @@
                     break;
                 case nameof(UInt64):
                     AddFieldULong_BINARY(ref data, ref offset, (ulong)value);
-                    break;
-                default:
-                    AddFieldInt_BINARY(ref data, ref offset, (int)value);
                     break;
             }
         }

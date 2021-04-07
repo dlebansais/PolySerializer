@@ -212,6 +212,7 @@
                 case nameof(UInt16):
                     AddFieldUShort_TEXT(ref data, ref offset, (ushort)value);
                     break;
+                default:
                 case nameof(Int32):
                     AddFieldInt_TEXT(ref data, ref offset, (int)value);
                     break;
@@ -223,9 +224,6 @@
                     break;
                 case nameof(UInt64):
                     AddFieldULong_TEXT(ref data, ref offset, (ulong)value);
-                    break;
-                default:
-                    AddFieldInt_TEXT(ref data, ref offset, (int)value);
                     break;
             }
         }

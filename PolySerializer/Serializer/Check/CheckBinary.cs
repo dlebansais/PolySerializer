@@ -136,6 +136,7 @@
                 case nameof(UInt16):
                     Enum.ToObject(valueType, ReadFieldUShort_BINARY(ref data, ref offset));
                     break;
+                default:
                 case nameof(Int32):
                     Enum.ToObject(valueType, ReadFieldInt_BINARY(ref data, ref offset));
                     break;
@@ -147,9 +148,6 @@
                     break;
                 case nameof(UInt64):
                     Enum.ToObject(valueType, ReadFieldULong_BINARY(ref data, ref offset));
-                    break;
-                default:
-                    Enum.ToObject(valueType, ReadFieldInt_BINARY(ref data, ref offset));
                     break;
             }
         }
@@ -164,7 +162,10 @@
                 return true;
 
             OverrideTypeName(ref ReferenceTypeName);
-            Type ReferenceType = Type.GetType(ReferenceTypeName)!;
+            Type? ReferenceType = Type.GetType(ReferenceTypeName);
+            if (ReferenceType == null)
+                return false;
+
             Type OriginalType = ReferenceType;
             OverrideType(ref ReferenceType);
             ReferenceType = OriginalType;

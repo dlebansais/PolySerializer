@@ -171,6 +171,7 @@
                 case nameof(UInt16):
                     Enum.ToObject(valueType, ReadFieldUShort_TEXT(ref data, ref offset));
                     break;
+                default:
                 case nameof(Int32):
                     Enum.ToObject(valueType, ReadFieldInt_TEXT(ref data, ref offset));
                     break;
@@ -182,9 +183,6 @@
                     break;
                 case nameof(UInt64):
                     Enum.ToObject(valueType, ReadFieldULong_TEXT(ref data, ref offset));
-                    break;
-                default:
-                    Enum.ToObject(valueType, ReadFieldInt_TEXT(ref data, ref offset));
                     break;
             }
         }
