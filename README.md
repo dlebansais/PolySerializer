@@ -1,19 +1,9 @@
-# Status: beta
-TODO:
-- [x] Conversion to human-readable text.
-- [X] Checking validity of serialized streams.
-- [X] Confirm support of very large collections (several billions items).
-- [X] Support of constructors with parameters.
-- [X] Asynchronous operations.
-- [ ] Missing: separate format and data.
-- [X] Conversion to different endianness.
-- [x] Optimization.
-- [x] Doc and example.
-
 # Polymorphic Serializer
 A generic .NET serializer for object exchange between assemblies. Supports polymorphism and much more.
 
-[![Build status](https://ci.appveyor.com/api/projects/status/4m9kpyu5k1qekl9x?svg=true)](https://ci.appveyor.com/project/dlebansais/polyserializer)
+[![Build status](https://ci.appveyor.com/api/projects/status/va48foddbbydxiov?svg=true)](https://ci.appveyor.com/project/dlebansais/polyserializer-khj0v)
+[![codecov](https://codecov.io/gh/dlebansais/PolySerializer/branch/master/graph/badge.svg?token=gDmPN1mYLj)](https://codecov.io/gh/dlebansais/PolySerializer)
+[![CodeFactor](https://www.codefactor.io/repository/github/dlebansais/polyserializer/badge)](https://www.codefactor.io/repository/github/dlebansais/polyserializer)
 
 PolySerializer takes C# objects and serializes them (i.e. copy them onto a stream that can be archived or exchanged). Contrary to most serializers, it will locate the first parent in the inheritance tree that supports serialization, and only serializes object members belonging to that parent. Likewise, when the object is deserialized (i.e. read from a stream and transformed into an actual, live C# object) the destination type can be chosen so that the type of the created object is another descendant of the serialized type, possibly different than the original. Only members of the destination will then be initialized to their serialized value. See the example section to better understand how it works.
 
