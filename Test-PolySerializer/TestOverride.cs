@@ -17,7 +17,7 @@
     [System.Serializable]
     public class TestOverride1
     {
-        public int Test { get; set; }
+        public List<TestOverride0> Test { get; set; } = new List<TestOverride0>();
     }
 
     [TestFixture]
@@ -43,6 +43,42 @@
 
             Stream0.Seek(0, SeekOrigin.Begin);
             TestOverride0 Test0Copy = (TestOverride0)s.Deserialize(Stream0);
+        }
+
+        [Test]
+        public static void Generic()
+        {
+            Dictionary<Type, Type> TypeOverrideTable = new Dictionary<Type, Type>();
+            TypeOverrideTable.Add(typeof(TestOverride0), typeof(TestOverride0));
+
+            Serializer s = new Serializer();
+            s.TypeOverrideTable = TypeOverrideTable;
+
+            MemoryStream Stream1 = new MemoryStream();
+            TestOverride1 test1 = new TestOverride1();
+            s.Serialize(Stream1, test1);
+
+            Stream1.Seek(0, SeekOrigin.Begin);
+            TestOverride1 Test1Copy = (TestOverride1)s.Deserialize(Stream1);
+        }
+
+        [Test]
+        public static void GenericByAssembly()
+        {
+            Assembly CurrentAssembly = Assembly.GetExecutingAssembly();
+            Dictionary<Assembly, Assembly> AssemblyOverrideTable = new Dictionary<Assembly, Assembly>();
+            AssemblyOverrideTable.Add(CurrentAssembly, CurrentAssembly);
+
+            Serializer s = new Serializer();
+            s.AssemblyOverrideTable = AssemblyOverrideTable;
+            s.OverrideGenericArguments = false;
+
+            MemoryStream Stream1 = new MemoryStream();
+            TestOverride1 test1 = new TestOverride1();
+            s.Serialize(Stream1, test1);
+
+            Stream1.Seek(0, SeekOrigin.Begin);
+            TestOverride1 Test1Copy = (TestOverride1)s.Deserialize(Stream1);
         }
     }
 }
