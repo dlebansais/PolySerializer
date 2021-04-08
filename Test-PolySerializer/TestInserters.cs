@@ -26,6 +26,26 @@
         public string TestString { get; set; } = string.Empty;
     }
 
+    [System.Serializable]
+    public class ExtraList<T> : List<T>
+    {
+        public ExtraList()
+            : base()
+        {
+        }
+
+        public ExtraList(long count)
+            : base((int)(count & 0xF))
+        {
+        }
+    }
+
+    [System.Serializable]
+    public class TestInserters2
+    {
+        public ExtraList<int> TestList { get; set; } = new ExtraList<int>();
+    }
+
     [TestFixture]
     public class TestInserters
     {
@@ -143,6 +163,25 @@
 
             MemoryStream Stream0 = new MemoryStream();
             s.Serialize(Stream0, test1);
+        }
+
+        [Test]
+        public static void LongList()
+        {
+            Serializer s = new Serializer();
+
+            TestInserters2 test2 = new TestInserters2();
+            test2.TestList = new ExtraList<int>(1);
+
+            MemoryStream Stream2 = new MemoryStream();
+            s.Serialize(Stream2, test2);
+
+            Stream2.Seek(0, SeekOrigin.Begin);
+            bool IsCompatible = s.Check(Stream2);
+            Assert.IsTrue(IsCompatible);
+
+            Stream2.Seek(0, SeekOrigin.Begin);
+            TestInserters2 Test2Copy = (TestInserters2)s.Deserialize(Stream2);
         }
     }
 }

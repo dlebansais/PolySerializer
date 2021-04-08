@@ -113,7 +113,8 @@
             else
             {
                 bool HasParameterlessConstructor = false;
-                bool HasConstructorWithCount = false;
+                bool HasConstructorIntCount = false;
+                bool HasConstructorLongCount = false;
 
                 ConstructorInfo[] Constructors = valueType.GetConstructors();
                 foreach (ConstructorInfo Constructor in Constructors)
@@ -125,21 +126,15 @@
                     else if (Parameters.Length == 1)
                     {
                         Type ParameterType = Parameters[0].ParameterType;
-                        if (ParameterType == typeof(int) || ParameterType == typeof(long))
-                        {
-                            HasConstructorWithCount = true;
-                            break;
-                        }
+                        HasConstructorIntCount |= ParameterType == typeof(int);
+                        HasConstructorLongCount |= ParameterType == typeof(long);
                     }
                 }
 
-                if (HasConstructorWithCount)
-                {
-                    if (count < int.MaxValue)
-                        reference = Activator.CreateInstance(valueType, (int)count)!;
-                    else
-                        reference = Activator.CreateInstance(valueType, count)!;
-                }
+                if (HasConstructorIntCount && count >= int.MinValue && count <= int.MaxValue)
+                    reference = Activator.CreateInstance(valueType, (int)count)!;
+                else if (HasConstructorLongCount)
+                    reference = Activator.CreateInstance(valueType, count)!;
                 else
                 {
                     Debug.Assert(HasParameterlessConstructor);
