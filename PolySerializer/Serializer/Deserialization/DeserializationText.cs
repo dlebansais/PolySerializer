@@ -37,8 +37,7 @@
             else
                 throw new InvalidDataException("Mode");
 
-            if (data[offset - 1] == '\r')
-                offset++;
+            HandleCR(data, ref offset);
 
             DeserializedObjectList.Clear();
 
@@ -232,7 +231,13 @@
             }
 
             OverrideTypeName(ref ReferenceTypeName);
-            Type ReferenceType = Type.GetType(ReferenceTypeName)!;
+            Type? ReferenceType = Type.GetType(ReferenceTypeName);
+            if (ReferenceType == null)
+            {
+                reference = null;
+                return;
+            }
+
             Type OriginalType = ReferenceType;
             OverrideType(ref ReferenceType);
             Type NewType = ReferenceType;

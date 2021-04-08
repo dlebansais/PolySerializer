@@ -348,8 +348,7 @@
             else
                 MemberNames = new List<string>();
 
-            if (c == '\r')
-                offset++;
+            HandleCR(data, ref offset);
 
             return MemberNames;
         }
@@ -410,8 +409,7 @@
 
             Value = n;
 
-            if (c == '\r')
-                offset++;
+            HandleCR(data, ref offset);
 
             return Value;
         }
@@ -437,8 +435,7 @@
 
             Value = n;
 
-            if (c == '\r')
-                offset++;
+            HandleCR(data, ref offset);
 
             return Value;
         }

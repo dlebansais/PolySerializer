@@ -553,6 +553,12 @@ namespace PolySerializer
             Contract.Unused(out constructorParameters);
             return false;
         }
+
+        private static void HandleCR(byte[] data, ref int offset)
+        {
+            if (data[offset - 1] == '\r')
+                offset++;
+        }
         #endregion
 
         #region String conversions

@@ -2,6 +2,7 @@
 {
     using NUnit.Framework;
     using PolySerializer;
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Text;
@@ -46,6 +47,16 @@
         }
 
         public TestInvalid0 Test { get; set; }
+    }
+
+    [System.Serializable]
+    public class TestInvalid6
+    {
+        public decimal Test0 { get; set; }
+        public double Test1 { get; set; }
+        public float Test2 { get; set; }
+        public string Test3 { get; set; } = string.Empty;
+        public Guid Test4 { get; set; }
     }
 
     [TestFixture]
@@ -319,6 +330,9 @@
 
             Assert.IsFalse(IsCompatible);
 
+            Stream2.Seek(0, SeekOrigin.Begin);
+            s.Deserialize(Stream2);
+
             string Text3 = "Mode=Default\n{Test.TestInvalid1, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n{Test.xyz, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n0x00000000";
             MemoryStream Stream3 = new MemoryStream(Encoding.ASCII.GetBytes(Text3));
 
@@ -354,6 +368,40 @@
             IsCompatible = s.Check(Stream5);
 
             Assert.IsFalse(IsCompatible);
+        }
+
+        [Test]
+        public static void InvalidDataText()
+        {
+            Serializer s = new Serializer();
+            s.Format = SerializationFormat.TextPreferred;
+
+            /*
+            MemoryStream Stream0 = new MemoryStream();
+            TestInvalid6 test0 = new TestInvalid6();
+            test0.Test0 = 1.01m;
+            test0.Test1 = 1.0;
+            test0.Test2 = 1.0f;
+            test0.Test3 = "*";
+            test0.Test4 = new Guid("{5FE2E93D-DA61-4AB7-8DE0-6E11ABFAD07B}");
+
+            s.Serialize(Stream0, test0);
+            Stream0.Seek(0, SeekOrigin.Begin);
+            using (StreamReader sr = new StreamReader(Stream0))
+            {
+                string Text = sr.ReadToEnd();
+            }
+            */
+
+            string Text1 = "Mode=Default\r\n{Test.TestInvalid6, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n1.X1m;Xd;Xf;X*\";{Xfe2e93d-da61-4ab7-8de0-6e11abfad07b}";
+
+            MemoryStream Stream1 = new MemoryStream(Encoding.ASCII.GetBytes(Text1));
+            s.Deserialize(Stream1);
+
+            string Text2 = "Mode=Default\n{Test.TestInvalid6, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n1.01m;1d;1f;\"\\n\";{5fe2e93d-da61-4ab7-8de0-6e11abfad07b}";
+
+            MemoryStream Stream2 = new MemoryStream(Encoding.ASCII.GetBytes(Text2));
+            s.Deserialize(Stream2);
         }
     }
 }

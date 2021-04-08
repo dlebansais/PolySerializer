@@ -335,8 +335,7 @@
         {
             bool IsFound = false;
 
-            MemberInfo[] SetterMembers = deserializedType.GetMember(customSerializable.Setter);
-            Debug.Assert(SetterMembers != null);
+            Contract.RequireNotNull(deserializedType.GetMember(customSerializable.Setter), out MemberInfo[] SetterMembers);
 
             Type ExpectedParameterType = propertyInfo.PropertyType;
 

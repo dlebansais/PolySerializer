@@ -37,8 +37,7 @@
             else
                 throw new InvalidDataException("Mode");
 
-            if (data[offset - 1] == '\r')
-                offset++;
+            HandleCR(data, ref offset);
 
             CheckedObjectList.Clear();
 
