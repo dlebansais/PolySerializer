@@ -366,9 +366,9 @@
                 c = (char)data[offset++];
             }
 
-            if (c == '\n')
-                Value = ObjectTag.ObjectReference;
-            else if (c == ' ')
+            Value = ObjectTag.ObjectReference;
+
+            if (c == ' ')
             {
                 ReadField(ref data, ref offset, 1);
                 c = (char)data[offset++];
@@ -379,11 +379,7 @@
                     Value = ObjectTag.ConstructedObject;
                 else if (c == '*')
                     Value = ObjectTag.ObjectList;
-                else
-                    Value = ObjectTag.ObjectReference;
             }
-            else
-                Value = ObjectTag.ObjectReference;
 
             return Value;
         }

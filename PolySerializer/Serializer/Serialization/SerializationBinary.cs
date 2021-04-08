@@ -123,6 +123,7 @@
         {
             switch (value)
             {
+                default:
                 case bool _:
                     AddFieldBool_BINARY(ref data, ref offset, (bool)value);
                     break;
@@ -153,6 +154,7 @@
         {
             switch (value)
             {
+                default:
                 case sbyte _:
                     AddFieldSByte_BINARY(ref data, ref offset, (sbyte)value);
                     break;
