@@ -311,47 +311,55 @@
         private static bool IsReadOnlyPropertyWithNoValidSetter(Type deserializedType, DeserializedMember newMember)
         {
             if (newMember.MemberInfo is PropertyInfo AsPropertyInfo)
+                return IsReadOnlyPropertyWithNoValidSetter(deserializedType, newMember, AsPropertyInfo);
+            else
+                return false;
+        }
+
+        private static bool IsReadOnlyPropertyWithNoValidSetter(Type deserializedType, DeserializedMember newMember, PropertyInfo propertyInfo)
+        {
+            if (propertyInfo.CanWrite)
             {
-                if (AsPropertyInfo.CanWrite)
-                {
-                    Contract.RequireNotNull(AsPropertyInfo.SetMethod, out MethodInfo Setter);
-                    if (Setter.Attributes.HasFlag(MethodAttributes.Public))
-                        return false;
-                }
+                Contract.RequireNotNull(propertyInfo.SetMethod, out MethodInfo Setter);
+                if (Setter.Attributes.HasFlag(MethodAttributes.Public))
+                    return false;
+            }
 
-                if (newMember.MemberInfo.GetCustomAttribute(typeof(SerializableAttribute)) is SerializableAttribute CustomSerializable)
+            if (propertyInfo.GetCustomAttribute(typeof(SerializableAttribute)) is SerializableAttribute CustomSerializable && CustomSerializable.Setter.Length > 0)
+                return IsReadOnlyPropertyWithCustomSerializable(deserializedType, newMember, propertyInfo, CustomSerializable);
+
+            return true;
+        }
+
+        private static bool IsReadOnlyPropertyWithCustomSerializable(Type deserializedType, DeserializedMember newMember, PropertyInfo propertyInfo, SerializableAttribute customSerializable)
+        {
+            bool Result = true;
+
+            MemberInfo[] SetterMembers = deserializedType.GetMember(customSerializable.Setter);
+            if (SetterMembers != null)
+            {
+                Type ExpectedParameterType = propertyInfo.PropertyType;
+
+                foreach (MemberInfo SetterMember in SetterMembers)
                 {
-                    if (CustomSerializable.Setter.Length > 0)
+                    if (SetterMember is MethodInfo AsMethodInfo)
                     {
-                        MemberInfo[] SetterMembers = deserializedType.GetMember(CustomSerializable.Setter);
-                        if (SetterMembers != null)
+                        ParameterInfo[] Parameters = AsMethodInfo.GetParameters();
+                        if (Parameters != null && Parameters.Length == 1)
                         {
-                            Type ExpectedParameterType = AsPropertyInfo.PropertyType;
-
-                            foreach (MemberInfo SetterMember in SetterMembers)
+                            ParameterInfo Parameter = Parameters[0];
+                            if (Parameter.ParameterType == ExpectedParameterType)
                             {
-                                if (SetterMember is MethodInfo AsMethodInfo)
-                                {
-                                    ParameterInfo[] Parameters = AsMethodInfo.GetParameters();
-                                    if (Parameters != null && Parameters.Length == 1)
-                                    {
-                                        ParameterInfo Parameter = Parameters[0];
-                                        if (Parameter.ParameterType == ExpectedParameterType)
-                                        {
-                                            newMember.SetPropertySetter(AsMethodInfo);
-                                            return false;
-                                        }
-                                    }
-                                }
+                                newMember.SetPropertySetter(AsMethodInfo);
+                                Result = false;
+                                break;
                             }
                         }
                     }
                 }
             }
-            else
-                return false;
 
-            return true;
+            return Result;
         }
 
         private static bool IsExcludedIndexer(DeserializedMember newMember)

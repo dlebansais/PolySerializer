@@ -58,6 +58,15 @@
         public int Test { get; set; }
     }
 
+    [System.Serializable]
+    public class TestAttributes5
+    {
+        public static int Test0;
+
+        [PolySerializer.Serializable(Exclude = true)]
+        public int Test1;
+    }
+
     [TestFixture]
     public class TestAttributes
     {
@@ -341,6 +350,26 @@
             TestAttributes4 test0Copy = (TestAttributes4)s.Deserialize(Stream0);
 
             Assert.AreEqual(1, test0Copy.Test);
+        }
+
+        [Test]
+        public static void NonSerializable()
+        {
+            Serializer s = new Serializer();
+            bool IsCompatible;
+
+            TestAttributes5 test0 = new TestAttributes5();
+
+            MemoryStream Stream0 = new MemoryStream();
+            s.Serialize(Stream0, test0);
+
+            Stream0.Seek(0, SeekOrigin.Begin);
+            IsCompatible = s.Check(Stream0);
+
+            Assert.IsTrue(IsCompatible);
+
+            Stream0.Seek(0, SeekOrigin.Begin);
+            TestAttributes5 test0Copy = (TestAttributes5)s.Deserialize(Stream0);
         }
     }
 }

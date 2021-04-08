@@ -80,5 +80,40 @@
             Stream1.Seek(0, SeekOrigin.Begin);
             TestOverride1 Test1Copy = (TestOverride1)s.Deserialize(Stream1);
         }
+
+        [Test]
+        public static void OverrideByAssembly()
+        {
+            Assembly CurrentAssembly = Assembly.GetExecutingAssembly();
+            Dictionary<Assembly, Assembly> AssemblyOverrideTable = new Dictionary<Assembly, Assembly>();
+            AssemblyOverrideTable.Add(CurrentAssembly, CurrentAssembly);
+
+            Serializer s = new Serializer();
+            s.AssemblyOverrideTable = AssemblyOverrideTable;
+
+            MemoryStream Stream1 = new MemoryStream();
+            TestOverride1 test1 = new TestOverride1();
+            s.Serialize(Stream1, test1);
+
+            Stream1.Seek(0, SeekOrigin.Begin);
+            TestOverride1 Test1Copy = (TestOverride1)s.Deserialize(Stream1);
+        }
+
+        [Test]
+        public static void NoOverrideOfGeneric()
+        {
+            Dictionary<Type, Type> TypeOverrideTable = new Dictionary<Type, Type>();
+            TypeOverrideTable.Add(typeof(TestOverride1), typeof(TestOverride1));
+
+            Serializer s = new Serializer();
+            s.TypeOverrideTable = TypeOverrideTable;
+
+            MemoryStream Stream1 = new MemoryStream();
+            TestOverride1 test1 = new TestOverride1();
+            s.Serialize(Stream1, test1);
+
+            Stream1.Seek(0, SeekOrigin.Begin);
+            TestOverride1 Test1Copy = (TestOverride1)s.Deserialize(Stream1);
+        }
     }
 }
