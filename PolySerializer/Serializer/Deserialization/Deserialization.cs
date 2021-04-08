@@ -341,7 +341,6 @@
                 Type ExpectedParameterType = propertyInfo.PropertyType;
 
                 foreach (MemberInfo SetterMember in SetterMembers)
-                {
                     if (SetterMember is MethodInfo AsMethodInfo)
                     {
                         ParameterInfo[] Parameters = AsMethodInfo.GetParameters();
@@ -356,7 +355,6 @@
                             }
                         }
                     }
-                }
             }
 
             return Result;
@@ -389,9 +387,16 @@
 
             if (offset + minLength > data.Length)
             {
+                byte[] NewData = data;
+
+                if (data.Length < minLength)
+                    NewData = new byte[minLength];
+
                 int i;
                 for (i = 0; i < data.Length - offset; i++)
-                    data[i] = data[i + offset];
+                    NewData[i] = data[i + offset];
+
+                data = NewData;
                 offset = i;
 
                 Reload = true;

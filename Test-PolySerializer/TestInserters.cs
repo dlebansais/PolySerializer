@@ -163,6 +163,9 @@
 
             MemoryStream Stream0 = new MemoryStream();
             s.Serialize(Stream0, test1);
+
+            Stream0.Seek(0, SeekOrigin.Begin);
+            TestInserters1 Test1Copy = (TestInserters1)s.Deserialize(Stream0);
         }
 
         [Test]

@@ -12,10 +12,15 @@
     [System.Serializable]
     public class TestAttributes0
     {
-        [PolySerializer.Serializable(Setter = "SetTest")]
+        [PolySerializer.Serializable(Setter = "SetTest1")]
         public int Test { get; private set; }
 
-        public void SetTest(int n)
+        public void SetTest0(int n, int p)
+        {
+            Test = n;
+        }
+
+        public void SetTest1(int n)
         {
             Test = n;
         }
@@ -77,7 +82,7 @@
             s.RootType = typeof(TestAttributes0);
 
             TestAttributes0 test0 = new TestAttributes0();
-            test0.SetTest(1);
+            test0.SetTest1(1);
 
             MemoryStream Stream0 = new MemoryStream();
             s.Serialize(Stream0, test0);
@@ -131,7 +136,7 @@
             NamespaceOverrideTable.Add(Descriptor4, Descriptor5);
 
             TestAttributes0 test0 = new TestAttributes0();
-            test0.SetTest(1);
+            test0.SetTest1(1);
 
             MemoryStream Stream = new MemoryStream();
             s.Serialize(Stream, test0);
