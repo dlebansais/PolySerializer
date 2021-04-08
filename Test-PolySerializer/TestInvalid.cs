@@ -333,7 +333,7 @@
             Stream2.Seek(0, SeekOrigin.Begin);
             s.Deserialize(Stream2);
 
-            string Text3 = "Mode=Default\n{Test.TestInvalid1, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n{Test.xyz, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n0x00000000";
+            string Text3 = "Mode=Default\n{Test.TestInvalid1, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n{Test.xyz, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n0x0000000a";
             MemoryStream Stream3 = new MemoryStream(Encoding.ASCII.GetBytes(Text3));
 
             IsCompatible = s.Check(Stream3);
@@ -347,27 +347,36 @@
 
             Assert.IsFalse(IsCompatible);
 
-            /*
-            MemoryStream Stream5 = new MemoryStream();
-            TestInvalid4 test5 = new TestInvalid4();
-            TestInvalid3 test51 = new TestInvalid3();
-            test51.Test = new TestInvalid0();
-            test5.Test = test51;
-
-            s.Serialize(Stream5, test5);
-            Stream5.Seek(0, SeekOrigin.Begin);
-            using (StreamReader sr = new StreamReader(Stream5))
-            {
-                string Text5 = sr.ReadToEnd();
-            }
-            */
-
             string Text5 = "Mode=Default\n{Test.TestInvalid4, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n{Test.TestInvalid3, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}{Test.xyz, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n0x00000000";
             MemoryStream Stream5 = new MemoryStream(Encoding.ASCII.GetBytes(Text5));
 
             IsCompatible = s.Check(Stream5);
 
             Assert.IsFalse(IsCompatible);
+        }
+
+        [Test]
+        public static void InvalidTextDigit()
+        {
+            bool IsCompatible;
+            Serializer s = new Serializer();
+            s.Format = SerializationFormat.TextPreferred;
+
+            string Text6 = "Mode=Default\n{Test.TestInvalid4, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n{Test.TestInvalid3, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n0x000000aX";
+            MemoryStream Stream6 = new MemoryStream(Encoding.ASCII.GetBytes(Text6));
+
+            IsCompatible = s.Check(Stream6);
+
+            Assert.IsFalse(IsCompatible);
+
+            Stream6.Seek(0, SeekOrigin.Begin);
+            s.Deserialize(Stream6);
+
+            string Text5 = "Mode=Default\n{Test.TestInvalid2, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n{System.Collections.Generic.List`1[[Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089} *2X\n{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n0x000000200x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x00000000";
+            MemoryStream Stream5 = new MemoryStream(Encoding.ASCII.GetBytes(Text5));
+
+            Stream5.Seek(0, SeekOrigin.Begin);
+            s.Deserialize(Stream5);
         }
 
         [Test]

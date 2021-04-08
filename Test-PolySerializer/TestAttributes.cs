@@ -24,6 +24,9 @@
         {
             Test = n;
         }
+
+        [PolySerializer.Serializable(Setter = "")]
+        public int Test2 { get; private set; }
     }
 
     namespace Test1
@@ -49,6 +52,11 @@
         public int Test { get; set; }
 
         public bool TestCondition { get; set; }
+
+        [PolySerializer.Serializable(Condition = "TestCondition2")]
+        public int Test2 { get; set; }
+
+        public bool TestCondition2;
     }
 
     [System.Serializable]

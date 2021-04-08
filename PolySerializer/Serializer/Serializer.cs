@@ -552,16 +552,8 @@ namespace PolySerializer
         #region String conversions
         private static byte[] String2Bytes(string s)
         {
-            int CharCount;
-            char[] StringChars;
-
-            if (s == null)
-                return new byte[CountByteSize] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-            else
-            {
-                CharCount = s.Length;
-                StringChars = s.ToCharArray();
-            }
+            int CharCount = s.Length;
+            char[] StringChars = s.ToCharArray();
 
             byte[] LengthBytes = BitConverter.GetBytes(CharCount);
             byte[] StringBytes = new byte[CountByteSize + (StringChars.Length * 2)];
