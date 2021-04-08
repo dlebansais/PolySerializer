@@ -336,25 +336,25 @@
             bool Result = true;
 
             MemberInfo[] SetterMembers = deserializedType.GetMember(customSerializable.Setter);
-            if (SetterMembers != null)
-            {
-                Type ExpectedParameterType = propertyInfo.PropertyType;
+            Debug.Assert(SetterMembers != null);
 
-                foreach (MemberInfo SetterMember in SetterMembers)
-                    if (SetterMember is MethodInfo AsMethodInfo)
+            Type ExpectedParameterType = propertyInfo.PropertyType;
+
+            foreach (MemberInfo SetterMember in SetterMembers)
+            {
+                MethodInfo MemberMethodInfo = (MethodInfo)SetterMember;
+                ParameterInfo[] Parameters = MemberMethodInfo.GetParameters();
+
+                if (Parameters != null && Parameters.Length == 1)
+                {
+                    ParameterInfo Parameter = Parameters[0];
+                    if (Parameter.ParameterType == ExpectedParameterType)
                     {
-                        ParameterInfo[] Parameters = AsMethodInfo.GetParameters();
-                        if (Parameters != null && Parameters.Length == 1)
-                        {
-                            ParameterInfo Parameter = Parameters[0];
-                            if (Parameter.ParameterType == ExpectedParameterType)
-                            {
-                                newMember.SetPropertySetter(AsMethodInfo);
-                                Result = false;
-                                break;
-                            }
-                        }
+                        newMember.SetPropertySetter(MemberMethodInfo);
+                        Result = false;
+                        break;
                     }
+                }
             }
 
             return Result;

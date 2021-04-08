@@ -305,7 +305,11 @@
 
             Assert.Throws(typeof(InvalidDataException), () => s.Check(Stream1));
 
-            string Text2 = "Mode=Default\n{Test.xyz, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n0x00000000";
+            Stream1.Seek(0, SeekOrigin.Begin);
+
+            Assert.Throws(typeof(InvalidDataException), () => s.Deserialize(Stream1));
+
+            string Text2 = "Mode=Default\r\n{Test.xyz, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n0x00000000";
             MemoryStream Stream2 = new MemoryStream(Encoding.ASCII.GetBytes(Text2));
 
             IsCompatible = s.Check(Stream2);

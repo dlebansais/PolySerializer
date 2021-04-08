@@ -79,13 +79,46 @@
         public static void Basic()
         {
             Serializer s = new Serializer();
-            s.RootType = typeof(TestAttributes0);
 
             TestAttributes0 test0 = new TestAttributes0();
             test0.SetTest1(1);
 
             MemoryStream Stream0 = new MemoryStream();
             s.Serialize(Stream0, test0);
+
+            s.RootType = null;
+
+            Stream0.Seek(0, SeekOrigin.Begin);
+            TestAttributes0 test0Copy = (TestAttributes0)s.Deserialize(Stream0);
+
+            Assert.AreEqual(1, test0Copy.Test);
+
+            MemoryStream Stream1 = new MemoryStream();
+            Task SerializeTask = s.SerializeAsync(Stream1, test0);
+            SerializeTask.Wait();
+
+            Stream1.Seek(0, SeekOrigin.Begin);
+            Task<object> DeserializeTask = s.DeserializeAsync(Stream1);
+            DeserializeTask.Wait();
+
+            TestAttributes0 test1Copy = (TestAttributes0)DeserializeTask.Result;
+
+            Assert.AreEqual(1, test1Copy.Test);
+        }
+
+        [Test]
+        public static void BasicText()
+        {
+            Serializer s = new Serializer();
+            s.Format = SerializationFormat.TextPreferred;
+
+            TestAttributes0 test0 = new TestAttributes0();
+            test0.SetTest1(1);
+
+            MemoryStream Stream0 = new MemoryStream();
+            s.Serialize(Stream0, test0);
+
+            s.RootType = null;
 
             Stream0.Seek(0, SeekOrigin.Begin);
             TestAttributes0 test0Copy = (TestAttributes0)s.Deserialize(Stream0);
