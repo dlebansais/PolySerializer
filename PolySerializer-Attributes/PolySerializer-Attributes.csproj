@@ -8,14 +8,14 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>PolySerializer</RootNamespace>
     <AssemblyName>PolySerializer-Attributes</AssemblyName>
-    <Version>1.2.6</Version>
+    <Version>1.2.7</Version>
     <Authors>David Le Bansais</Authors>
     <Company />
     <Product />
     <Description>Generic .NET serializer attributes</Description>
     <Copyright>Copyright © 2019 David Le Bansais</Copyright>
-    <AssemblyVersion>1.2.6.179</AssemblyVersion>
-    <FileVersion>1.2.6.152</FileVersion>
+    <AssemblyVersion>1.2.7.195</AssemblyVersion>
+    <FileVersion>1.2.7.152</FileVersion>
     <RepositoryUrl>https://github.com/dlebansais/PolySerializer</RepositoryUrl>
     <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>
