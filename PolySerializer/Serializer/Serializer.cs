@@ -291,7 +291,7 @@ namespace PolySerializer
                 foreach (Type Interface in Interfaces)
                     if (Interface == typeof(IEnumerable))
                     {
-                        enumerator = (IEnumerator)Interface.InvokeMember("GetEnumerator", BindingFlags.Public, null, reference, null, CultureInfo.InvariantCulture)!;
+                        enumerator = (IEnumerator)Interface.InvokeMember("GetEnumerator", BindingFlags.InvokeMethod, null, reference, new object[0], CultureInfo.InvariantCulture)!;
                         return true;
                     }
 
@@ -317,26 +317,20 @@ namespace PolySerializer
         public bool IsWriteableCollection(object reference, Type referenceType, out IInserter inserter, out Type itemType)
         {
             foreach (IInserter TestInserter in CustomInserters)
-            {
-                Type TestType;
-                if (TestInserter.TrySetReference(reference, referenceType, out TestType))
+                if (TestInserter.TrySetReference(reference, referenceType, out Type TestType))
                 {
                     inserter = TestInserter;
                     itemType = TestType;
                     return true;
                 }
-            }
 
             foreach (IInserter TestInserter in BuiltInInserters)
-            {
-                Type TestType;
-                if (TestInserter.TrySetReference(reference, referenceType, out TestType))
+                if (TestInserter.TrySetReference(reference, referenceType, out Type TestType))
                 {
                     inserter = TestInserter;
                     itemType = TestType;
                     return true;
                 }
-            }
 
             Contract.Unused(out inserter);
             Contract.Unused(out itemType);
@@ -357,26 +351,20 @@ namespace PolySerializer
         public bool IsWriteableCollection(Type referenceType, out IInserter inserter, out Type itemType)
         {
             foreach (IInserter TestInserter in CustomInserters)
-            {
-                Type TestType;
-                if (TestInserter.TryMatchType(referenceType, out TestType))
+                if (TestInserter.TryMatchType(referenceType, out Type TestType))
                 {
                     inserter = TestInserter;
                     itemType = TestType;
                     return true;
                 }
-            }
 
             foreach (IInserter TestInserter in BuiltInInserters)
-            {
-                Type TestType;
-                if (TestInserter.TryMatchType(referenceType, out TestType))
+                if (TestInserter.TryMatchType(referenceType, out Type TestType))
                 {
                     inserter = TestInserter;
                     itemType = TestType;
                     return true;
                 }
-            }
 
             Contract.Unused(out inserter);
             Contract.Unused(out itemType);

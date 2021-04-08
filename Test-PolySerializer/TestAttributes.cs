@@ -54,6 +54,29 @@
     [System.Serializable]
     public class TestAttributes4
     {
+        [PolySerializer.Serializable(Constructor = "")]
+        public TestAttributes4()
+        {
+        }
+
+        [PolySerializer.Serializable(Constructor = "Test,Test")]
+        public TestAttributes4(int test0, int test, int test2)
+        {
+            Test = test0;
+        }
+
+        [PolySerializer.Serializable(Constructor = "SetTest,Test,Test,Test")]
+        public TestAttributes4(int test0, int test1, int test2, int test3)
+        {
+            Test = test0;
+        }
+
+        [PolySerializer.Serializable(Constructor = "ClearTest,Test,Test,Test,Test")]
+        public TestAttributes4(int test0, int test1, int test2, int test3, int test4)
+        {
+            Test = test0;
+        }
+
         [PolySerializer.Serializable(Constructor = "Test,Test")]
         public TestAttributes4(int test0, int test1)
         {
@@ -61,6 +84,18 @@
         }
 
         public int Test { get; set; }
+
+        public void SetTest()
+        {
+        }
+
+        public void SetTest(int n)
+        {
+        }
+
+        public void ClearTest()
+        {
+        }
     }
 
     [System.Serializable]
