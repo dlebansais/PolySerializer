@@ -326,14 +326,14 @@
             }
 
             if (propertyInfo.GetCustomAttribute(typeof(SerializableAttribute)) is SerializableAttribute CustomSerializable && CustomSerializable.Setter.Length > 0)
-                return IsReadOnlyPropertyWithCustomSerializable(deserializedType, newMember, propertyInfo, CustomSerializable);
+                return IsReadOnlyPropertyWithNoCustomSerializable(deserializedType, newMember, propertyInfo, CustomSerializable);
 
             return true;
         }
 
-        private static bool IsReadOnlyPropertyWithCustomSerializable(Type deserializedType, DeserializedMember newMember, PropertyInfo propertyInfo, SerializableAttribute customSerializable)
+        private static bool IsReadOnlyPropertyWithNoCustomSerializable(Type deserializedType, DeserializedMember newMember, PropertyInfo propertyInfo, SerializableAttribute customSerializable)
         {
-            bool Result = true;
+            bool IsFound = false;
 
             MemberInfo[] SetterMembers = deserializedType.GetMember(customSerializable.Setter);
             Debug.Assert(SetterMembers != null);
@@ -345,19 +345,18 @@
                 MethodInfo MemberMethodInfo = (MethodInfo)SetterMember;
                 ParameterInfo[] Parameters = MemberMethodInfo.GetParameters();
 
-                if (Parameters != null && Parameters.Length == 1)
+                if (Parameters != null && Parameters.Length == 1 && !IsFound)
                 {
                     ParameterInfo Parameter = Parameters[0];
                     if (Parameter.ParameterType == ExpectedParameterType)
                     {
                         newMember.SetPropertySetter(MemberMethodInfo);
-                        Result = false;
-                        break;
+                        IsFound = true;
                     }
                 }
             }
 
-            return Result;
+            return !IsFound;
         }
 
         private static bool IsExcludedIndexer(DeserializedMember newMember)

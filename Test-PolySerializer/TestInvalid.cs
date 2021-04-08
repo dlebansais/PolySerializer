@@ -92,6 +92,9 @@
 
             Assert.IsFalse(IsCompatible);
 
+            Stream2.Seek(0, SeekOrigin.Begin);
+            s.Deserialize(Stream2);
+
             MemoryStream Stream3 = new MemoryStream();
             using (BinaryWriter Writer = new BinaryWriter(Stream3, Encoding.ASCII, true))
             {
