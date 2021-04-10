@@ -20,7 +20,7 @@ matrix:
   fast_finish: true     # set this flag to immediately finish build once one of the jobs fails.
 
 before_build:
-  - nuget restore %APPVEYOR_PROJECT_NAME%.sln -Verbosity detailed
+  - nuget restore %APPVEYOR_PROJECT_NAME%.sln
   - nuget install GitCommitId -DependencyVersion Highest -OutputDirectory packages
   - |-
     printf "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" > build_all.xml
