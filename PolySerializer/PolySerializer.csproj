@@ -18,6 +18,7 @@
     <FileVersion>1.2.7.152</FileVersion>
     <RepositoryUrl>https://github.com/dlebansais/PolySerializer</RepositoryUrl>
     <NeutralLanguage>en-US</NeutralLanguage>
+    <AllowedReferenceRelatedFileExtensions>.pdb</AllowedReferenceRelatedFileExtensions>
   </PropertyGroup>
 
   <ItemGroup>
