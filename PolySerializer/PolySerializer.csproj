@@ -18,7 +18,6 @@
     <FileVersion>1.2.7.152</FileVersion>
     <RepositoryUrl>https://github.com/dlebansais/PolySerializer</RepositoryUrl>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <AllowedReferenceRelatedFileExtensions>.pdb</AllowedReferenceRelatedFileExtensions>
   </PropertyGroup>
 
   <ItemGroup>
@@ -69,5 +68,10 @@
     <Exec Command="if exist &quot;$(TargetPath)&quot; copy &quot;$(TargetDir)*.dll&quot; &quot;$(SolutionDir)nuget\lib\net5.0\&quot; &gt; nul" Condition="'$(Configuration)|$(Platform)'=='Release|x64' And '$(TargetFramework)'=='net5.0-windows'" />
     <Exec Command="if exist &quot;$(TargetPath)&quot; copy &quot;$(TargetDir)*.xml&quot; &quot;$(SolutionDir)nuget\lib\net5.0\&quot; &gt; nul" Condition="'$(Configuration)|$(Platform)'=='Release|x64' And '$(TargetFramework)'=='net5.0-windows'" />
   </Target>
-
+  
+  <Target Name="AfterBuild">
+    <Message Text="1. ReferencePath:%0D%0A%09@(ReferencePath->'$(OutDir)%(DestinationSubDirectory)%(Filename)%(Extension)', '%0D%0A%09')" />
+    <Message Text="2. ReferenceCopyLocalPaths:%0D%0A%09@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename)%(Extension)', '%0D%0A%09')" />
+  </Target>
+  
 </Project>
