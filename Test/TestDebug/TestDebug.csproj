@@ -4,12 +4,20 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
-    <RootNamespace>TestDebug</RootNamespace>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>enable</Nullable>
     <Platforms>x64</Platforms>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <RootNamespace>TestDebug</RootNamespace>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PolySerializer\PolySerializer.csproj" />
+    <None Include="..\..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\PolySerializer\PolySerializer.csproj" />
   </ItemGroup>
 
   <ItemGroup>
