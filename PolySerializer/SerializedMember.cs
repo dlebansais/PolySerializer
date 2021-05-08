@@ -2,6 +2,7 @@
 {
     using System.Reflection;
 
+#pragma warning disable SA1600 // Elements should be documented
     internal class SerializedMember
     {
         #region Init
@@ -38,4 +39,5 @@
         }
         #endregion
     }
+#pragma warning restore SA1600 // Elements should be documented
 }

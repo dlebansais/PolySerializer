@@ -54,22 +54,22 @@
 
         #region Properties
         /// <summary>
-        /// The assembly qualified type name.
+        /// Gets the assembly qualified type name.
         /// </summary>
         public string Name { get; private set; }
 
         /// <summary>
-        /// The generic definition, for a generic type; The type name for a non-generic type.
+        /// Gets the generic definition, for a generic type; The type name for a non-generic type.
         /// </summary>
         public string GenericDefinition { get; private set; }
 
         /// <summary>
-        /// The generic parameters, for a generic type; The empty list a non-generic type.
+        /// Gets the generic parameters, for a generic type; The empty list a non-generic type.
         /// </summary>
         public List<TypeIdentifier> GenericParameters { get; private set; }
 
         /// <summary>
-        /// Indicates if the type is generic.
+        /// Gets a value indicating whether the type is generic.
         /// </summary>
         public bool IsGeneric { get { return GenericParameters.Count > 0; } }
         #endregion

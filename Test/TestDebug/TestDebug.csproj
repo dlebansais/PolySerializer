@@ -5,7 +5,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
     <LangVersion>9.0</LangVersion>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
     <Platforms>x64</Platforms>
     <NeutralLanguage>en-US</NeutralLanguage>
     <RootNamespace>TestDebug</RootNamespace>

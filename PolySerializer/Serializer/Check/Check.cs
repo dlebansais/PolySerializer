@@ -6,19 +6,15 @@
     using System.Threading.Tasks;
 
     /// <summary>
-    ///     Serialize objects to a stream, or deserialize objects from a stream.
+    /// Serialize objects to a stream, or deserialize objects from a stream.
     /// </summary>
     public partial class Serializer : ISerializer
     {
         /// <summary>
-        ///     Checks if serialized data in <paramref name="input"/> is compatible with <see cref="RootType"/>.
+        /// Checks if serialized data in <paramref name="input"/> is compatible with <see cref="RootType"/>.
         /// </summary>
-        /// <parameters>
         /// <param name="input">Stream from which serialized data is read to check for compatibility.</param>
-        /// </parameters>
-        /// <returns>
-        ///     True of the stream can be deserialized, False otherwise.
-        /// </returns>
+        /// <returns>True of the stream can be deserialized, False otherwise.</returns>
         public bool Check(Stream input)
         {
             InitializeCheck(input);
@@ -26,14 +22,10 @@
         }
 
         /// <summary>
-        ///     Checks if serialized data in <paramref name="input"/> is compatible with <see cref="RootType"/>.
+        /// Checks if serialized data in <paramref name="input"/> is compatible with <see cref="RootType"/>.
         /// </summary>
-        /// <parameters>
         /// <param name="input">Stream from which serialized data is read to check for compatibility.</param>
-        /// </parameters>
-        /// <returns>
-        ///     A task representing the asynchronous operation.
-        /// </returns>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public Task<bool> CheckAsync(Stream input)
         {
             InitializeCheck(input);

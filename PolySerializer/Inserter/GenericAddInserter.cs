@@ -6,37 +6,33 @@
     using Contracts;
 
     /// <summary>
-    ///     Inserter for any class that supports the Add() method.
+    /// Inserter for any class that supports the Add() method.
     /// </summary>
     public class GenericAddInserter : IInserter
     {
         /// <summary>
-        ///     Description of the set of collections supported.
+        /// Gets the description of the set of collections supported.
         /// </summary>
         public string Description { get { return "For generic types with an Add() method"; } }
 
         /// <summary>
-        ///     List to which items will be added.
+        /// Gets the list to which items will be added.
         /// </summary>
         public object Reference { get; private set; } = null!;
 
         /// <summary>
-        ///     Method of the class called to add an item.
+        ///  Gets the method of the class called to add an item.
         /// </summary>
         public MethodInfo AddMethod { get; private set; } = null!;
 
         /// <summary>
-        ///     Checks if <paramref name="reference"/> with base type <paramref name="referenceType"/> can be handled by this inserter.
-        ///     If so, the saves the reference for future calls to <see cref="AddItem"/> and returns the type of items for this collection.
+        /// Checks if <paramref name="reference"/> with base type <paramref name="referenceType"/> can be handled by this inserter.
+        /// If so, the saves the reference for future calls to <see cref="AddItem"/> and returns the type of items for this collection.
         /// </summary>
-        /// <parameters>
         /// <param name="reference">The collection to check.</param>
         /// <param name="referenceType">The collection base type.</param>
         /// <param name="itemType">The type of items in the collection.</param>
-        /// </parameters>
-        /// <returns>
-        ///     True if the inserter can handle the collection, false otherwise.
-        /// </returns>
+        /// <returns>True if the inserter can handle the collection, false otherwise.</returns>
         public bool TrySetReference(object reference, Type referenceType, out Type itemType)
         {
             Contract.RequireNotNull(referenceType, out Type ReferenceType);
@@ -87,16 +83,12 @@
         }
 
         /// <summary>
-        ///     Checks if base type <paramref name="referenceType"/> can be handled by this inserter.
-        ///     If so, returns the type of items for this collection.
+        /// Checks if base type <paramref name="referenceType"/> can be handled by this inserter.
+        /// If so, returns the type of items for this collection.
         /// </summary>
-        /// <parameters>
         /// <param name="referenceType">The collection base type.</param>
         /// <param name="itemType">The type of items in the collection.</param>
-        /// </parameters>
-        /// <returns>
-        ///     True if the inserter can handle the collection type, false otherwise.
-        /// </returns>
+        /// <returns>True if the inserter can handle the collection type, false otherwise.</returns>
         public bool TryMatchType(Type referenceType, out Type itemType)
         {
             Contract.RequireNotNull(referenceType, out Type ReferenceType);
@@ -118,11 +110,9 @@
         }
 
         /// <summary>
-        ///     Adds an item to the collection passed to <see cref="TrySetReference"/>.
+        /// Adds an item to the collection passed to <see cref="TrySetReference"/>.
         /// </summary>
-        /// <parameters>
         /// <param name="item">The item to add.</param>
-        /// </parameters>
         public void AddItem(object? item)
         {
             AddMethod.Invoke(Reference, new object?[] { item });

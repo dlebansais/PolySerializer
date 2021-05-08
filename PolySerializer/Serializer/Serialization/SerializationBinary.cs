@@ -6,7 +6,7 @@
     using System.Reflection;
 
     /// <summary>
-    ///     Serialize objects to a stream, or deserialize objects from a stream.
+    /// Serialize objects to a stream, or deserialize objects from a stream.
     /// </summary>
     public partial class Serializer : ISerializer
     {

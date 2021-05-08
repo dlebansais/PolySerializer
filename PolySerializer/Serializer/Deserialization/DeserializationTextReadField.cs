@@ -6,7 +6,7 @@
     using System.Text;
 
     /// <summary>
-    ///     Serialize objects to a stream, or deserialize objects from a stream.
+    /// Serialize objects to a stream, or deserialize objects from a stream.
     /// </summary>
     public partial class Serializer : ISerializer
     {
@@ -256,7 +256,7 @@
 
             int BaseOffset = offset++;
 
-            for (;;)
+            for (; ;)
             {
                 ReadField(ref data, ref offset, 1);
                 if (data[offset] == '\\')

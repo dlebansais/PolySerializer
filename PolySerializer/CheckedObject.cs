@@ -2,14 +2,15 @@
 {
     using System;
 
-    #region Interface
+#pragma warning disable SA1600 // Elements should be documented
+#pragma warning disable SA1649 // File name should match first type name
     internal interface ICheckedObject
+#pragma warning restore SA1649 // File name should match first type name
     {
         Type CheckedType { get; }
         long Count { get; }
         void SetChecked();
     }
-    #endregion
 
     internal class CheckedObject : ICheckedObject
     {
@@ -47,4 +48,5 @@
         }
         #endregion
     }
+#pragma warning restore SA1600 // Elements should be documented
 }

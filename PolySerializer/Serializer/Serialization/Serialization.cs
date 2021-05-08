@@ -7,17 +7,15 @@
     using System.Threading.Tasks;
 
     /// <summary>
-    ///     Serialize objects to a stream, or deserialize objects from a stream.
+    /// Serialize objects to a stream, or deserialize objects from a stream.
     /// </summary>
     public partial class Serializer : ISerializer
     {
         /// <summary>
-        ///     Serializes <paramref name="root"/> and write the serialized data to <paramref name="output"/>.
+        /// Serializes <paramref name="root"/> and write the serialized data to <paramref name="output"/>.
         /// </summary>
-        /// <parameters>
         /// <param name="output">Stream receiving the serialized data.</param>
         /// <param name="root">Serialized object.</param>
-        /// </parameters>
         public void Serialize(Stream output, object root)
         {
             InitializeSerialization(output, root);
@@ -25,15 +23,11 @@
         }
 
         /// <summary>
-        ///     Serializes <paramref name="root"/> and write the serialized data to <paramref name="output"/>.
+        /// Serializes <paramref name="root"/> and write the serialized data to <paramref name="output"/>.
         /// </summary>
-        /// <parameters>
         /// <param name="output">Stream receiving the serialized data.</param>
         /// <param name="root">Serialized object.</param>
-        /// </parameters>
-        /// <returns>
-        ///     A task representing the asynchronous operation.
-        /// </returns>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public Task SerializeAsync(Stream output, object root)
         {
             InitializeSerialization(output, root);

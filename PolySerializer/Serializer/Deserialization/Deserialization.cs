@@ -9,19 +9,15 @@
     using Contracts;
 
     /// <summary>
-    ///     Serialize objects to a stream, or deserialize objects from a stream.
+    /// Serialize objects to a stream, or deserialize objects from a stream.
     /// </summary>
     public partial class Serializer : ISerializer
     {
         /// <summary>
-        ///     Creates a new object from serialized content in <paramref name="input"/>.
+        /// Creates a new object from serialized content in <paramref name="input"/>.
         /// </summary>
-        /// <parameters>
         /// <param name="input">Stream from which serialized data is read to create the new object.</param>
-        /// </parameters>
-        /// <returns>
-        ///     The deserialized object.
-        /// </returns>
+        /// <returns>The deserialized object.</returns>
         public object Deserialize(Stream input)
         {
             InitializeDeserialization(input);
@@ -29,14 +25,10 @@
         }
 
         /// <summary>
-        ///     Creates a new object from serialized content in <paramref name="input"/>.
+        /// Creates a new object from serialized content in <paramref name="input"/>.
         /// </summary>
-        /// <parameters>
         /// <param name="input">Stream from which serialized data is read to create the new object.</param>
-        /// </parameters>
-        /// <returns>
-        ///     A task representing the asynchronous operation.
-        /// </returns>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public Task<object> DeserializeAsync(Stream input)
         {
             InitializeDeserialization(input);
