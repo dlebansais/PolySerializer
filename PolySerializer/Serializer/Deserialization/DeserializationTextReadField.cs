@@ -256,7 +256,7 @@
 
             int BaseOffset = offset++;
 
-            for (; ;)
+            while (true)
             {
                 ReadField(ref data, ref offset, 1);
                 if (data[offset] == '\\')
