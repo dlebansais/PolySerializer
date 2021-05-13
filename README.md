@@ -1,7 +1,7 @@
 # Polymorphic Serializer
 A generic .NET serializer for object exchange between assemblies. Supports polymorphism and much more.
 
-[![Build status](https://ci.appveyor.com/api/projects/status/va48foddbbydxiov?svg=true)](https://ci.appveyor.com/project/dlebansais/polyserializer-khj0v)
+[![Build status](https://ci.appveyor.com/api/projects/status/4myspuca9tgch0kx?svg=true)](https://ci.appveyor.com/project/dlebansais/polyserializer)
 [![codecov](https://codecov.io/gh/dlebansais/PolySerializer/branch/master/graph/badge.svg?token=gDmPN1mYLj)](https://codecov.io/gh/dlebansais/PolySerializer)
 [![CodeFactor](https://www.codefactor.io/repository/github/dlebansais/polyserializer/badge)](https://www.codefactor.io/repository/github/dlebansais/polyserializer)
 
