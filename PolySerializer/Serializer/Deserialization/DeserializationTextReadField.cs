@@ -65,20 +65,17 @@
             char Value;
 
             ReadField(ref data, ref offset, 2);
-            int CharOffset = offset;
-            offset += 2;
+            offset++;
 
-            do
-                ReadField(ref data, ref offset, 1);
-            while (data[offset++] != '\'');
+            string CharString = ReadStringUntil(ref data, ref offset, '\'');
 
-            if (offset == CharOffset + 3 && data[CharOffset + 1] == '\\' && data[CharOffset + 2] == '\'')
+            if ((CharString == "\\" && data.Length > offset && data[offset] == '\'') || CharString.Length == 0)
             {
                 Value = '\'';
                 offset++;
             }
             else
-                Value = Encoding.UTF8.GetString(data, CharOffset + 1, offset - CharOffset - 2)[0];
+                Value = CharString[0];
 
             return Value;
         }
@@ -87,12 +84,7 @@
         {
             decimal Value;
 
-            int BaseOffset = offset;
-            do
-                ReadField(ref data, ref offset, 1);
-            while (data[offset++] != 'm');
-
-            string s = Encoding.UTF8.GetString(data, BaseOffset, offset - BaseOffset - 1);
+            string s = ReadStringUntil(ref data, ref offset, 'm');
             if (decimal.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal Parsed))
                 Value = Parsed;
             else
@@ -105,12 +97,7 @@
         {
             double Value;
 
-            int BaseOffset = offset;
-            do
-                ReadField(ref data, ref offset, 1);
-            while (data[offset++] != 'd');
-
-            string s = Encoding.UTF8.GetString(data, BaseOffset, offset - BaseOffset - 1);
+            string s = ReadStringUntil(ref data, ref offset, 'd');
             if (double.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out double Parsed))
                 Value = Parsed;
             else
@@ -123,12 +110,7 @@
         {
             float Value;
 
-            int BaseOffset = offset;
-            do
-                ReadField(ref data, ref offset, 1);
-            while (data[offset++] != 'f');
-
-            string s = Encoding.UTF8.GetString(data, BaseOffset, offset - BaseOffset - 1);
+            string s = ReadStringUntil(ref data, ref offset, 'f');
             if (float.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out float Parsed))
                 Value = Parsed;
             else
@@ -248,17 +230,37 @@
                 return null;
             }
 
-            if (data[offset] != '"')
+            byte c = data[offset];
+
+            if (c != '"')
             {
                 offset++;
                 return null;
             }
 
-            int BaseOffset = offset++;
+            string Content = string.Empty;
+
+            offset++;
+
+            int BaseOffset = offset;
+            byte[] OldData = new byte[data.Length];
+            Array.Copy(data, OldData, data.Length);
 
             while (true)
             {
+                int OldOffset = offset;
+
                 ReadField(ref data, ref offset, 1);
+
+                if (OldOffset != offset)
+                {
+                    Content += Encoding.UTF8.GetString(OldData, BaseOffset, OldOffset - BaseOffset);
+                    BaseOffset = offset;
+
+                    OldData = new byte[data.Length];
+                    Array.Copy(data, OldData, 0);
+                }
+
                 if (data[offset] == '\\')
                 {
                     offset++;
@@ -273,7 +275,7 @@
                 offset++;
             }
 
-            string Content = Encoding.UTF8.GetString(data, BaseOffset + 1, offset - BaseOffset - 2);
+            Content += Encoding.UTF8.GetString(data, BaseOffset, offset - BaseOffset - 1);
             Value = Content.Replace("\\\"", "\"");
 
             return Value;
@@ -297,10 +299,6 @@
 
         private string? ReadFieldType_TEXT(ref byte[] data, ref int offset)
         {
-            string Value;
-
-            int BaseOffset = offset;
-
             ReadField(ref data, ref offset, 1);
             if (data[offset] != '{')
             {
@@ -314,11 +312,9 @@
                 return null;
             }
 
-            do
-                ReadField(ref data, ref offset, 1);
-            while (data[offset++] != '}');
+            offset++;
 
-            Value = Encoding.UTF8.GetString(data, BaseOffset + 1, offset - BaseOffset - 2);
+            string Value = ReadStringUntil(ref data, ref offset, '}');
 
             return Value;
         }

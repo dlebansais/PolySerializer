@@ -5,6 +5,7 @@
     using System.Diagnostics;
     using System.IO;
     using System.Reflection;
+    using System.Text;
     using System.Threading.Tasks;
     using Contracts;
 
@@ -403,6 +404,35 @@
                 InputStream.Read(data, offset, (int)Length);
                 offset = 0;
             }
+        }
+
+        private string ReadStringUntil(ref byte[] data, ref int offset, char endChar)
+        {
+            string Result = string.Empty;
+            int BaseOffset = offset;
+            byte[] OldData = new byte[data.Length];
+            Array.Copy(data, OldData, data.Length);
+
+            do
+            {
+                int OldOffset = offset;
+
+                ReadField(ref data, ref offset, 1);
+
+                if (OldOffset != offset)
+                {
+                    Result += Encoding.UTF8.GetString(OldData, BaseOffset, OldOffset - BaseOffset);
+                    BaseOffset = offset;
+
+                    OldData = new byte[data.Length];
+                    Array.Copy(data, OldData, 0);
+                }
+            }
+            while (data[offset++] != endChar);
+
+            Result += Encoding.UTF8.GetString(data, BaseOffset, offset - BaseOffset - 1);
+
+            return Result;
         }
 
         private List<IDeserializedObject> DeserializedObjectList = new List<IDeserializedObject>();
