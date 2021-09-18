@@ -154,12 +154,32 @@
 
             TestInserters1 test1 = new TestInserters1();
 
-            string TestString = string.Empty;
-
+            StringBuilder Builder = new();
             for (int i = 0; i < 10000; i++)
-                TestString += "0123456789";
+                Builder.Append("0123456789");
 
-            test1.TestString = TestString;
+            test1.TestString = Builder.ToString();
+
+            MemoryStream Stream0 = new MemoryStream();
+            s.Serialize(Stream0, test1);
+
+            Stream0.Seek(0, SeekOrigin.Begin);
+            TestInserters1 Test1Copy = (TestInserters1)s.Deserialize(Stream0);
+        }
+
+        [Test]
+        public static void BigString()
+        {
+            Serializer s = new Serializer();
+            s.Format = SerializationFormat.TextOnly;
+
+            TestInserters1 test1 = new TestInserters1();
+
+            StringBuilder Builder = new();
+            for (int i = 0; i < 10000; i++)
+                Builder.Append("0123456789");
+
+            test1.TestString = Builder.ToString();
 
             MemoryStream Stream0 = new MemoryStream();
             s.Serialize(Stream0, test1);
@@ -185,6 +205,26 @@
 
             Stream2.Seek(0, SeekOrigin.Begin);
             TestInserters2 Test2Copy = (TestInserters2)s.Deserialize(Stream2);
+        }
+
+        [Test]
+        public static void LongInserterList()
+        {
+            Serializer s = new Serializer();
+            s.Format = SerializationFormat.TextOnly;
+
+            ExtraList<TestInserters0> TestList = new();
+
+            for (int i = 0; i < 90; i++)
+                TestList.Add(new TestInserters0());
+
+            MemoryStream Stream2 = new MemoryStream();
+            s.Serialize(Stream2, TestList);
+
+            Stream2.Seek(0, SeekOrigin.Begin);
+
+            Stream2.Seek(0, SeekOrigin.Begin);
+            ExtraList<TestInserters0> TestListCopy = (ExtraList<TestInserters0>)s.Deserialize(Stream2);
         }
     }
 }
