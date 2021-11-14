@@ -195,7 +195,18 @@
             }
 
             OverrideTypeName(ref ReferenceTypeName);
-            Type? ReferenceType = Type.GetType(ReferenceTypeName);
+
+            Type? ReferenceType;
+
+            try
+            {
+                ReferenceType = Type.GetType(ReferenceTypeName);
+            }
+            catch (SystemException)
+            {
+                ReferenceType = null;
+            }
+
             if (ReferenceType == null)
             {
                 reference = null;

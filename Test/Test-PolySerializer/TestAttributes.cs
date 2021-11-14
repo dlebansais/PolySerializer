@@ -193,10 +193,16 @@
             Assembly CurrentAssembly = Assembly.GetExecutingAssembly();
             AssemblyName CurrentAssemblyName = CurrentAssembly.GetName();
 
+            Assert.NotNull(CurrentAssemblyName.Name);
+            string Name = CurrentAssemblyName.Name!;
+
+            Assert.NotNull(CurrentAssemblyName.Version);
+            Version Version = CurrentAssemblyName.Version!;
+
             NamespaceDescriptor Descriptor1 = new NamespaceDescriptor(nameof(Test));
-            NamespaceDescriptor Descriptor2 = new NamespaceDescriptor(nameof(Test), CurrentAssemblyName.Name);
-            NamespaceDescriptor Descriptor3 = new NamespaceDescriptor(nameof(Test), CurrentAssemblyName.Name, CurrentAssemblyName.Version.ToString());
-            NamespaceDescriptor Descriptor4 = new NamespaceDescriptor(nameof(Test), CurrentAssemblyName.Name, CurrentAssemblyName.Version.ToString(), "neutral", "null");
+            NamespaceDescriptor Descriptor2 = new NamespaceDescriptor(nameof(Test), Name);
+            NamespaceDescriptor Descriptor3 = new NamespaceDescriptor(nameof(Test), Name, Version.ToString());
+            NamespaceDescriptor Descriptor4 = new NamespaceDescriptor(nameof(Test), Name, Version.ToString(), "neutral", "null");
             NamespaceDescriptor Descriptor5 = NamespaceDescriptor.DescriptorFromType(typeof(TestAttributes0));
             NamespaceDescriptor Descriptor6 = NamespaceDescriptor.DescriptorFromType(typeof(Test1.TestAttributes1));
 
