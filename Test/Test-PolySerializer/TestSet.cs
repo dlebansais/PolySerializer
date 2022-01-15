@@ -32,7 +32,7 @@
             {
                 PolySerializerAssembly = null;
             }
-            Assume.That(PolySerializerAssembly != null);
+            Assume.That(PolySerializerAssembly is not null);
         }
 
         #region Basic Tests

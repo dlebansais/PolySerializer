@@ -185,7 +185,7 @@
 
                         GlobalOverride = true;
                         Type? UpdatedType = Assembly.GetType(Type.FullName!);
-                        if (UpdatedType != null)
+                        if (UpdatedType is not null)
                             TypeList[i] = UpdatedType;
                     }
                 }
@@ -337,7 +337,7 @@
                 MethodInfo MemberMethodInfo = (MethodInfo)SetterMember;
                 ParameterInfo[] Parameters = MemberMethodInfo.GetParameters();
 
-                if (Parameters != null && Parameters.Length == 1 && !IsFound)
+                if (Parameters is not null && Parameters.Length == 1 && !IsFound)
                 {
                     ParameterInfo Parameter = Parameters[0];
                     if (Parameter.ParameterType == ExpectedParameterType)

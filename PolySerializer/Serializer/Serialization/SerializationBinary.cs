@@ -79,7 +79,7 @@
                 ProcessSerializable_BINARY(MemberValue, ref data, ref offset);
             }
 
-            if (nextSerialized != null)
+            if (nextSerialized is not null)
                 nextSerialized.SetSerialized();
         }
 
@@ -220,7 +220,7 @@
 
         private void ProcessSerializable_BINARY(object reference, ref byte[] data, ref int offset)
         {
-            if (reference == null)
+            if (reference is null)
             {
                 AddFieldNull_BINARY(ref data, ref offset);
                 return;

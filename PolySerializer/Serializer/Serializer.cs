@@ -114,7 +114,7 @@ namespace PolySerializer
         {
             Type? t = referenceType;
 
-            while (t != null && !t.Attributes.HasFlag(TypeAttributes.Serializable) && t.GetCustomAttribute(typeof(PolySerializer.SerializableAttribute)) == null)
+            while (t is not null && !t.Attributes.HasFlag(TypeAttributes.Serializable) && t.GetCustomAttribute(typeof(PolySerializer.SerializableAttribute)) is null)
                 t = t.BaseType;
 
             return t;
@@ -138,7 +138,7 @@ namespace PolySerializer
             else
                 CurrentType = ReferenceType;
 
-            while (CurrentType != null)
+            while (CurrentType is not null)
             {
                 Type[] Interfaces = CurrentType.GetInterfaces();
                 foreach (Type Interface in Interfaces)
@@ -231,7 +231,7 @@ namespace PolySerializer
         private static bool IsSerializableConstructor(ConstructorInfo constructor, Type serializedType, out List<SerializedMember> constructorParameters)
         {
             SerializableAttribute? CustomAttribute = constructor.GetCustomAttribute(typeof(SerializableAttribute)) as SerializableAttribute;
-            if (CustomAttribute == null)
+            if (CustomAttribute is null)
             {
                 Contract.Unused(out constructorParameters);
                 return false;
@@ -355,7 +355,7 @@ namespace PolySerializer
                 if (CustomSerializable.Condition.Length > 0)
                 {
                     MemberInfo[] ConditionMembers = serializedType.GetMember(CustomSerializable.Condition);
-                    if (ConditionMembers != null)
+                    if (ConditionMembers is not null)
                     {
                         foreach (MemberInfo ConditionMember in ConditionMembers)
                         {

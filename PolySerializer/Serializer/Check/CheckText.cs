@@ -44,7 +44,7 @@
             if (!ProcessCheckable_TEXT(RootType, ref data, ref offset))
                 return false;
 
-            if (RootType == null)
+            if (RootType is null)
                 return false;
 
             bool Success = true;
@@ -104,7 +104,7 @@
                     return false;
             }
 
-            if (nextChecked != null)
+            if (nextChecked is not null)
                 nextChecked.SetChecked();
 
             return true;
@@ -138,12 +138,12 @@
 
             string? ValueName = valueType?.Name;
 
-            if (ValueName != null && ReadFieldHandlerTable_TEXT.ContainsKey(ValueName))
+            if (ValueName is not null && ReadFieldHandlerTable_TEXT.ContainsKey(ValueName))
             {
                 ReadFieldHandlerTable_TEXT[ValueName](ref data, ref offset);
                 return true;
             }
-            else if (valueType != null && valueType.IsEnum)
+            else if (valueType is not null && valueType.IsEnum)
             {
                 CheckEnumType_TEXT(valueType, ref data, ref offset);
                 return true;
@@ -192,7 +192,7 @@
                 return true;
 
             string? ReferenceTypeName = ReadFieldType_TEXT(ref data, ref offset);
-            if (ReferenceTypeName == null)
+            if (ReferenceTypeName is null)
                 return true;
 
             OverrideTypeName(ref ReferenceTypeName);
@@ -208,7 +208,7 @@
                 ReferenceType = null;
             }
 
-            if (ReferenceType == null)
+            if (ReferenceType is null)
                 return false;
 
             Type OriginalType = ReferenceType;

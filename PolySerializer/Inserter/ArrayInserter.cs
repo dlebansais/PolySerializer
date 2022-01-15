@@ -16,7 +16,7 @@
         /// <summary>
         /// Gets the array to which items will be added.
         /// </summary>
-        public Array Reference { get; private set; } = null !;
+        public Array Reference { get; private set; } = null!;
 
         /// <summary>
         /// Gets the index of the slow where the next item will be inserted.

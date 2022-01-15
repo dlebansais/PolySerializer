@@ -21,7 +21,7 @@
 
             Root = Reference!;
 
-            if (RootType == null)
+            if (RootType is null)
                 RootType = Root.GetType();
 
             int i = 0;
@@ -72,14 +72,14 @@
                 else
                 {
                     PropertyInfo AsPropertyInfo = (PropertyInfo)Member.MemberInfo;
-                    if (Member.PropertySetter == null)
+                    if (Member.PropertySetter is null)
                         AsPropertyInfo.SetValue(reference, MemberValue);
                     else
                         Member.PropertySetter.Invoke(reference, new object?[] { MemberValue });
                 }
             }
 
-            if (nextDeserialized != null)
+            if (nextDeserialized is not null)
                 nextDeserialized.SetDeserialized();
         }
 
@@ -131,12 +131,12 @@
 
             string? ValueName = valueType?.Name;
 
-            if (ValueName != null && ReadFieldHandlerTable_BINARY.ContainsKey(ValueName))
+            if (ValueName is not null && ReadFieldHandlerTable_BINARY.ContainsKey(ValueName))
             {
                 value = ReadFieldHandlerTable_BINARY[ValueName](ref data, ref offset);
                 return true;
             }
-            else if (valueType != null && valueType.IsEnum)
+            else if (valueType is not null && valueType.IsEnum)
             {
                 DeserializeEnumType_BINARY(valueType, ref data, ref offset, out value);
                 return true;
@@ -188,7 +188,7 @@
                 return;
 
             string? ReferenceTypeName = ReadFieldType_BINARY(ref data, ref offset);
-            if (ReferenceTypeName == null)
+            if (ReferenceTypeName is null)
             {
                 reference = null;
                 return;
@@ -207,7 +207,7 @@
                 ReferenceType = null;
             }
 
-            if (ReferenceType == null)
+            if (ReferenceType is null)
             {
                 reference = null;
                 return;

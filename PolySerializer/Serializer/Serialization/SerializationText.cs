@@ -90,7 +90,7 @@
                 ProcessSerializable_TEXT(MemberValue, ref data, ref offset);
             }
 
-            if (nextSerialized != null)
+            if (nextSerialized is not null)
                 nextSerialized.SetSerialized();
         }
 
@@ -230,7 +230,7 @@
 
         private void ProcessSerializable_TEXT(object reference, ref byte[] data, ref int offset)
         {
-            if (reference == null)
+            if (reference is null)
             {
                 AddFieldNull_TEXT(ref data, ref offset);
                 return;

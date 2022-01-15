@@ -20,7 +20,7 @@
             if (!ProcessCheckable_BINARY(RootType, ref data, ref offset))
                 return false;
 
-            if (RootType == null)
+            if (RootType is null)
                 return false;
 
             bool Success = true;
@@ -73,7 +73,7 @@
                     return false;
             }
 
-            if (nextChecked != null)
+            if (nextChecked is not null)
                 nextChecked.SetChecked();
 
             return true;
@@ -104,12 +104,12 @@
 
             string? ValueName = valueType?.Name;
 
-            if (ValueName != null && ReadFieldHandlerTable_BINARY.ContainsKey(ValueName))
+            if (ValueName is not null && ReadFieldHandlerTable_BINARY.ContainsKey(ValueName))
             {
                 ReadFieldHandlerTable_BINARY[ValueName](ref data, ref offset);
                 return true;
             }
-            else if (valueType != null && valueType.IsEnum)
+            else if (valueType is not null && valueType.IsEnum)
             {
                 CheckEnumType_BINARY(valueType, ref data, ref offset);
                 return true;
@@ -158,7 +158,7 @@
                 return true;
 
             string? ReferenceTypeName = ReadFieldType_BINARY(ref data, ref offset);
-            if (ReferenceTypeName == null)
+            if (ReferenceTypeName is null)
                 return true;
 
             OverrideTypeName(ref ReferenceTypeName);
@@ -174,7 +174,7 @@
                 ReferenceType = null;
             }
 
-            if (ReferenceType == null)
+            if (ReferenceType is null)
                 return false;
 
             Type OriginalType = ReferenceType;
