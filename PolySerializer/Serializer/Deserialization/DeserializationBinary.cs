@@ -91,7 +91,8 @@
                 {
                     for (long i = 0; i < count; i++)
                     {
-                        ProcessDeserializable_BINARY(ItemType, ref data, ref offset, out object? Item);
+                        if (!ProcessDeserializable_BINARY(ItemType, ref data, ref offset, out object? Item))
+                            break;
 
                         Inserter.AddItem(Item);
                     }
@@ -182,16 +183,16 @@
             }
         }
 
-        private void ProcessDeserializable_BINARY(Type? referenceType, ref byte[] data, ref int offset, out object? reference)
+        private bool ProcessDeserializable_BINARY(Type? referenceType, ref byte[] data, ref int offset, out object? reference)
         {
             if (DeserializeBasicType_BINARY(referenceType, ref data, ref offset, out reference))
-                return;
+                return true;
 
             string? ReferenceTypeName = ReadFieldType_BINARY(ref data, ref offset);
             if (ReferenceTypeName is null)
             {
                 reference = null;
-                return;
+                return false;
             }
 
             OverrideTypeName(ref ReferenceTypeName);
@@ -210,7 +211,7 @@
             if (ReferenceType is null)
             {
                 reference = null;
-                return;
+                return false;
             }
 
             Type OriginalType = ReferenceType;
@@ -256,7 +257,8 @@
                             PropertyInfo AsPropertyInfo = (PropertyInfo)ConstructorParameters[i].MemberInfo;
 
                             Type MemberType = AsPropertyInfo.PropertyType;
-                            ProcessDeserializable_BINARY(MemberType, ref data, ref offset, out object? MemberValue);
+                            if (!ProcessDeserializable_BINARY(MemberType, ref data, ref offset, out object? MemberValue))
+                                break;
 
                             Parameters[i] = MemberValue;
                         }
@@ -266,6 +268,8 @@
                     }
                 }
             }
+
+            return true;
         }
 
         private List<DeserializedMember> ListDeserializedMembers_BINARY(Type deserializedType, ref byte[] data, ref int offset)

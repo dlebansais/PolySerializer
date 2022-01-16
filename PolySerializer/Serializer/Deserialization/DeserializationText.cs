@@ -127,7 +127,8 @@
                         if (i > 0)
                             ReadSeparator_TEXT(ref data, ref offset);
 
-                        ProcessDeserializable_TEXT(ItemType, ref data, ref offset, out object? Item);
+                        if (!ProcessDeserializable_TEXT(ItemType, ref data, ref offset, out object? Item))
+                            break;
 
                         Inserter.AddItem(Item);
                     }
@@ -218,16 +219,16 @@
             }
         }
 
-        private void ProcessDeserializable_TEXT(Type? referenceType, ref byte[] data, ref int offset, out object? reference)
+        private bool ProcessDeserializable_TEXT(Type? referenceType, ref byte[] data, ref int offset, out object? reference)
         {
             if (DeserializeBasicType_TEXT(referenceType, ref data, ref offset, out reference))
-                return;
+                return true;
 
             string? ReferenceTypeName = ReadFieldType_TEXT(ref data, ref offset);
             if (ReferenceTypeName is null)
             {
                 reference = null;
-                return;
+                return false;
             }
 
             OverrideTypeName(ref ReferenceTypeName);
@@ -246,7 +247,7 @@
             if (ReferenceType is null)
             {
                 reference = null;
-                return;
+                return false;
             }
 
             Type OriginalType = ReferenceType;
@@ -295,7 +296,8 @@
                             PropertyInfo AsPropertyInfo = (PropertyInfo)ConstructorParameters[i].MemberInfo;
 
                             Type MemberType = AsPropertyInfo.PropertyType;
-                            ProcessDeserializable_TEXT(MemberType, ref data, ref offset, out object? MemberValue);
+                            if (!ProcessDeserializable_TEXT(MemberType, ref data, ref offset, out object? MemberValue))
+                                break;
 
                             Parameters[i] = MemberValue;
                         }
@@ -307,6 +309,8 @@
                     }
                 }
             }
+
+            return true;
         }
 
         private List<DeserializedMember> ListDeserializedMembers_TEXT(Type deserializedType, ref byte[] data, ref int offset)

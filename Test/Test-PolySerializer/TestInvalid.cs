@@ -139,6 +139,9 @@
 
             Assert.IsFalse(IsCompatible);
 
+            Stream4.Seek(0, SeekOrigin.Begin);
+            s.Deserialize(Stream4);
+
             TestInvalid4 test5 = new TestInvalid4();
             TestInvalid3 test51 = new TestInvalid3();
             test51.Test = new TestInvalid0();
@@ -178,6 +181,9 @@
             IsCompatible = s.Check(Stream6);
 
             Assert.IsFalse(IsCompatible);
+
+            Stream6.Seek(0, SeekOrigin.Begin);
+            s.Deserialize(Stream6);
         }
 
         [Test]
