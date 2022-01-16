@@ -3,7 +3,7 @@ setlocal
 
 call ..\Certification\set_tokens.bat
 
-set PROJECTNAME=Polyserializer
+set PROJECTNAME=PolySerializer
 set PROJECT_TOKEN=%POLYSERIALIZER_CODECOV_TOKEN%
 set TESTPROJECTNAME=Test-%PROJECTNAME%
 

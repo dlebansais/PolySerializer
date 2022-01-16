@@ -75,5 +75,19 @@
             NamespaceDescriptor NewObject = new NamespaceDescriptor("test");
             Text = NewObject.ToString();
         }
+
+        [Test]
+        public static void TestTypeIdentifier()
+        {
+            TypeIdentifier Test0 = TypeIdentifier.Test0;
+            TypeIdentifier Test1 = TypeIdentifier.Test1;
+            TypeIdentifier Test2 = TypeIdentifier.Test2;
+            TypeIdentifier Test3 = TypeIdentifier.Test3;
+            TypeIdentifier Test4 = TypeIdentifier.Test4;
+            TypeIdentifier Test5 = TypeIdentifier.Test5;
+            TypeIdentifier Test6 = TypeIdentifier.Test6;
+            TypeIdentifier Test7 = TypeIdentifier.Test7;
+            TypeIdentifier Test8 = TypeIdentifier.Test8;
+        }
     }
 }

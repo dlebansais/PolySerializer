@@ -213,16 +213,18 @@
 
 #if DEBUG
 #pragma warning disable CA1823 // Avoid unused private fields
-        private static readonly TypeIdentifier Test0 = new TypeIdentifier(typeof(string).AssemblyQualifiedName !);
-        private static readonly TypeIdentifier Test1 = new TypeIdentifier(typeof(List<string>).AssemblyQualifiedName !);
-        private static readonly TypeIdentifier Test2 = new TypeIdentifier(typeof(Dictionary<string, string>).AssemblyQualifiedName !);
-        private static readonly TypeIdentifier Test3 = new TypeIdentifier(typeof(List<List<string>>).AssemblyQualifiedName !);
-        private static readonly TypeIdentifier Test4 = new TypeIdentifier(typeof(List<Dictionary<string, string>>).AssemblyQualifiedName !);
-        private static readonly TypeIdentifier Test5 = new TypeIdentifier(typeof(Dictionary<string, List<string>>).AssemblyQualifiedName !);
-        private static readonly TypeIdentifier Test6 = new TypeIdentifier(typeof(Dictionary<string, Dictionary<string, string>>).AssemblyQualifiedName !);
-        private static readonly TypeIdentifier Test7 = new TypeIdentifier(typeof(Dictionary<List<string>, string>).AssemblyQualifiedName !);
-        private static readonly TypeIdentifier Test8 = new TypeIdentifier(typeof(Dictionary<Dictionary<string, string>, string>).AssemblyQualifiedName !);
+#pragma warning disable SA1600 // Elements should be documented
+        public static TypeIdentifier Test0 { get { return new TypeIdentifier(typeof(string).AssemblyQualifiedName!); } }
+        public static TypeIdentifier Test1 { get { return new TypeIdentifier(typeof(List<string>).AssemblyQualifiedName !); } }
+        public static TypeIdentifier Test2 { get { return new TypeIdentifier(typeof(Dictionary<string, string>).AssemblyQualifiedName !); } }
+        public static TypeIdentifier Test3 { get { return new TypeIdentifier(typeof(List<List<string>>).AssemblyQualifiedName !); } }
+        public static TypeIdentifier Test4 { get { return new TypeIdentifier(typeof(List<Dictionary<string, string>>).AssemblyQualifiedName !); } }
+        public static TypeIdentifier Test5 { get { return new TypeIdentifier(typeof(Dictionary<string, List<string>>).AssemblyQualifiedName !); } }
+        public static TypeIdentifier Test6 { get { return new TypeIdentifier(typeof(Dictionary<string, Dictionary<string, string>>).AssemblyQualifiedName !); } }
+        public static TypeIdentifier Test7 { get { return new TypeIdentifier(typeof(Dictionary<List<string>, string>).AssemblyQualifiedName !); } }
+        public static TypeIdentifier Test8 { get { return new TypeIdentifier(typeof(Dictionary<Dictionary<string, string>, string>).AssemblyQualifiedName !); } }
 #pragma warning restore CA1823 // Avoid unused private fields
+#pragma warning restore SA1600 // Elements should be documented
 #endif
     }
 }
