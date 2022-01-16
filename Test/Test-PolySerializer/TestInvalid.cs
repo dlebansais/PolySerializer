@@ -159,7 +159,6 @@
 
             Assert.IsFalse(IsCompatible);
 
-
             MemoryStream Stream6 = new MemoryStream();
             TestInvalid2 test6 = new TestInvalid2();
             test6.Test.Add(new TestInvalid0());
@@ -167,14 +166,6 @@
             s.Format = SerializationFormat.TextOnly;
             s.Mode = SerializationMode.Default;
             s.Serialize(Stream6, test6);
-
-            /*
-            Stream6.Seek(0, SeekOrigin.Begin);
-            using (StreamReader reader = new StreamReader(Stream6))
-            {
-                string All = reader.ReadToEnd();
-            }
-            */
 
             Stream6.Seek(105, SeekOrigin.Begin);
 
