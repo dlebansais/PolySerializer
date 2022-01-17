@@ -63,127 +63,199 @@
     public class TestInvalid
     {
         [Test]
-        public static void Basic()
+        public static void BasicEmpty()
         {
             Serializer s = new Serializer();
             bool IsCompatible;
 
-            MemoryStream Stream0 = new MemoryStream();
-            IsCompatible = s.Check(Stream0);
+            MemoryStream Stream = new MemoryStream();
+            IsCompatible = s.Check(Stream);
 
             Assert.IsFalse(IsCompatible);
+        }
 
-            MemoryStream Stream1 = new MemoryStream();
-            using (BinaryWriter Writer = new BinaryWriter(Stream1, Encoding.ASCII, true))
+        [Test]
+        public static void BasicInvalid()
+        {
+            Serializer s = new Serializer();
+            bool IsCompatible;
+
+            MemoryStream Stream = new MemoryStream();
+            using (BinaryWriter Writer = new BinaryWriter(Stream, Encoding.ASCII, true))
             {
                 Writer.Write(0);
                 Writer.Write(0);
                 Writer.Write(0);
             }
 
-            Stream1.Seek(0, SeekOrigin.Begin);
-            IsCompatible = s.Check(Stream1);
+            Stream.Seek(0, SeekOrigin.Begin);
+            IsCompatible = s.Check(Stream);
 
             Assert.IsFalse(IsCompatible);
+        }
 
-            TestInvalid1 test2 = new TestInvalid1();
+        [Test]
+        public static void InvalidTypeName()
+        {
+            Serializer s = new Serializer();
+            bool IsCompatible;
+
+            TestInvalid1 Test = new TestInvalid1();
             
-            MemoryStream Stream2 = new MemoryStream();
-            s.Serialize(Stream2, test2);
+            MemoryStream Stream = new MemoryStream();
+            s.Serialize(Stream, Test);
 
-            Stream2.Seek(0xDA, SeekOrigin.Begin);
+            Stream.Seek(0xDA, SeekOrigin.Begin);
 
-            using (BinaryWriter Writer = new BinaryWriter(Stream2, Encoding.ASCII, true))
+            using (BinaryWriter Writer = new BinaryWriter(Stream, Encoding.ASCII, true))
             {
                 Writer.Write("xyz");
             }
 
-            Stream2.Seek(0, SeekOrigin.Begin);
-            IsCompatible = s.Check(Stream2);
+            Stream.Seek(0, SeekOrigin.Begin);
+            IsCompatible = s.Check(Stream);
 
             Assert.IsFalse(IsCompatible);
 
-            Stream2.Seek(0, SeekOrigin.Begin);
-            s.Deserialize(Stream2);
+            Stream.Seek(0, SeekOrigin.Begin);
+            s.Deserialize(Stream);
+        }
 
-            MemoryStream Stream3 = new MemoryStream();
-            using (BinaryWriter Writer = new BinaryWriter(Stream3, Encoding.ASCII, true))
+        [Test]
+        public static void NullRoot()
+        {
+            Serializer s = new Serializer();
+            bool IsCompatible;
+
+            MemoryStream Stream = new MemoryStream();
+            using (BinaryWriter Writer = new BinaryWriter(Stream, Encoding.ASCII, true))
             {
                 Writer.Write(0xFFFFFFFF);
                 Writer.Write(0xFFFFFFFF);
             }
 
-            Stream3.Seek(0, SeekOrigin.Begin);
+            Stream.Seek(0, SeekOrigin.Begin);
 
             s.RootType = null;
 
-            IsCompatible = s.Check(Stream3);
+            IsCompatible = s.Check(Stream);
 
             Assert.IsFalse(IsCompatible);
+        }
 
-            MemoryStream Stream4 = new MemoryStream();
-            TestInvalid2 test4 = new TestInvalid2();
-            test4.Test.Add(new TestInvalid0());
+        [Test]
+        public static void InvalidCount()
+        {
+            Serializer s = new Serializer();
+            bool IsCompatible;
 
-            s.Serialize(Stream4, test4);
+            MemoryStream Stream = new MemoryStream();
+            TestInvalid2 Test = new TestInvalid2();
+            Test.Test.Add(new TestInvalid0());
 
-            Stream4.Seek(0x290, SeekOrigin.Begin);
+            s.Serialize(Stream, Test);
 
-            using (BinaryWriter Writer = new BinaryWriter(Stream4, Encoding.ASCII, true))
+            Stream.Seek(0x290, SeekOrigin.Begin);
+
+            using (BinaryWriter Writer = new BinaryWriter(Stream, Encoding.ASCII, true))
             {
                 Writer.Write("xyz");
             }
 
-            Stream4.Seek(0, SeekOrigin.Begin);
-            IsCompatible = s.Check(Stream4);
+            Stream.Seek(0, SeekOrigin.Begin);
+            IsCompatible = s.Check(Stream);
 
             Assert.IsFalse(IsCompatible);
 
-            Stream4.Seek(0, SeekOrigin.Begin);
-            s.Deserialize(Stream4);
+            Stream.Seek(0, SeekOrigin.Begin);
+            s.Deserialize(Stream);
+        }
 
-            TestInvalid4 test5 = new TestInvalid4();
-            TestInvalid3 test51 = new TestInvalid3();
-            test51.Test = new TestInvalid0();
-            test5.Test = test51;
+        [Test]
+        public static void InvalidTypeNameWithExceptionBinary()
+        {
+            Serializer s = new Serializer();
+            bool IsCompatible;
 
-            MemoryStream Stream5 = new MemoryStream();
-            s.Serialize(Stream5, test5);
+            TestInvalid4 Test = new TestInvalid4();
+            TestInvalid3 Subtext = new TestInvalid3();
+            Subtext.Test = new TestInvalid0();
+            Test.Test = Subtext;
 
-            Stream5.Seek(0x191, SeekOrigin.Begin);
+            MemoryStream Stream = new MemoryStream();
+            s.Serialize(Stream, Test);
 
-            using (BinaryWriter Writer = new BinaryWriter(Stream5, Encoding.ASCII, true))
+            Stream.Seek(0x191, SeekOrigin.Begin);
+
+            using (BinaryWriter Writer = new BinaryWriter(Stream, Encoding.ASCII, true))
             {
                 Writer.Write("xyz");
             }
 
-            Stream5.Seek(0, SeekOrigin.Begin);
-            IsCompatible = s.Check(Stream5);
+            Stream.Seek(0, SeekOrigin.Begin);
+            IsCompatible = s.Check(Stream);
 
             Assert.IsFalse(IsCompatible);
+        }
 
-            MemoryStream Stream6 = new MemoryStream();
-            TestInvalid2 test6 = new TestInvalid2();
-            test6.Test.Add(new TestInvalid0());
+        [Test]
+        public static void InvalidTypeNameWithExceptionText()
+        {
+            Serializer s = new Serializer();
+            bool IsCompatible;
+
+            MemoryStream Stream = new MemoryStream();
+            TestInvalid2 Test = new TestInvalid2();
+            Test.Test.Add(new TestInvalid0());
 
             s.Format = SerializationFormat.TextOnly;
             s.Mode = SerializationMode.Default;
-            s.Serialize(Stream6, test6);
+            s.Serialize(Stream, Test);
 
-            Stream6.Seek(105, SeekOrigin.Begin);
+            Stream.Seek(105, SeekOrigin.Begin);
 
-            using (BinaryWriter Writer = new BinaryWriter(Stream6, Encoding.ASCII, true))
+            using (BinaryWriter Writer = new BinaryWriter(Stream, Encoding.ASCII, true))
             {
                 Writer.Write("xyz");
             }
 
-            Stream6.Seek(0, SeekOrigin.Begin);
-            IsCompatible = s.Check(Stream6);
+            Stream.Seek(0, SeekOrigin.Begin);
+            IsCompatible = s.Check(Stream);
 
             Assert.IsFalse(IsCompatible);
 
-            Stream6.Seek(0, SeekOrigin.Begin);
-            s.Deserialize(Stream6);
+            Stream.Seek(0, SeekOrigin.Begin);
+            s.Deserialize(Stream);
+        }
+
+        [Test]
+        public static void InvalidTypeObjectTag()
+        {
+            Serializer s = new Serializer();
+            bool IsCompatible;
+
+            TestInvalid4 Test = new TestInvalid4();
+            TestInvalid3 Subtext = new TestInvalid3();
+            Subtext.Test = new TestInvalid0();
+            Test.Test = Subtext;
+
+            MemoryStream Stream = new MemoryStream();
+            s.Serialize(Stream, Test);
+
+            Stream.Seek(198, SeekOrigin.Begin);
+
+            using (BinaryWriter Writer = new BinaryWriter(Stream, Encoding.ASCII, true))
+            {
+                Writer.Write(new byte[] { 0xDB, 0xDB, 0xDB, 0xDB, 0xDB, 0xDB, 0xDB, 0xDB, 0xDB });
+            }
+
+            Stream.Seek(0, SeekOrigin.Begin);
+            IsCompatible = s.Check(Stream);
+
+            Assert.IsFalse(IsCompatible);
+
+            Stream.Seek(0, SeekOrigin.Begin);
+            s.Deserialize(Stream);
         }
 
         [Test]

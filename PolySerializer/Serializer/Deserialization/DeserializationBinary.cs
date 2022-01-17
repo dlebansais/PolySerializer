@@ -233,11 +233,6 @@
                     int ReferenceIndex = ReadFieldObjectIndex_BINARY(ref data, ref offset);
                     reference = DeserializedObjectList[ReferenceIndex].Reference;
                 }
-                else if (ReferenceTag == ObjectTag.ObjectReference)
-                {
-                    CreateObject(NewType, out reference);
-                    AddDeserializedObject(reference, ReferenceType, -1);
-                }
                 else if (ReferenceTag == ObjectTag.ObjectList)
                 {
                     long Count = ReadFieldCount_BINARY(ref data, ref offset);
@@ -267,6 +262,13 @@
                         AddDeserializedObject(reference, ReferenceType, -1);
                     }
                 }
+                else if (ReferenceTag == ObjectTag.ObjectReference)
+                {
+                    CreateObject(NewType, out reference);
+                    AddDeserializedObject(reference, ReferenceType, -1);
+                }
+                else
+                    return false;
             }
 
             return true;

@@ -260,6 +260,8 @@
                     AddCheckedObject(referenceType, -1);
                 }
             }
+            else
+                return false;
 
             return true;
         }

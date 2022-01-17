@@ -76,6 +76,7 @@
             Text = NewObject.ToString();
         }
 
+#if DEBUG
         [Test]
         public static void TestTypeIdentifier()
         {
@@ -89,5 +90,6 @@
             TypeIdentifier Test7 = TypeIdentifier.Test7;
             TypeIdentifier Test8 = TypeIdentifier.Test8;
         }
+#endif
     }
 }
