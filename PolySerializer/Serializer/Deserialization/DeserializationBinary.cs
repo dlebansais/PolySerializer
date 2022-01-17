@@ -253,7 +253,7 @@
 
                             Type MemberType = AsPropertyInfo.PropertyType;
                             if (!ProcessDeserializable_BINARY(MemberType, ref data, ref offset, out object? MemberValue))
-                                break;
+                                return false;
 
                             Parameters[i] = MemberValue;
                         }

@@ -229,10 +229,6 @@
             {
                 ReadFieldObjectIndex_TEXT(ref data, ref offset);
             }
-            else if (ReferenceTag == ObjectTag.ObjectReference)
-            {
-                AddCheckedObject(referenceType, -1);
-            }
             else if (ReferenceTag == ObjectTag.ObjectList)
             {
                 long Count = ReadFieldCount_TEXT(ref data, ref offset);
@@ -261,7 +257,9 @@
                 }
             }
             else
-                return false;
+            {
+                AddCheckedObject(referenceType, -1);
+            }
 
             return true;
         }

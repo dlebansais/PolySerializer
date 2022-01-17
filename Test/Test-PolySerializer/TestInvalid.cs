@@ -229,7 +229,7 @@
         }
 
         [Test]
-        public static void InvalidTypeObjectTag()
+        public static void InvalidObjectTag()
         {
             Serializer s = new Serializer();
             bool IsCompatible;
