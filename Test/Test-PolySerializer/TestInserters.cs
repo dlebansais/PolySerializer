@@ -148,6 +148,44 @@
         }
 
         [Test]
+        public static void BasicTextBadNull()
+        {
+            Serializer s = new Serializer();
+            s.Format = SerializationFormat.TextOnly;
+
+            TestInserters0 test0 = new TestInserters0();
+            test0.TestArray = new int[1];
+            test0.TestArray[0] = 1;
+            test0.TestList = new List<int>();
+            test0.TestList.Add(2);
+            test0.TestList.Add(4);
+            test0.TestSet = new SortedSet<int>();
+            test0.TestSet.Add(3);
+            test0.TestStrings.Add("*");
+            test0.Self = null;
+
+            MemoryStream Stream = new MemoryStream();
+            using (StreamWriter Writer = new StreamWriter(Stream, Encoding.UTF8, 128, true))
+            {
+                Writer.Write("");
+            }
+
+            s.Serialize(Stream, test0);
+
+            Stream.Seek(116, SeekOrigin.Begin);
+
+            using (BinaryWriter Writer = new BinaryWriter(Stream, Encoding.ASCII, true))
+            {
+                Writer.Write(new byte[] { 0xDB} );
+            }
+
+            Stream.Seek(0, SeekOrigin.Begin);
+            bool IsCompatible = s.Check(Stream);
+
+            Assert.IsFalse(IsCompatible);
+        }
+
+        [Test]
         public static void BigObject()
         {
             Serializer s = new Serializer();

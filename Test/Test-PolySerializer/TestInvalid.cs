@@ -478,6 +478,19 @@
         }
 
         [Test]
+        public static void InvalidCollectionItem()
+        {
+            Serializer s = new Serializer();
+            s.Format = SerializationFormat.TextPreferred;
+
+            string Text7 = "Mode=Default\n{Test.TestInvalid2, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n{System.Collections.Generic.List`1[[Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089} *2\n{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.XXXXX, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n;{Test.TestInvalid0, Test-PolySerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null}\n0x000000200x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x000000000x00000000";
+            MemoryStream Stream7 = new MemoryStream(Encoding.ASCII.GetBytes(Text7));
+
+            Stream7.Seek(0, SeekOrigin.Begin);
+            s.Deserialize(Stream7);
+        }
+
+        [Test]
         public static void InvalidDataText()
         {
             Serializer s = new Serializer();
