@@ -297,26 +297,32 @@
             return Value;
         }
 
-        private string? ReadFieldType_TEXT(ref byte[] data, ref int offset)
+        private bool ReadFieldType_TEXT(ref byte[] data, ref int offset, out string? typeName)
         {
             ReadField(ref data, ref offset, 1);
             if (data[offset] != '{')
             {
+                typeName = null;
+
                 if (data[offset++] == 'n')
                 {
                     ReadField(ref data, ref offset, 3);
                     if (data[offset + 0] == 'u' && data[offset + 1] == 'l' && data[offset + 2] == 'l')
+                    {
                         offset += 3;
+                        return true;
+                    }
                 }
 
-                return null;
+                return false;
             }
 
             offset++;
 
             string Value = ReadStringUntil(ref data, ref offset, '}');
 
-            return Value;
+            typeName = Value;
+            return true;
         }
 
         private List<string> ReadFieldMembers_TEXT(ref byte[] data, ref int offset)

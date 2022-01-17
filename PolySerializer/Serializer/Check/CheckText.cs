@@ -191,7 +191,9 @@
             if (CheckBasicType_TEXT(referenceType, ref data, ref offset))
                 return true;
 
-            string? ReferenceTypeName = ReadFieldType_TEXT(ref data, ref offset);
+            if (!ReadFieldType_TEXT(ref data, ref offset, out string? ReferenceTypeName))
+                return false;
+
             if (ReferenceTypeName is null)
                 return true;
 

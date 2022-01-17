@@ -430,7 +430,7 @@
         }
 
         [Test]
-        public static void CheckConstructorWithInvalidItem()
+        public static void CheckConstructorWithInvalidItemBinary()
         {
             Serializer s = new Serializer();
             bool IsCompatible;
@@ -442,6 +442,37 @@
             s.Serialize(Stream0, test0);
 
             Stream0.Seek(406, SeekOrigin.Begin);
+
+            using (BinaryWriter Writer = new BinaryWriter(Stream0, Encoding.ASCII, true))
+            {
+                Writer.Write(new byte[] { 0xDB, 0xDB, 0xDB, 0xDB, 0xDB, 0xDB, 0xDB, 0xDB, 0xDB });
+            }
+
+            Stream0.Seek(0, SeekOrigin.Begin);
+            IsCompatible = s.Check(Stream0);
+
+            Assert.IsFalse(IsCompatible);
+
+            Stream0.Seek(0, SeekOrigin.Begin);
+            s.Deserialize(Stream0);
+        }
+
+        [Test]
+        public static void CheckConstructorWithInvalidItemText()
+        {
+            Serializer s = new Serializer();
+            bool IsCompatible;
+
+            TestAttributes5 testInit = new TestAttributes5();
+            TestAttributes6 test0 = new TestAttributes6(testInit, testInit);
+
+            s.Format = SerializationFormat.TextOnly;
+            s.Mode = SerializationMode.Default;
+
+            MemoryStream Stream0 = new MemoryStream();
+            s.Serialize(Stream0, test0);
+
+            Stream0.Seek(213, SeekOrigin.Begin);
 
             using (BinaryWriter Writer = new BinaryWriter(Stream0, Encoding.ASCII, true))
             {

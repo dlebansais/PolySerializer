@@ -224,8 +224,7 @@
             if (DeserializeBasicType_TEXT(referenceType, ref data, ref offset, out reference))
                 return true;
 
-            string? ReferenceTypeName = ReadFieldType_TEXT(ref data, ref offset);
-            if (ReferenceTypeName is null)
+            if (!ReadFieldType_TEXT(ref data, ref offset, out string? ReferenceTypeName) || ReferenceTypeName is null)
             {
                 reference = null;
                 return false;
@@ -292,7 +291,7 @@
 
                             Type MemberType = AsPropertyInfo.PropertyType;
                             if (!ProcessDeserializable_TEXT(MemberType, ref data, ref offset, out object? MemberValue))
-                                break;
+                                return false;
 
                             Parameters[i] = MemberValue;
                         }

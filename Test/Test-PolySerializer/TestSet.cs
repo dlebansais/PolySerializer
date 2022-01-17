@@ -1121,7 +1121,8 @@
 
             using (FileStream fs = new FileStream("test.log", FileMode.Open, FileAccess.Read))
             {
-                Assert.That(s.Check(fs), "Basic check of empty struct");
+                bool IsEmptyValid = s.Check(fs);
+                Assert.That(IsEmptyValid, "Basic check of empty struct");
             }
 
             Struct1 test1;
