@@ -129,15 +129,8 @@ public struct NamespaceDescriptor : IEquatable<NamespaceDescriptor>
 
         string[] FullNamePath = Name.Split(',');
 
-        bool IsValidLength = FullNamePath.Length == 5;
-        bool IsValidAssembly = IsValidLength && FullNamePath[1].StartsWith(AssemblyPattern, StringComparison.InvariantCulture);
-        bool IsValidVersion = IsValidLength && FullNamePath[2].StartsWith(VersionPattern, StringComparison.InvariantCulture);
-        bool IsValidCulture = IsValidLength && FullNamePath[3].StartsWith(CulturePattern, StringComparison.InvariantCulture);
-        bool IsValidToken = IsValidLength && FullNamePath[4].StartsWith(PublicKeyTokenPattern, StringComparison.InvariantCulture);
-        bool IsValidName = IsValidLength && IsValidAssembly && IsValidVersion && IsValidCulture && IsValidToken;
-
         // Name should be always valid for a type name unless .NET changes drastically.
-        if (!IsValidName)
+        if (!IsNameValid(FullNamePath))
             throw new ArgumentException("Assembly qualified type name expected", nameof(name));
 
         bool NamespaceMatch = MatchNamespace(FullNamePath[0], descriptorSearch.Path, descriptorReplace.Path, out string namespaceOverride);
@@ -153,6 +146,18 @@ public struct NamespaceDescriptor : IEquatable<NamespaceDescriptor>
             nameOverride = Name;
 
         return IsMatch;
+    }
+
+    private static bool IsNameValid(string[] fullNamePath)
+    {
+        bool IsValidLength = fullNamePath.Length == 5;
+        bool IsValidAssembly = IsValidLength && fullNamePath[1].StartsWith(AssemblyPattern, StringComparison.InvariantCulture);
+        bool IsValidVersion = IsValidLength && fullNamePath[2].StartsWith(VersionPattern, StringComparison.InvariantCulture);
+        bool IsValidCulture = IsValidLength && fullNamePath[3].StartsWith(CulturePattern, StringComparison.InvariantCulture);
+        bool IsValidToken = IsValidLength && fullNamePath[4].StartsWith(PublicKeyTokenPattern, StringComparison.InvariantCulture);
+        bool IsValidName = IsValidLength && IsValidAssembly && IsValidVersion && IsValidCulture && IsValidToken;
+
+        return IsValidName;
     }
 
     private static bool MatchNamespace(string pathText, string searchPath, string replacePath, out string pathOverride)
