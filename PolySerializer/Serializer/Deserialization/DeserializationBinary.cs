@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Reflection;
     using Contracts;
 
@@ -251,33 +252,27 @@
             }
             else if (ReferenceTag == ObjectTag.ConstructedObject)
             {
-                List<SerializedMember> ConstructorParameters;
-                if (ListConstructorParameters(referenceType, out ConstructorParameters))
+                bool HasSerializableConstructor = ListConstructorParameters(referenceType, out List<SerializedMember> ConstructorParameters);
+                Debug.Assert(HasSerializableConstructor);
+
+                object?[] Parameters = new object?[ConstructorParameters.Count];
+
+                for (int i = 0; i < ConstructorParameters.Count; i++)
                 {
-                    object?[] Parameters = new object?[ConstructorParameters.Count];
+                    PropertyInfo AsPropertyInfo = (PropertyInfo)ConstructorParameters[i].MemberInfo;
 
-                    for (int i = 0; i < ConstructorParameters.Count; i++)
+                    Type MemberType = AsPropertyInfo.PropertyType;
+                    if (!ProcessDeserializable_BINARY(MemberType, ref data, ref offset, out object? MemberValue))
                     {
-                        PropertyInfo AsPropertyInfo = (PropertyInfo)ConstructorParameters[i].MemberInfo;
-
-                        Type MemberType = AsPropertyInfo.PropertyType;
-                        if (!ProcessDeserializable_BINARY(MemberType, ref data, ref offset, out object? MemberValue))
-                        {
-                            reference = null;
-                            return false;
-                        }
-
-                        Parameters[i] = MemberValue;
+                        reference = null;
+                        return false;
                     }
 
-                    CreateObject(objectType, Parameters, out reference);
-                    AddDeserializedObject(reference, referenceType, -1);
+                    Parameters[i] = MemberValue;
                 }
-                else
-                {
-                    reference = null;
-                    return false;
-                }
+
+                CreateObject(objectType, Parameters, out reference);
+                AddDeserializedObject(reference, referenceType, -1);
             }
             else if (ReferenceTag == ObjectTag.ObjectReference)
             {

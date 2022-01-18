@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Reflection;
     using System.Text;
@@ -286,38 +287,32 @@
             }
             else if (ReferenceTag == ObjectTag.ConstructedObject)
             {
-                List<SerializedMember> ConstructorParameters;
-                if (ListConstructorParameters(referenceType, out ConstructorParameters))
+                bool HasSerializableConstructor = ListConstructorParameters(referenceType, out List<SerializedMember> ConstructorParameters);
+                Debug.Assert(HasSerializableConstructor);
+
+                object?[] Parameters = new object?[ConstructorParameters.Count];
+
+                for (int i = 0; i < ConstructorParameters.Count; i++)
                 {
-                    object?[] Parameters = new object?[ConstructorParameters.Count];
+                    if (i > 0)
+                        ReadSeparator_TEXT(ref data, ref offset);
 
-                    for (int i = 0; i < ConstructorParameters.Count; i++)
+                    PropertyInfo AsPropertyInfo = (PropertyInfo)ConstructorParameters[i].MemberInfo;
+
+                    Type MemberType = AsPropertyInfo.PropertyType;
+                    if (!ProcessDeserializable_TEXT(MemberType, ref data, ref offset, out object? MemberValue))
                     {
-                        if (i > 0)
-                            ReadSeparator_TEXT(ref data, ref offset);
-
-                        PropertyInfo AsPropertyInfo = (PropertyInfo)ConstructorParameters[i].MemberInfo;
-
-                        Type MemberType = AsPropertyInfo.PropertyType;
-                        if (!ProcessDeserializable_TEXT(MemberType, ref data, ref offset, out object? MemberValue))
-                        {
-                            reference = null;
-                            return false;
-                        }
-
-                        Parameters[i] = MemberValue;
+                        reference = null;
+                        return false;
                     }
 
-                    ReadSeparator_TEXT(ref data, ref offset);
+                    Parameters[i] = MemberValue;
+                }
 
-                    CreateObject(objectType, Parameters, out reference);
-                    AddDeserializedObject(reference, referenceType, -1);
-                }
-                else
-                {
-                    reference = null;
-                    return false;
-                }
+                ReadSeparator_TEXT(ref data, ref offset);
+
+                CreateObject(objectType, Parameters, out reference);
+                AddDeserializedObject(reference, referenceType, -1);
             }
             else
             {
