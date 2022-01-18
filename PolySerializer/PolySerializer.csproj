@@ -13,8 +13,8 @@
     <Product />
     <Description>A generic .NET serializer for object exchange between assemblies</Description>
     <Copyright>Copyright © 2019 David Le Bansais</Copyright>
-    <AssemblyVersion>1.2.11.244</AssemblyVersion>
-    <FileVersion>1.2.11.153</FileVersion>
+    <AssemblyVersion>1.2.11.246</AssemblyVersion>
+    <FileVersion>1.2.11.154</FileVersion>
     <RepositoryUrl>https://github.com/dlebansais/PolySerializer</RepositoryUrl>
     <NeutralLanguage>en-US</NeutralLanguage>
     <RootNamespace>PolySerializer</RootNamespace>

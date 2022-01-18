@@ -1,4 +1,4 @@
-﻿namespace Test1;
+﻿namespace Test.Test1;
 
 [System.Serializable]
 public class TestAttributes1
