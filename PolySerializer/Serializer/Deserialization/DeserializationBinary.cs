@@ -220,55 +220,74 @@
             ReferenceType = OriginalType;
 
             if (ReferenceType.IsValueType)
+                return ProcessDeserializableValue_BINARY(NewType, ReferenceType, ref data, ref offset, out reference);
+            else
+                return ProcessDeserializableReference_BINARY(NewType, ReferenceType, ref data, ref offset, out reference);
+        }
+
+        private bool ProcessDeserializableValue_BINARY(Type objectType, Type referenceType, ref byte[] data, ref int offset, out object? reference)
+        {
+            CreateObject(objectType, out reference);
+            Deserialize_BINARY(reference, referenceType, -1, ref data, ref offset, null);
+
+            return true;
+        }
+
+        private bool ProcessDeserializableReference_BINARY(Type objectType, Type referenceType, ref byte[] data, ref int offset, out object? reference)
+        {
+            ObjectTag ReferenceTag = ReadFieldTag_BINARY(ref data, ref offset);
+
+            if (ReferenceTag == ObjectTag.ObjectIndex)
             {
-                CreateObject(NewType, out reference);
-                Deserialize_BINARY(reference, ReferenceType, -1, ref data, ref offset, null);
+                int ReferenceIndex = ReadFieldObjectIndex_BINARY(ref data, ref offset);
+                reference = DeserializedObjectList[ReferenceIndex].Reference;
+            }
+            else if (ReferenceTag == ObjectTag.ObjectList)
+            {
+                long Count = ReadFieldCount_BINARY(ref data, ref offset);
+
+                CreateObject(objectType, Count, out reference);
+                AddDeserializedObject(reference, referenceType, Count);
+            }
+            else if (ReferenceTag == ObjectTag.ConstructedObject)
+            {
+                List<SerializedMember> ConstructorParameters;
+                if (ListConstructorParameters(referenceType, out ConstructorParameters))
+                {
+                    object?[] Parameters = new object?[ConstructorParameters.Count];
+
+                    for (int i = 0; i < ConstructorParameters.Count; i++)
+                    {
+                        PropertyInfo AsPropertyInfo = (PropertyInfo)ConstructorParameters[i].MemberInfo;
+
+                        Type MemberType = AsPropertyInfo.PropertyType;
+                        if (!ProcessDeserializable_BINARY(MemberType, ref data, ref offset, out object? MemberValue))
+                        {
+                            reference = null;
+                            return false;
+                        }
+
+                        Parameters[i] = MemberValue;
+                    }
+
+                    CreateObject(objectType, Parameters, out reference);
+                    AddDeserializedObject(reference, referenceType, -1);
+                }
+                else
+                {
+                    reference = null;
+                    return false;
+                }
+            }
+            else if (ReferenceTag == ObjectTag.ObjectReference)
+            {
+                CreateObject(objectType, out reference);
+                AddDeserializedObject(reference, referenceType, -1);
             }
             else
             {
-                ObjectTag ReferenceTag = ReadFieldTag_BINARY(ref data, ref offset);
-
-                if (ReferenceTag == ObjectTag.ObjectIndex)
-                {
-                    int ReferenceIndex = ReadFieldObjectIndex_BINARY(ref data, ref offset);
-                    reference = DeserializedObjectList[ReferenceIndex].Reference;
-                }
-                else if (ReferenceTag == ObjectTag.ObjectList)
-                {
-                    long Count = ReadFieldCount_BINARY(ref data, ref offset);
-
-                    CreateObject(NewType, Count, out reference);
-                    AddDeserializedObject(reference, ReferenceType, Count);
-                }
-                else if (ReferenceTag == ObjectTag.ConstructedObject)
-                {
-                    List<SerializedMember> ConstructorParameters;
-                    if (ListConstructorParameters(ReferenceType, out ConstructorParameters))
-                    {
-                        object?[] Parameters = new object?[ConstructorParameters.Count];
-
-                        for (int i = 0; i < ConstructorParameters.Count; i++)
-                        {
-                            PropertyInfo AsPropertyInfo = (PropertyInfo)ConstructorParameters[i].MemberInfo;
-
-                            Type MemberType = AsPropertyInfo.PropertyType;
-                            if (!ProcessDeserializable_BINARY(MemberType, ref data, ref offset, out object? MemberValue))
-                                return false;
-
-                            Parameters[i] = MemberValue;
-                        }
-
-                        CreateObject(NewType, Parameters, out reference);
-                        AddDeserializedObject(reference, ReferenceType, -1);
-                    }
-                }
-                else if (ReferenceTag == ObjectTag.ObjectReference)
-                {
-                    CreateObject(NewType, out reference);
-                    AddDeserializedObject(reference, ReferenceType, -1);
-                }
-                else
-                    return false;
+                reference = null;
+                return false;
             }
 
             return true;
