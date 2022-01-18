@@ -1,10 +1,9 @@
-﻿using PolySerializer;
+﻿namespace Test;
 
-namespace Test
+using PolySerializer;
+
+[Serializable]
+public class ParentA
 {
-    [Serializable]
-    public class ParentA
-    {
-        public string? Test;
-    }
+    public string? Test;
 }

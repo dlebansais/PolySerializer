@@ -1,268 +1,267 @@
-﻿namespace Test
+﻿namespace Test;
+
+using NUnit.Framework;
+using PolySerializer;
+using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
+
+[System.Serializable]
+public class TestInserters0
 {
-    using NUnit.Framework;
-    using PolySerializer;
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.Specialized;
-    using System.IO;
-    using System.Text;
-    using System.Threading.Tasks;
+    public int[] TestArray { get; set; } = new int[0];
+    public List<int> TestList { get; set; } = new List<int>();
+    public SortedSet<int> TestSet { get; set; } = new SortedSet<int>();
+    public Dictionary<int, int> TestDictionary { get; set; } = new Dictionary<int, int>();
+    public StringCollection TestStrings { get; set; } = new StringCollection();
+    public TestInserters0? Self { get; set; }
+}
 
-    [System.Serializable]
-    public class TestInserters0
+[System.Serializable]
+public class TestInserters1
+{
+    public string TestString { get; set; } = string.Empty;
+}
+
+[System.Serializable]
+public class ExtraList<T> : List<T>
+{
+    public ExtraList()
+        : base()
     {
-        public int[] TestArray { get; set; } = new int[0];
-        public List<int> TestList { get; set; } = new List<int>();
-        public SortedSet<int> TestSet { get; set; } = new SortedSet<int>();
-        public Dictionary<int, int> TestDictionary { get; set; } = new Dictionary<int, int>();
-        public StringCollection TestStrings { get; set; } = new StringCollection();
-        public TestInserters0? Self { get; set; }
     }
 
-    [System.Serializable]
-    public class TestInserters1
+    public ExtraList(long count)
+        : base((int)(count & 0xF))
     {
-        public string TestString { get; set; } = string.Empty;
+    }
+}
+
+[System.Serializable]
+public class TestInserters2
+{
+    public ExtraList<int> TestList { get; set; } = new ExtraList<int>();
+}
+
+[TestFixture]
+public class TestInserters
+{
+    [Test]
+    public static void Basic()
+    {
+        Serializer s = new Serializer();
+
+        Assert.AreEqual(3, s.BuiltInInserters.Count);
+        Assert.AreEqual("For arrays of any type (declared with the [] syntax)", s.BuiltInInserters[0].Description);
+        Assert.AreEqual("For collections supporting both the IList and IList<T> interface", s.BuiltInInserters[1].Description);
+        Assert.AreEqual("For generic types with an Add() method", s.BuiltInInserters[2].Description);
+
+        TestInserters0 test0 = new TestInserters0();
+        test0.TestArray = new int[1];
+        test0.TestArray[0] = 1;
+        test0.TestList = new List<int>();
+        test0.TestList.Add(2);
+        test0.TestSet = new SortedSet<int>();
+        test0.TestSet.Add(3);
+        test0.TestStrings.Add("*");
+        test0.Self = test0;
+
+        MemoryStream Stream = new MemoryStream();
+        s.Serialize(Stream, test0);
+
+        Stream.Seek(0, SeekOrigin.Begin);
+        bool IsCompatible = s.Check(Stream);
+        Assert.IsTrue(IsCompatible);
+
+        Stream.Seek(0, SeekOrigin.Begin);
+        Task<bool> IsCompatibleTask = s.CheckAsync(Stream);
+        IsCompatibleTask.Wait();
+        Assert.IsTrue(IsCompatibleTask.Result);
+
+        Stream.Seek(0, SeekOrigin.Begin);
+        TestInserters0 test0Copy = (TestInserters0)s.Deserialize(Stream);
+
+        Assert.AreEqual(1, test0Copy.TestArray.Length);
+        Assert.AreEqual(1, test0Copy.TestArray[0]);
+        Assert.AreEqual(1, test0Copy.TestList.Count);
+        Assert.AreEqual(2, test0Copy.TestList[0]);
+        Assert.AreEqual(1, test0Copy.TestSet.Count);
+        Assert.AreEqual(3, test0Copy.TestSet.Min);
+        Assert.AreEqual(3, test0Copy.TestSet.Max);
+        Assert.AreEqual(0, test0Copy.TestStrings.Count);
     }
 
-    [System.Serializable]
-    public class ExtraList<T> : List<T>
+    [Test]
+    public static void BasicText()
     {
-        public ExtraList()
-            : base()
+        Serializer s = new Serializer();
+        s.Format = SerializationFormat.TextOnly;
+
+        Assert.AreEqual(3, s.BuiltInInserters.Count);
+        Assert.AreEqual("For arrays of any type (declared with the [] syntax)", s.BuiltInInserters[0].Description);
+        Assert.AreEqual("For collections supporting both the IList and IList<T> interface", s.BuiltInInserters[1].Description);
+        Assert.AreEqual("For generic types with an Add() method", s.BuiltInInserters[2].Description);
+
+        TestInserters0 test0 = new TestInserters0();
+        test0.TestArray = new int[1];
+        test0.TestArray[0] = 1;
+        test0.TestList = new List<int>();
+        test0.TestList.Add(2);
+        test0.TestList.Add(4);
+        test0.TestSet = new SortedSet<int>();
+        test0.TestSet.Add(3);
+        test0.TestStrings.Add("*");
+        test0.Self = test0;
+
+        MemoryStream Stream = new MemoryStream();
+        using (StreamWriter Writer = new StreamWriter(Stream, Encoding.UTF8, 128, true))
         {
+            Writer.Write("");
         }
 
-        public ExtraList(long count)
-            : base((int)(count & 0xF))
-        {
-        }
+        s.Serialize(Stream, test0);
+
+        Stream.Seek(0, SeekOrigin.Begin);
+        bool IsCompatible = s.Check(Stream);
+        Assert.IsTrue(IsCompatible);
+
+        Stream.Seek(0, SeekOrigin.Begin);
+        Task<bool> IsCompatibleTask = s.CheckAsync(Stream);
+        IsCompatibleTask.Wait();
+        Assert.IsTrue(IsCompatibleTask.Result);
+
+        Stream.Seek(0, SeekOrigin.Begin);
+        TestInserters0 test0Copy = (TestInserters0)s.Deserialize(Stream);
+
+        Assert.AreEqual(1, test0Copy.TestArray.Length);
+        Assert.AreEqual(1, test0Copy.TestArray[0]);
+        Assert.AreEqual(2, test0Copy.TestList.Count);
+        Assert.AreEqual(2, test0Copy.TestList[0]);
+        Assert.AreEqual(4, test0Copy.TestList[1]);
+        Assert.AreEqual(1, test0Copy.TestSet.Count);
+        Assert.AreEqual(3, test0Copy.TestSet.Min);
+        Assert.AreEqual(3, test0Copy.TestSet.Max);
+        Assert.AreEqual(0, test0Copy.TestStrings.Count);
     }
 
-    [System.Serializable]
-    public class TestInserters2
+    [Test]
+    public static void BasicTextBadNull()
     {
-        public ExtraList<int> TestList { get; set; } = new ExtraList<int>();
+        Serializer s = new Serializer();
+        s.Format = SerializationFormat.TextOnly;
+
+        TestInserters0 test0 = new TestInserters0();
+        test0.TestArray = new int[1];
+        test0.TestArray[0] = 1;
+        test0.TestList = new List<int>();
+        test0.TestList.Add(2);
+        test0.TestList.Add(4);
+        test0.TestSet = new SortedSet<int>();
+        test0.TestSet.Add(3);
+        test0.TestStrings.Add("*");
+        test0.Self = null;
+
+        MemoryStream Stream = new MemoryStream();
+        using (StreamWriter Writer = new StreamWriter(Stream, Encoding.UTF8, 128, true))
+        {
+            Writer.Write("");
+        }
+
+        s.Serialize(Stream, test0);
+
+        Stream.Seek(116, SeekOrigin.Begin);
+
+        using (BinaryWriter Writer = new BinaryWriter(Stream, Encoding.ASCII, true))
+        {
+            Writer.Write(new byte[] { 0xDB} );
+        }
+
+        Stream.Seek(0, SeekOrigin.Begin);
+        bool IsCompatible = s.Check(Stream);
+
+        Assert.IsFalse(IsCompatible);
     }
 
-    [TestFixture]
-    public class TestInserters
+    [Test]
+    public static void BigObject()
     {
-        [Test]
-        public static void Basic()
-        {
-            Serializer s = new Serializer();
+        Serializer s = new Serializer();
 
-            Assert.AreEqual(3, s.BuiltInInserters.Count);
-            Assert.AreEqual("For arrays of any type (declared with the [] syntax)", s.BuiltInInserters[0].Description);
-            Assert.AreEqual("For collections supporting both the IList and IList<T> interface", s.BuiltInInserters[1].Description);
-            Assert.AreEqual("For generic types with an Add() method", s.BuiltInInserters[2].Description);
+        TestInserters1 test1 = new TestInserters1();
 
-            TestInserters0 test0 = new TestInserters0();
-            test0.TestArray = new int[1];
-            test0.TestArray[0] = 1;
-            test0.TestList = new List<int>();
-            test0.TestList.Add(2);
-            test0.TestSet = new SortedSet<int>();
-            test0.TestSet.Add(3);
-            test0.TestStrings.Add("*");
-            test0.Self = test0;
+        StringBuilder Builder = new();
+        for (int i = 0; i < 10000; i++)
+            Builder.Append("0123456789");
 
-            MemoryStream Stream = new MemoryStream();
-            s.Serialize(Stream, test0);
+        test1.TestString = Builder.ToString();
 
-            Stream.Seek(0, SeekOrigin.Begin);
-            bool IsCompatible = s.Check(Stream);
-            Assert.IsTrue(IsCompatible);
+        MemoryStream Stream0 = new MemoryStream();
+        s.Serialize(Stream0, test1);
 
-            Stream.Seek(0, SeekOrigin.Begin);
-            Task<bool> IsCompatibleTask = s.CheckAsync(Stream);
-            IsCompatibleTask.Wait();
-            Assert.IsTrue(IsCompatibleTask.Result);
+        Stream0.Seek(0, SeekOrigin.Begin);
+        TestInserters1 Test1Copy = (TestInserters1)s.Deserialize(Stream0);
+    }
 
-            Stream.Seek(0, SeekOrigin.Begin);
-            TestInserters0 test0Copy = (TestInserters0)s.Deserialize(Stream);
+    [Test]
+    public static void BigString()
+    {
+        Serializer s = new Serializer();
+        s.Format = SerializationFormat.TextOnly;
 
-            Assert.AreEqual(1, test0Copy.TestArray.Length);
-            Assert.AreEqual(1, test0Copy.TestArray[0]);
-            Assert.AreEqual(1, test0Copy.TestList.Count);
-            Assert.AreEqual(2, test0Copy.TestList[0]);
-            Assert.AreEqual(1, test0Copy.TestSet.Count);
-            Assert.AreEqual(3, test0Copy.TestSet.Min);
-            Assert.AreEqual(3, test0Copy.TestSet.Max);
-            Assert.AreEqual(0, test0Copy.TestStrings.Count);
-        }
+        TestInserters1 test1 = new TestInserters1();
 
-        [Test]
-        public static void BasicText()
-        {
-            Serializer s = new Serializer();
-            s.Format = SerializationFormat.TextOnly;
+        StringBuilder Builder = new();
+        for (int i = 0; i < 10000; i++)
+            Builder.Append("0123456789");
 
-            Assert.AreEqual(3, s.BuiltInInserters.Count);
-            Assert.AreEqual("For arrays of any type (declared with the [] syntax)", s.BuiltInInserters[0].Description);
-            Assert.AreEqual("For collections supporting both the IList and IList<T> interface", s.BuiltInInserters[1].Description);
-            Assert.AreEqual("For generic types with an Add() method", s.BuiltInInserters[2].Description);
+        test1.TestString = Builder.ToString();
 
-            TestInserters0 test0 = new TestInserters0();
-            test0.TestArray = new int[1];
-            test0.TestArray[0] = 1;
-            test0.TestList = new List<int>();
-            test0.TestList.Add(2);
-            test0.TestList.Add(4);
-            test0.TestSet = new SortedSet<int>();
-            test0.TestSet.Add(3);
-            test0.TestStrings.Add("*");
-            test0.Self = test0;
+        MemoryStream Stream0 = new MemoryStream();
+        s.Serialize(Stream0, test1);
 
-            MemoryStream Stream = new MemoryStream();
-            using (StreamWriter Writer = new StreamWriter(Stream, Encoding.UTF8, 128, true))
-            {
-                Writer.Write("");
-            }
+        Stream0.Seek(0, SeekOrigin.Begin);
+        TestInserters1 Test1Copy = (TestInserters1)s.Deserialize(Stream0);
+    }
 
-            s.Serialize(Stream, test0);
+    [Test]
+    public static void LongList()
+    {
+        Serializer s = new Serializer();
 
-            Stream.Seek(0, SeekOrigin.Begin);
-            bool IsCompatible = s.Check(Stream);
-            Assert.IsTrue(IsCompatible);
+        TestInserters2 test2 = new TestInserters2();
+        test2.TestList = new ExtraList<int>(1);
 
-            Stream.Seek(0, SeekOrigin.Begin);
-            Task<bool> IsCompatibleTask = s.CheckAsync(Stream);
-            IsCompatibleTask.Wait();
-            Assert.IsTrue(IsCompatibleTask.Result);
+        MemoryStream Stream2 = new MemoryStream();
+        s.Serialize(Stream2, test2);
 
-            Stream.Seek(0, SeekOrigin.Begin);
-            TestInserters0 test0Copy = (TestInserters0)s.Deserialize(Stream);
+        Stream2.Seek(0, SeekOrigin.Begin);
+        bool IsCompatible = s.Check(Stream2);
+        Assert.IsTrue(IsCompatible);
 
-            Assert.AreEqual(1, test0Copy.TestArray.Length);
-            Assert.AreEqual(1, test0Copy.TestArray[0]);
-            Assert.AreEqual(2, test0Copy.TestList.Count);
-            Assert.AreEqual(2, test0Copy.TestList[0]);
-            Assert.AreEqual(4, test0Copy.TestList[1]);
-            Assert.AreEqual(1, test0Copy.TestSet.Count);
-            Assert.AreEqual(3, test0Copy.TestSet.Min);
-            Assert.AreEqual(3, test0Copy.TestSet.Max);
-            Assert.AreEqual(0, test0Copy.TestStrings.Count);
-        }
+        Stream2.Seek(0, SeekOrigin.Begin);
+        TestInserters2 Test2Copy = (TestInserters2)s.Deserialize(Stream2);
+    }
 
-        [Test]
-        public static void BasicTextBadNull()
-        {
-            Serializer s = new Serializer();
-            s.Format = SerializationFormat.TextOnly;
+    [Test]
+    public static void LongInserterList()
+    {
+        Serializer s = new Serializer();
+        s.Format = SerializationFormat.TextOnly;
 
-            TestInserters0 test0 = new TestInserters0();
-            test0.TestArray = new int[1];
-            test0.TestArray[0] = 1;
-            test0.TestList = new List<int>();
-            test0.TestList.Add(2);
-            test0.TestList.Add(4);
-            test0.TestSet = new SortedSet<int>();
-            test0.TestSet.Add(3);
-            test0.TestStrings.Add("*");
-            test0.Self = null;
+        ExtraList<TestInserters0> TestList = new();
 
-            MemoryStream Stream = new MemoryStream();
-            using (StreamWriter Writer = new StreamWriter(Stream, Encoding.UTF8, 128, true))
-            {
-                Writer.Write("");
-            }
+        for (int i = 0; i < 90; i++)
+            TestList.Add(new TestInserters0());
 
-            s.Serialize(Stream, test0);
+        MemoryStream Stream2 = new MemoryStream();
+        s.Serialize(Stream2, TestList);
 
-            Stream.Seek(116, SeekOrigin.Begin);
+        Stream2.Seek(0, SeekOrigin.Begin);
 
-            using (BinaryWriter Writer = new BinaryWriter(Stream, Encoding.ASCII, true))
-            {
-                Writer.Write(new byte[] { 0xDB} );
-            }
-
-            Stream.Seek(0, SeekOrigin.Begin);
-            bool IsCompatible = s.Check(Stream);
-
-            Assert.IsFalse(IsCompatible);
-        }
-
-        [Test]
-        public static void BigObject()
-        {
-            Serializer s = new Serializer();
-
-            TestInserters1 test1 = new TestInserters1();
-
-            StringBuilder Builder = new();
-            for (int i = 0; i < 10000; i++)
-                Builder.Append("0123456789");
-
-            test1.TestString = Builder.ToString();
-
-            MemoryStream Stream0 = new MemoryStream();
-            s.Serialize(Stream0, test1);
-
-            Stream0.Seek(0, SeekOrigin.Begin);
-            TestInserters1 Test1Copy = (TestInserters1)s.Deserialize(Stream0);
-        }
-
-        [Test]
-        public static void BigString()
-        {
-            Serializer s = new Serializer();
-            s.Format = SerializationFormat.TextOnly;
-
-            TestInserters1 test1 = new TestInserters1();
-
-            StringBuilder Builder = new();
-            for (int i = 0; i < 10000; i++)
-                Builder.Append("0123456789");
-
-            test1.TestString = Builder.ToString();
-
-            MemoryStream Stream0 = new MemoryStream();
-            s.Serialize(Stream0, test1);
-
-            Stream0.Seek(0, SeekOrigin.Begin);
-            TestInserters1 Test1Copy = (TestInserters1)s.Deserialize(Stream0);
-        }
-
-        [Test]
-        public static void LongList()
-        {
-            Serializer s = new Serializer();
-
-            TestInserters2 test2 = new TestInserters2();
-            test2.TestList = new ExtraList<int>(1);
-
-            MemoryStream Stream2 = new MemoryStream();
-            s.Serialize(Stream2, test2);
-
-            Stream2.Seek(0, SeekOrigin.Begin);
-            bool IsCompatible = s.Check(Stream2);
-            Assert.IsTrue(IsCompatible);
-
-            Stream2.Seek(0, SeekOrigin.Begin);
-            TestInserters2 Test2Copy = (TestInserters2)s.Deserialize(Stream2);
-        }
-
-        [Test]
-        public static void LongInserterList()
-        {
-            Serializer s = new Serializer();
-            s.Format = SerializationFormat.TextOnly;
-
-            ExtraList<TestInserters0> TestList = new();
-
-            for (int i = 0; i < 90; i++)
-                TestList.Add(new TestInserters0());
-
-            MemoryStream Stream2 = new MemoryStream();
-            s.Serialize(Stream2, TestList);
-
-            Stream2.Seek(0, SeekOrigin.Begin);
-
-            Stream2.Seek(0, SeekOrigin.Begin);
-            ExtraList<TestInserters0> TestListCopy = (ExtraList<TestInserters0>)s.Deserialize(Stream2);
-        }
+        Stream2.Seek(0, SeekOrigin.Begin);
+        ExtraList<TestInserters0> TestListCopy = (ExtraList<TestInserters0>)s.Deserialize(Stream2);
     }
 }

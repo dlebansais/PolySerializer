@@ -1,116 +1,115 @@
-﻿namespace PolySerializer
+﻿namespace PolySerializer;
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
+using Contracts;
+
+/// <summary>
+/// Inserter for lists.
+/// </summary>
+public class ListInserter : IInserter
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using Contracts;
+    /// <summary>
+    /// Gets the description of the set of collections supported.
+    /// </summary>
+    public string Description { get { return "For collections supporting both the IList and IList<T> interface"; } }
 
     /// <summary>
-    /// Inserter for lists.
+    /// Gets the list to which items will be added.
     /// </summary>
-    public class ListInserter : IInserter
+    public IList Reference { get; private set; } = null!;
+
+    /// <summary>
+    /// Checks if <paramref name="reference"/> with base type <paramref name="referenceType"/> can be handled by this inserter.
+    /// If so, the saves the reference for future calls to <see cref="AddItem"/> and returns the type of items for this collection.
+    /// </summary>
+    /// <param name="reference">The collection to check.</param>
+    /// <param name="referenceType">The collection base type.</param>
+    /// <param name="itemType">The type of items in the collection.</param>
+    /// <returns>True if the inserter can handle the collection, false otherwise.</returns>
+    public bool TrySetReference(object reference, Type referenceType, out Type itemType)
     {
-        /// <summary>
-        /// Gets the description of the set of collections supported.
-        /// </summary>
-        public string Description { get { return "For collections supporting both the IList and IList<T> interface"; } }
+        Contract.RequireNotNull(referenceType, out Type ReferenceType);
 
-        /// <summary>
-        /// Gets the list to which items will be added.
-        /// </summary>
-        public IList Reference { get; private set; } = null!;
+        if (reference is IList AsIList)
+            return TrySetListReference(AsIList, ReferenceType, out itemType);
 
-        /// <summary>
-        /// Checks if <paramref name="reference"/> with base type <paramref name="referenceType"/> can be handled by this inserter.
-        /// If so, the saves the reference for future calls to <see cref="AddItem"/> and returns the type of items for this collection.
-        /// </summary>
-        /// <param name="reference">The collection to check.</param>
-        /// <param name="referenceType">The collection base type.</param>
-        /// <param name="itemType">The type of items in the collection.</param>
-        /// <returns>True if the inserter can handle the collection, false otherwise.</returns>
-        public bool TrySetReference(object reference, Type referenceType, out Type itemType)
-        {
-            Contract.RequireNotNull(referenceType, out Type ReferenceType);
+        Contract.Unused(out itemType);
+        return false;
+    }
 
-            if (reference is IList AsIList)
-                return TrySetListReference(AsIList, ReferenceType, out itemType);
+    private bool TrySetListReference(IList listReference, Type referenceType, out Type itemType)
+    {
+        foreach (Type Interface in referenceType.GetInterfaces())
+            if (Interface.IsGenericType)
+                if (Interface.GetGenericTypeDefinition() == typeof(IList<>))
+                {
+                    SetGenericListReference(listReference, Interface, out itemType);
+                    return true;
+                }
 
-            Contract.Unused(out itemType);
-            return false;
-        }
+        Contract.Unused(out itemType);
+        return false;
+    }
 
-        private bool TrySetListReference(IList listReference, Type referenceType, out Type itemType)
-        {
-            foreach (Type Interface in referenceType.GetInterfaces())
-                if (Interface.IsGenericType)
-                    if (Interface.GetGenericTypeDefinition() == typeof(IList<>))
-                    {
-                        SetGenericListReference(listReference, Interface, out itemType);
-                        return true;
-                    }
+    private void SetGenericListReference(IList listReference, Type interfaceType, out Type itemType)
+    {
+        Debug.Assert(interfaceType.IsGenericType);
+        Debug.Assert(interfaceType.GetGenericTypeDefinition() == typeof(IList<>));
 
-            Contract.Unused(out itemType);
-            return false;
-        }
+        Type[] GenericArguments = interfaceType.GetGenericArguments();
+        Debug.Assert(GenericArguments.Length > 0);
 
-        private void SetGenericListReference(IList listReference, Type interfaceType, out Type itemType)
-        {
-            Debug.Assert(interfaceType.IsGenericType);
-            Debug.Assert(interfaceType.GetGenericTypeDefinition() == typeof(IList<>));
+        Type GenericArgument = GenericArguments[0];
 
-            Type[] GenericArguments = interfaceType.GetGenericArguments();
-            Debug.Assert(GenericArguments.Length > 0);
+        Reference = listReference;
+        itemType = GenericArgument;
+    }
 
-            Type GenericArgument = GenericArguments[0];
+    /// <summary>
+    /// Checks if base type <paramref name="referenceType"/> can be handled by this inserter.
+    /// If so, returns the type of items for this collection.
+    /// </summary>
+    /// <param name="referenceType">The collection base type.</param>
+    /// <param name="itemType">The type of items in the collection.</param>
+    /// <returns>True if the inserter can handle the collection type, false otherwise.</returns>
+    public bool TryMatchType(Type referenceType, out Type itemType)
+    {
+        Contract.RequireNotNull(referenceType, out Type ReferenceType);
 
-            Reference = listReference;
-            itemType = GenericArgument;
-        }
+        foreach (Type Interface in ReferenceType.GetInterfaces())
+            if (Interface.IsGenericType)
+                if (Interface.GetGenericTypeDefinition() == typeof(IList<>))
+                {
+                    MatchGenericType(Interface, out itemType);
+                    return true;
+                }
 
-        /// <summary>
-        /// Checks if base type <paramref name="referenceType"/> can be handled by this inserter.
-        /// If so, returns the type of items for this collection.
-        /// </summary>
-        /// <param name="referenceType">The collection base type.</param>
-        /// <param name="itemType">The type of items in the collection.</param>
-        /// <returns>True if the inserter can handle the collection type, false otherwise.</returns>
-        public bool TryMatchType(Type referenceType, out Type itemType)
-        {
-            Contract.RequireNotNull(referenceType, out Type ReferenceType);
+        Contract.Unused(out itemType);
+        return false;
+    }
 
-            foreach (Type Interface in ReferenceType.GetInterfaces())
-                if (Interface.IsGenericType)
-                    if (Interface.GetGenericTypeDefinition() == typeof(IList<>))
-                    {
-                        MatchGenericType(Interface, out itemType);
-                        return true;
-                    }
+    private void MatchGenericType(Type interfaceType, out Type itemType)
+    {
+        Debug.Assert(interfaceType.IsGenericType);
+        Debug.Assert(interfaceType.GetGenericTypeDefinition() == typeof(IList<>));
 
-            Contract.Unused(out itemType);
-            return false;
-        }
+        Type[] GenericArguments = interfaceType.GetGenericArguments();
+        Debug.Assert(GenericArguments.Length > 0);
 
-        private void MatchGenericType(Type interfaceType, out Type itemType)
-        {
-            Debug.Assert(interfaceType.IsGenericType);
-            Debug.Assert(interfaceType.GetGenericTypeDefinition() == typeof(IList<>));
+        Type GenericArgument = GenericArguments[0];
 
-            Type[] GenericArguments = interfaceType.GetGenericArguments();
-            Debug.Assert(GenericArguments.Length > 0);
+        itemType = GenericArgument;
+    }
 
-            Type GenericArgument = GenericArguments[0];
-
-            itemType = GenericArgument;
-        }
-
-        /// <summary>
-        /// Adds an item to the collection passed to <see cref="TrySetReference"/>.
-        /// </summary>
-        /// <param name="item">The item to add.</param>
-        public void AddItem(object? item)
-        {
-            Reference.Add(item);
-        }
+    /// <summary>
+    /// Adds an item to the collection passed to <see cref="TrySetReference"/>.
+    /// </summary>
+    /// <param name="item">The item to add.</param>
+    public void AddItem(object? item)
+    {
+        Reference.Add(item);
     }
 }

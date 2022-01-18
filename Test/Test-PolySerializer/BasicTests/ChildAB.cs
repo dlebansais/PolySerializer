@@ -1,6 +1,5 @@
-﻿namespace Test
+﻿namespace Test;
+
+public class ChildAB : ParentA
 {
-    public class ChildAB : ParentA
-    {
-    }
 }
