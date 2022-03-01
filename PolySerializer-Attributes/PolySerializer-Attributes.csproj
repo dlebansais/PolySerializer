@@ -13,7 +13,7 @@
     <Product />
     <Description>Generic .NET serializer attributes</Description>
     <Copyright>Copyright © 2019 David Le Bansais</Copyright>
-    <AssemblyVersion>1.2.11.244</AssemblyVersion>
+    <AssemblyVersion>1.2.11.249</AssemblyVersion>
     <FileVersion>1.2.11.153</FileVersion>
     <RepositoryUrl>https://github.com/dlebansais/PolySerializer</RepositoryUrl>
     <NeutralLanguage>en-US</NeutralLanguage>

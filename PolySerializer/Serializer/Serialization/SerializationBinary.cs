@@ -61,8 +61,9 @@ public partial class Serializer : ISerializer
         {
             if (Member.Condition.HasValue)
             {
-                AddFieldBool_BINARY(ref data, ref offset, Member.Condition.Value);
-                if (!Member.Condition.Value)
+                bool ConditionValue = Member.Condition.Value;
+                AddFieldBool_BINARY(ref data, ref offset, ConditionValue);
+                if (!ConditionValue)
                     continue;
             }
 
